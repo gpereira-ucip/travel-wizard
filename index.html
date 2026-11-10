@@ -1,0 +1,1678 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213d">
+<title>Travel Wizard</title>
+<link rel="icon" id="favIcon" type="image/svg+xml" href="data:,">
+<link rel="apple-touch-icon" id="touchIcon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#14213d; --night2:#1f3160; --gold:#e0a84f; --gold2:#f4d38f; --coral:#e76f51; --teal:#2a9d8f;
+  --bg:#faf7f2; --bg2:#f2ece1; --card:#ffffff; --ink:#1f2933; --muted:#607080; --line:#e6dfd3;
+  --ok:#2a9d8f; --warn:#d98a1f; --bad:#c8553d;
+  --r1:10px; --r2:18px; --r3:26px;
+  --sh1:0 4px 14px rgba(20,33,61,.06); --sh2:0 12px 32px rgba(20,33,61,.12);
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+[data-theme=dark]{
+  --bg:#0e1525; --bg2:#152038; --card:#18233b; --ink:#eef1f6; --muted:#9aa7bb; --line:#26344f;
+  --sh1:0 4px 14px rgba(0,0,0,.3); --sh2:0 12px 32px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .3s,color .3s}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--teal)}
+.wrap{max-width:780px;margin:0 auto;padding:0 18px}
+.hidden{display:none!important}
+.serif{font-family:var(--serif)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:40;padding-top:var(--safe-t);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:.2px;font-size:17px;background:none;border:0;padding:0}
+.brand svg{width:32px;height:32px;filter:drop-shadow(0 2px 6px rgba(20,33,61,.25))}
+[data-theme=dark] .brand .lg-disc{fill:#1f3160}
+[data-theme=dark] .brand .lg-ring{opacity:1}
+.twlogo .lg-needle{transform-box:view-box;transform-origin:50% 50%}
+.brand:hover .lg-needle{animation:wobble 1.2s ease-in-out}
+@keyframes wobble{0%,100%{transform:rotate(0)}30%{transform:rotate(-14deg)}60%{transform:rotate(8deg)}}
+/* portada animada (mejora 8) */
+.stars .tw{animation:twinkle 3.2s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:1}}
+.shoot{position:absolute;top:18%;left:-20%;width:120px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);opacity:0;transform:rotate(-18deg);animation:shoot 9s ease-in 2.5s infinite;pointer-events:none}
+@keyframes shoot{0%{opacity:0;transform:translate(0,0) rotate(-18deg)}2%{opacity:1}9%{opacity:0;transform:translate(520px,-170px) rotate(-18deg)}100%{opacity:0;transform:translate(520px,-170px) rotate(-18deg)}}
+.hero-logo{position:absolute;top:22px;right:16px;width:92px;height:92px;opacity:.95;filter:drop-shadow(0 10px 24px rgba(0,0,0,.35));animation:logoIn 1.4s cubic-bezier(.2,.8,.2,1) both}
+.hero-logo .lg-needle{animation:needleIn 2.2s cubic-bezier(.3,1.5,.4,1) .2s both}
+@keyframes logoIn{from{opacity:0;transform:scale(.6) rotate(-40deg)}to{opacity:.95;transform:none}}
+@keyframes needleIn{from{transform:rotate(-540deg)}to{transform:rotate(0)}}
+.hero .wrap>.eyebrow,.hero h1,.hero .wrap>p{position:relative}
+.hero h1,.hero .wrap>p,.hero .wrap>.eyebrow{padding-right:0}
+@media (max-width:640px){.hero-logo{width:54px;height:54px;top:-36px;right:14px}}
+@media (min-width:900px){.hero-logo{width:124px;height:124px;top:6px}}
+.nextfeat{position:relative;display:block;width:100%;margin:22px 0 4px;border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;min-height:150px;padding:0;text-align:left;color:#fff;background:linear-gradient(135deg,#1f3160,#2a9d8f);background-size:cover;background-position:center;box-shadow:0 14px 34px rgba(0,0,0,.35);animation:riseIn .6s .1s both}
+.nextfeat::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,16,35,.05) 10%,rgba(10,16,35,.88))}
+.nextfeat .nf{position:relative;display:flex;align-items:flex-end;gap:14px;padding:16px;min-height:150px}
+.nextfeat .nf-cd{flex:none;width:72px;height:72px;border-radius:18px;background:rgba(20,33,61,.72);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;border:1px solid rgba(244,211,143,.4)}
+.nextfeat .nf-cd b{font-family:var(--serif);font-size:32px;color:var(--gold2)}
+.nextfeat .nf-cd span{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#c9d3e6;margin-top:3px}
+.nextfeat i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold2)}
+.nextfeat h3{font-family:var(--serif);font-size:26px;line-height:1.05;margin:2px 0 3px;font-weight:600}
+.nextfeat small{color:#dfe6f2;font-size:12px}
+.nextfeat .nf-go{position:absolute;top:12px;right:12px;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 10px}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* pantalla de carga del mago (mejora 9) */
+.gcomp{width:132px;height:132px;position:relative}
+.gcomp::before{content:"";position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold) 35%,transparent),transparent 70%);animation:pulse 2.4s ease-in-out infinite}
+.gcomp svg{position:relative;width:100%;height:100%}
+.gcomp .lg-needle{animation:seek 3.2s cubic-bezier(.45,0,.2,1) infinite}
+@keyframes seek{0%{transform:rotate(0)}35%{transform:rotate(200deg)}55%{transform:rotate(160deg)}75%{transform:rotate(370deg)}100%{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.08);opacity:1}}
+.gen h2{font-family:var(--serif);font-size:30px;line-height:1.1;margin:0;font-weight:600}
+.gbar{width:100%;max-width:340px;height:8px;border-radius:8px;background:var(--bg2);overflow:hidden}
+.gbar i{display:block;height:100%;width:4%;border-radius:8px;background:linear-gradient(90deg,var(--gold),var(--coral));transition:width .6s ease}
+.gfact{width:100%;max-width:420px;min-height:132px;border-radius:var(--r2);padding:16px 18px;text-align:left;position:relative;overflow:hidden;color:#fff;background:linear-gradient(140deg,var(--night),var(--night2));background-size:cover;background-position:center;box-shadow:var(--sh2)}
+.gfact::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,16,35,.35),rgba(10,16,35,.9))}
+.gfact>*{position:relative}
+.gfact .gk{font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold2)}
+.gfact p{margin:6px 0 4px;font-size:15px;line-height:1.45;transition:opacity .35s}
+.gfact small{font-size:11px;color:#c9d3e6}
+.gfact.fade p,.gfact.fade small{opacity:0}
+@media (prefers-reduced-motion:reduce){.stars .tw,.shoot,.hero-logo,.hero-logo .lg-needle,.nextfeat,.gcomp::before,.gcomp .lg-needle,.brand:hover .lg-needle{animation:none!important}.shoot{display:none}}
+.brand span b{color:var(--gold)}
+.iconbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:18px}
+/* theme switch */
+.switch{position:relative;width:54px;height:30px;border-radius:30px;border:1px solid var(--line);background:var(--bg2);padding:0}
+.switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--gold);transition:transform .3s;display:grid;place-items:center;font-style:normal;font-size:12px}
+[data-theme=dark] .switch i{transform:translateX(24px);background:var(--night2)}
+
+/* home */
+.hero{position:relative;border-radius:0 0 var(--r3) var(--r3);overflow:hidden;background:radial-gradient(1200px 400px at 80% -10%,#3b5998 0%,transparent 60%),linear-gradient(160deg,var(--night) 0%,#0b1430 100%);color:#fff;padding:46px 0 40px}
+.hero .stars{position:absolute;inset:0;opacity:.6;pointer-events:none}
+.hero h1{font-family:var(--serif);font-size:44px;line-height:1.05;margin:6px 0 10px;font-weight:600}
+.hero h1 em{color:var(--gold2)}
+.hero p{color:#c9d3e6;max-width:520px;margin:0 0 22px}
+.eyebrow{text-transform:uppercase;letter-spacing:2.4px;font-size:11px;font-weight:700;color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:13px 20px;font-weight:700;background:var(--gold);color:#1b1b1b;box-shadow:var(--sh1);transition:transform .12s,filter .2s;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);box-shadow:none}
+.btn.dark{background:var(--night);color:#fff}
+[data-theme=dark] .btn.dark{background:var(--night2)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:11px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;pointer-events:none}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
+.feat div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px;font-size:12px;color:#dfe6f3}
+.feat b{display:block;font-size:18px}
+h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--sh1)}
+.tripcard{display:flex;gap:14px;padding:14px;margin-bottom:12px;align-items:center;cursor:pointer}
+.tripcard .ph{width:64px;height:64px;border-radius:14px;flex:none;background:linear-gradient(135deg,var(--night2),var(--teal));display:grid;place-items:center;font-size:28px;background-size:cover;background-position:center}
+.tripcard h3{margin:0;font-size:16px}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+
+/* wizard */
+.wz{min-height:calc(100vh - 58px);display:flex;flex-direction:column}
+.prog{height:5px;background:var(--bg2);border-radius:5px;overflow:hidden;margin:16px 0 4px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--coral));transition:width .35s}
+.stepn{font-size:12px;color:var(--muted);font-weight:600}
+.wz h2{font-family:var(--serif);font-size:32px;line-height:1.1;margin:10px 0 4px;font-weight:600}
+.wz .lead{color:var(--muted);margin:0 0 18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.inp{width:100%;padding:13px 14px;border-radius:13px;border:1px solid var(--line);background:var(--card);outline:none;font-size:16px}
+.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent)}
+.sugg{position:relative}
+.sugg ul{position:absolute;left:0;right:0;top:100%;margin:4px 0 0;padding:6px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh2);z-index:30;max-height:260px;overflow:auto}
+.sugg li{padding:10px 10px;border-radius:9px;cursor:pointer}
+.sugg li:hover,.sugg li.on{background:var(--bg2)}
+.stop{display:flex;align-items:center;gap:10px;padding:12px 12px;margin-bottom:8px}
+.stop .num{width:28px;height:28px;border-radius:50%;background:var(--night);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);font-weight:800}
+.stepper b{min-width:22px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:9px 14px;font-weight:600;font-size:14px;transition:transform .1s;user-select:none}
+.chip.on{background:var(--night);border-color:var(--night);color:#fff}
+[data-theme=dark] .chip.on{background:var(--gold);border-color:var(--gold);color:#1b1b1b}
+.chip.lg{padding:12px 16px;font-size:15px}
+.trav{display:flex;gap:8px;align-items:center;padding:10px;margin-bottom:8px;flex-wrap:wrap}
+.trav input{flex:1;min-width:120px}
+.trav select{padding:10px;border-radius:11px;border:1px solid var(--line);background:var(--bg2)}
+.x{border:0;background:none;color:var(--muted);font-size:20px;width:34px;height:34px}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.level{padding:14px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);text-align:left}
+.level.on{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent)}
+.level b{display:block;font-size:16px}
+.level span{font-size:12px;color:var(--muted)}
+.wznav{position:sticky;bottom:0;padding:14px 0 calc(14px + var(--safe-b));margin-top:auto;display:flex;gap:10px;background:linear-gradient(transparent,var(--bg) 30%)}
+.note{font-size:13px;color:var(--muted);background:var(--bg2);border-radius:12px;padding:10px 12px;margin:10px 0}
+
+/* generating */
+.gen{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px}
+.orb{width:110px;height:110px;border-radius:50%;background:conic-gradient(var(--gold),var(--coral),var(--teal),var(--night2),var(--gold));animation:spin 2.2s linear infinite;display:grid;place-items:center}
+.orb::after{content:"";width:86px;height:86px;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.genlog{list-style:none;padding:0;margin:0;font-size:14px;color:var(--muted);text-align:left}
+.genlog li{padding:3px 0}
+.genlog li.ok::before{content:"✓ ";color:var(--ok);font-weight:800}
+.genlog li.run::before{content:"… ";color:var(--gold);font-weight:800}
+
+/* trip */
+.thero{position:relative;min-height:230px;color:#fff;display:flex;align-items:flex-end;background:linear-gradient(160deg,var(--night),#0b1430);background-size:cover;background-position:center;border-radius:0 0 var(--r3) var(--r3);overflow:hidden}
+.thero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,16,35,.15),rgba(10,16,35,.85))}
+.thero .wrap{position:relative;width:100%;padding-bottom:20px;padding-top:30px}
+.thero h1{font-family:var(--serif);font-size:38px;line-height:1.05;margin:4px 0 8px;font-weight:600}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-top:1px solid var(--line);padding-bottom:var(--safe-b);box-shadow:0 -6px 20px rgba(0,0,0,.06)}
+.tabs .wrap{display:grid;grid-template-columns:repeat(5,1fr);padding:0 4px}
+.tab{border:0;background:none;padding:8px 2px 9px;font-size:11px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+.tab .ic{font-size:20px;line-height:1}
+.tab.on{color:var(--ink)}
+.tab.on::before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.tab .badge{position:absolute;top:4px;right:calc(50% - 22px);background:var(--coral);color:#fff;font-size:10px;border-radius:9px;padding:0 5px;min-width:16px}
+.page{padding-bottom:110px}
+.wx{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.wx::-webkit-scrollbar{display:none}
+.wxd{flex:none;width:76px;text-align:center;padding:10px 6px;border-radius:14px;background:var(--card);border:1px solid var(--line);font-size:12px}
+.wxd .e{font-size:24px}
+.wxd b{display:block;font-size:14px}
+#map{height:260px;border-radius:var(--r2);overflow:hidden;border:1px solid var(--line);margin:8px 0 6px;z-index:1}
+.day{margin:18px 0;overflow:hidden}
+.dayh{display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(90deg,color-mix(in srgb,var(--night) 92%,transparent),color-mix(in srgb,var(--night2) 92%,transparent));color:#fff}
+.dayh .dn{font-family:var(--serif);font-size:30px;font-weight:700;line-height:1;color:var(--gold2)}
+.dayh h3{margin:0;font-size:16px}
+.dayh .w{margin-left:auto;text-align:right;font-size:12px;opacity:.95}
+.dayh .w b{font-size:18px}
+.items{padding:6px 12px 12px}
+.it{display:flex;gap:12px;padding:12px 4px;border-bottom:1px dashed var(--line);align-items:flex-start}
+.it:last-child{border-bottom:0}
+.it .tm{width:46px;flex:none;font-weight:800;font-size:13px;color:var(--muted);padding-top:2px}
+.it .im{width:74px;height:74px;flex:none;border-radius:12px;background:var(--bg2);display:grid;place-items:center;font-size:30px;background-size:cover;background-position:center}
+.it h4{margin:0 0 2px;font-size:15px;line-height:1.3}
+.it p{margin:2px 0 6px;font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.it.done h4{text-decoration:line-through;opacity:.6}
+.tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg2);color:var(--muted)}
+.tag.cost{background:color-mix(in srgb,var(--teal) 15%,transparent);color:var(--teal)}
+.tag.rsv{background:color-mix(in srgb,var(--coral) 16%,transparent);color:var(--coral)}
+.acts{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.acts button,.acts a{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:4px 9px;font-size:12px;font-weight:600;text-decoration:none;color:var(--ink)}
+.it.bkit{background:color-mix(in srgb,var(--coral) 6%,transparent);border-radius:12px;border-bottom:0;margin:4px 0}
+.it.travel{background:color-mix(in srgb,var(--teal) 7%,transparent);border-radius:12px;border-bottom:0;margin:4px 0}
+.srcnote{font-size:12px;color:var(--muted);margin:6px 0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.list{padding:4px 14px}
+.bk{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.bk:last-child{border-bottom:0}
+.bk .ico{width:44px;height:44px;border-radius:12px;background:var(--bg2);display:grid;place-items:center;font-size:22px;flex:none}
+.bk h4{margin:0;font-size:15px}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+.links a{display:flex;align-items:center;gap:8px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:600;font-size:13px;background:var(--bg)}
+.subh{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:18px 0 8px}
+.al{display:flex;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:flex-start}
+.al:last-child{border-bottom:0}
+.al .when{width:64px;flex:none;text-align:center;font-size:11px;font-weight:700;color:var(--muted)}
+.al .when b{display:block;font-size:20px;color:var(--ink);font-family:var(--serif)}
+.al.past{opacity:.45}
+.al.soon .when b{color:var(--coral)}
+.pk h3{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
+.pk{padding:14px;margin-bottom:12px}
+.bar{height:7px;background:var(--bg2);border-radius:7px;overflow:hidden;margin:8px 0 10px}
+.bar i{display:block;height:100%;background:var(--teal);transition:width .3s}
+.ck{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.ck:last-child{border-bottom:0}
+.ck input{width:20px;height:20px;accent-color:var(--teal);flex:none}
+.ck.on span{text-decoration:line-through;color:var(--muted)}
+.ck .why{margin-left:auto;font-size:11px;color:var(--muted);text-align:right}
+.money{padding:16px}
+.big{font-family:var(--serif);font-size:40px;font-weight:700;line-height:1}
+.brk{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;margin-top:12px}
+.stack{display:flex;height:12px;border-radius:7px;overflow:hidden;margin:12px 0}
+.modal{position:fixed;inset:0;z-index:100;background:rgba(8,12,24,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + var(--safe-b))}
+.sheet h3{font-family:var(--serif);font-size:26px;margin:0 0 12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--night);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:200;box-shadow:var(--sh2);max-width:90vw}
+.foot{text-align:center;font-size:12px;color:var(--muted);padding:26px 0 40px}
+.foot a,.linkbtn{color:var(--muted);font-weight:700;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;font-size:12px}
+.ideas{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;margin:0 -2px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.ideas::-webkit-scrollbar{display:none}
+.idea{flex:none;width:150px;scroll-snap-align:start;border:0;border-radius:18px;padding:14px 12px;text-align:left;color:#fff;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;box-shadow:var(--sh1);position:relative;overflow:hidden}
+.idea .ie{position:absolute;top:10px;right:10px;font-size:34px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+.idea b{font-size:15px;line-height:1.2}
+.idea span{font-size:11px;opacity:.9}
+.idea i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.85}
+.when-pill{display:inline-block;margin-top:5px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--ink)}
+.when-pill.now{background:var(--coral);color:#fff}
+.when-pill.past{background:var(--bg2);color:var(--muted)}
+.tripgroup{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:16px 0 8px}
+.sum{margin:16px 0 4px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.sum .cd{width:84px;height:84px;border-radius:22px;background:linear-gradient(150deg,var(--night),var(--night2));color:var(--gold2);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.sum .cd b{font-family:var(--serif);font-size:36px}
+.sum .cd span{font-size:10px;font-weight:700;color:#c9d3e6;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.sum .nx{font-size:13px}
+.sum .nx b{display:block;font-size:15px}
+.kpis{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--bg2);border-radius:14px;padding:10px;border:0;text-align:left;cursor:pointer}
+.kpi b{display:block;font-size:17px}
+.kpi span{font-size:11px;color:var(--muted);font-weight:600}
+.kpi .mini{height:4px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden}
+.kpi .mini i{display:block;height:100%;background:var(--teal)}
+.thero .editbtn{position:absolute;top:14px;right:18px;z-index:2;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:12px;padding:7px 12px;font-weight:700;font-size:13px;backdrop-filter:blur(6px)}
+.spon{position:relative;margin:18px 0;padding:14px 14px 14px 16px;border-radius:var(--r2);background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 14%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--gold) 45%,var(--line));display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--ink)}
+.spon .sl{position:absolute;top:8px;right:12px;font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.spon .se{width:48px;height:48px;border-radius:14px;flex:none;background:var(--night);display:grid;place-items:center;font-size:24px;background-size:cover;background-position:center}
+.spon b{display:block;font-size:15px;padding-right:70px}
+.spon p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.spon .cta{font-weight:800;font-size:12px;color:var(--teal);margin-top:4px;display:inline-block}
+.doc h2{font-family:var(--serif);font-size:30px;margin:26px 0 8px;font-weight:600}
+.doc h3{margin:18px 0 6px;font-size:16px}
+.doc p,.doc li{color:var(--ink);font-size:15px}
+.doc .card{padding:16px;margin:10px 0}
+.ver{border-left:3px solid var(--gold);padding:2px 0 2px 14px;margin:14px 0}
+.ver h3{margin:0 0 4px;font-size:15px}
+.ver ul{margin:4px 0 0;padding-left:18px}
+.ver li{font-size:14px;margin:2px 0}
+.bigprog{height:14px;border-radius:10px;background:var(--bg2);overflow:hidden;margin:10px 0 6px}
+.bigprog i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--coral))}
+.fmts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fmt{padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.fmt b{display:block;margin:4px 0 2px}
+.fmt span{font-size:13px;color:var(--muted)}
+.logos .twlogo{width:76px;height:76px;display:block;margin:4px auto 2px}
+.ed-sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:16px 0 8px}
+@media (min-width:640px){.sheet{border-radius:24px;margin-bottom:5vh}.modal{align-items:center}.hero h1{font-size:58px}}
+@media (max-width:380px){.feat{grid-template-columns:1fr 1fr 1fr}.hero h1{font-size:38px}.it .im{width:60px;height:60px}}
+@media print{.top,.tabs,.acts,.toolbar,#map{display:none!important}.page{padding:0}.day{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <button class="brand" id="goHome" aria-label="Inicio">
+    <span id="brandLogo" style="display:contents"></span>
+    <span>Travel<b>Wizard</b></span>
+  </button>
+  <div class="grow"></div>
+  <button class="switch" id="themeBtn" aria-label="Cambiar tema claro/oscuro"><i>☀️</i></button>
+</div></header>
+
+<main id="app"></main>
+<div id="modalRoot"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Travel Wizard — v0.3 (versión de prueba)
+   Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
+   dentro de Claude (itinerario armado por Claude) o en modo básico.
+   ========================================================= */
+const VERSION = '0.6';
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const uid = () => Math.random().toString(36).slice(2,10);
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* ---------- almacenamiento ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('tw.'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('tw.'+k, JSON.stringify(v)); }catch(e){} }
+};
+const idb = {
+  db:null,
+  async open(){ if(this.db) return this.db; return this.db = await new Promise((res,rej)=>{ try{ const r = indexedDB.open('travelwizard',1); r.onupgradeneeded=()=>r.result.createObjectStore('files'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);}catch(e){rej(e)} }); },
+  async put(id, blob){ const db=await this.open(); return new Promise((res,rej)=>{const t=db.transaction('files','readwrite'); t.objectStore('files').put(blob,id); t.oncomplete=res; t.onerror=()=>rej(t.error);}); },
+  async get(id){ const db=await this.open(); return new Promise((res,rej)=>{const r=db.transaction('files').objectStore('files').get(id); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);}); },
+  async del(id){ try{ const db=await this.open(); db.transaction('files','readwrite').objectStore('files').delete(id);}catch(e){} }
+};
+
+/* ---------- fechas ---------- */
+const D = {
+  parse(s){ const [y,m,d]=s.split('-').map(Number); return new Date(Date.UTC(y,m-1,d)); },
+  fmt(dt){ return dt.toISOString().slice(0,10); },
+  add(s,n){ const d=D.parse(s); d.setUTCDate(d.getUTCDate()+n); return D.fmt(d); },
+  diff(a,b){ return Math.round((D.parse(b)-D.parse(a))/864e5); },
+  today(){ const t=new Date(); return D.fmt(new Date(Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()))); },
+  nice(s, opt={weekday:'short',day:'numeric',month:'short'}){ return D.parse(s).toLocaleDateString('es-AR',{...opt,timeZone:'UTC'}); },
+};
+
+/* ---------- catálogos ---------- */
+const INTERESTS = [
+  ['naturaleza','🌿','Naturaleza'],['shopping','🛍️','Shopping'],['cultura','🎨','Museos y arte'],['historia','🏛️','Historia'],
+  ['gastronomia','🍽️','Gastronomía'],['aventura','🧗','Aventura'],['playa','🏖️','Playa'],['nocturna','🌙','Vida nocturna'],
+  ['relax','🧘','Relax'],['ninos','🧸','Para chicos'],['foto','📸','Miradores y fotos']
+];
+const CAT = Object.fromEntries(INTERESTS.map(([id,e,l])=>[id,{e,l}]));
+CAT.imperdible = {e:'⭐', l:'Imperdible'};
+const AGES = [['adulto','Adulto'],['nino','Niño (3–12)'],['bebe','Bebé (0–2)'],['adolescente','Adolescente'],['mayor','Mayor (65+)']];
+const LEVELS = {
+  mochilero:{l:'Mochilero',d:'Hostels, transporte público, lo gratis',usd:60,max:1,e:'🎒'},
+  moderado:{l:'Moderado',d:'Hotel 3★ o depto, algunas entradas',usd:150,max:2,e:'🧳'},
+  confort:{l:'Confort',d:'Hotel 4★, excursiones, buenos restaurantes',usd:280,max:3,e:'🛎️'},
+  lujo:{l:'Lujo',d:'5★, experiencias privadas',usd:550,max:3,e:'💎'}
+};
+const PACE = {tranquilo:{l:'Tranquilo',n:2},moderado:{l:'Moderado',n:3},intenso:{l:'Intenso',n:4}};
+const COST = ['Gratis','$','$$','$$$'];
+
+/* Inspiración: un toque precarga el asistente (mejora 3) */
+const IDEAS = [
+  {e:'💦', t:'Cataratas del Iguazú', sub:'Selva y saltos · 4 noches', tag:'Naturaleza', bg:'linear-gradient(160deg,#1b4d3e,#38a3a5)', stops:[['Puerto Iguazú',4]], ints:['naturaleza','aventura','foto']},
+  {e:'🏔️', t:'Bariloche', sub:'Lagos y montaña · 5 noches', tag:'Nieve y lagos', bg:'linear-gradient(160deg,#14213d,#4f7cac)', stops:[['San Carlos de Bariloche',5]], ints:['naturaleza','aventura','gastronomia']},
+  {e:'🏰', t:'Praga · Viena · Innsbruck', sub:'Europa central · 9 noches', tag:'Ciudades', bg:'linear-gradient(160deg,#5b2a3c,#c85a32)', stops:[['Praga',4],['Viena',3],['Innsbruck',2]], ints:['historia','cultura','gastronomia']},
+  {e:'🏖️', t:'Río de Janeiro', sub:'Playa y morros · 6 noches', tag:'Playa', bg:'linear-gradient(160deg,#0f6e8c,#e9b44c)', stops:[['Río de Janeiro',6]], ints:['playa','foto','nocturna']},
+  {e:'🎢', t:'Orlando', sub:'Parques con chicos · 7 noches', tag:'Con chicos', bg:'linear-gradient(160deg,#3a0ca3,#f72585)', stops:[['Orlando',7]], ints:['ninos','shopping','aventura']},
+  {e:'🍷', t:'Mendoza', sub:'Bodegas y Andes · 4 noches', tag:'Gastronomía', bg:'linear-gradient(160deg,#5e1f3d,#b5838d)', stops:[['Mendoza',4]], ints:['gastronomia','naturaleza','relax']},
+  {e:'🌵', t:'Salta y Jujuy', sub:'Quebradas y colores · 6 noches', tag:'Norte', bg:'linear-gradient(160deg,#9c4221,#e0a84f)', stops:[['Salta',3],['Purmamarca',3]], ints:['naturaleza','historia','foto']},
+  {e:'🥘', t:'Madrid · Barcelona', sub:'Arte, tapas y mar · 8 noches', tag:'Ciudades', bg:'linear-gradient(160deg,#9d0208,#f48c06)', stops:[['Madrid',4],['Barcelona',4]], ints:['cultura','gastronomia','shopping']},
+];
+
+/* Sponsors (mejoras 21–22). Se cargan acá: {id, brand, title, text, url, cta, emoji, img, where:[home,reservas,valijas,alertas], dest:[...], ints:[...], kids:true/false, from:'YYYY-MM-DD', to:'YYYY-MM-DD'}.
+   Mientras no haya sponsors activos se muestra un aviso propio «Tu marca acá». */
+const SPONSORS = [];
+const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
+
+/* Novedades por versión (mejora 1) */
+const NEWS = [
+  ['0.6','10 nov 2026',['Logo nuevo: brújula de mago en versión clara, oscura e ícono de app (también como favicon). Se puede descargar desde «Para marcas».','Portada animada: estrellas que titilan, estrella fugaz, la brújula que gira al abrir y tu próximo viaje destacado con foto y cuenta regresiva.','Mientras se arma el viaje: el mago muestra el avance paso a paso con datos curiosos del destino (con internet) y consejos de viaje.']],
+  ['0.5','9 nov 2026',['Empieza el plan de 200 mejoras: esta pantalla muestra el avance.','Inicio con ideas de viaje que precargan el asistente y «Mis viajes» con cuenta regresiva.','Resumen del viaje: cuenta regresiva, próximo evento, valijas, reservas y presupuesto.','Editar y duplicar viajes sin rehacerlos.','Espacios para sponsors y página «Para marcas».']],
+  ['0.4','8 nov 2026',['Subir el PDF de la confirmación: se lee solo y queda adjunto.']],
+  ['0.3','7 nov 2026',['Mails con ida y vuelta o varios tramos: una reserva por tramo.']],
+  ['0.2','6 nov 2026',['Pegar el mail de confirmación y que la reserva se complete sola.']],
+  ['0.1','6 nov 2026',['Primera versión: asistente, itinerario con fotos, clima y mapa, reservas, alertas, valijas y presupuesto.']],
+];
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,21,22]};
+const BK = {
+  vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
+  hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
+  entrada:{e:'🎟️',l:'Entrada / excursión'}, seguro:{e:'🛡️',l:'Seguro de viaje'}, otro:{e:'📎',l:'Otro'}
+};
+const TRANSPORT = ['vuelo','tren','bus','barco'];
+const LODGING = ['hotel','airbnb'];
+
+/* ---------- estado ---------- */
+let trips = store.get('trips', []);
+let cur = null;          // viaje abierto
+let tab = 'plan';
+let wz = null;           // borrador del asistente
+let LIVE = null;         // ¿hay red para APIs públicas?
+let SAMPLE = null;       // Claude (solo dentro de claude.ai)
+let DOWNLOADS = null;
+const saveTrips = () => store.set('trips', trips);
+const saveCur = () => { if(!cur) return; const i = trips.findIndex(t=>t.id===cur.id); if(i>=0) trips[i]=cur; else trips.unshift(cur); saveTrips(); };
+
+/* ---------- tema ---------- */
+function setTheme(t){ document.documentElement.dataset.theme=t; $('#themeBtn i').textContent = t==='dark'?'🌙':'☀️'; store.set('theme',t); }
+setTheme(store.get('theme', matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'));
+$('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+$('#goHome').onclick = () => { cur=null; renderHome(); };
+
+function toast(msg, ms=2600){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(), ms); }
+
+/* =========================================================
+   PROVEEDORES DE DATOS
+   ========================================================= */
+async function fetchJSON(url, ms=9000){
+  const c = new AbortController(); const to = setTimeout(()=>c.abort(), ms);
+  try{ const r = await fetch(url,{signal:c.signal}); if(!r.ok) throw new Error('HTTP '+r.status); return await r.json(); }
+  finally{ clearTimeout(to); }
+}
+async function detectLive(){
+  if(LIVE!==null) return LIVE;
+  try{ await fetchJSON('https://geocoding-api.open-meteo.com/v1/search?name=Roma&count=1&language=es', 5000); LIVE=true; }
+  catch(e){ LIVE=false; }
+  return LIVE;
+}
+async function geocode(q){
+  if(!q || q.length<2) return [];
+  const j = await fetchJSON('https://geocoding-api.open-meteo.com/v1/search?count=6&language=es&format=json&name='+encodeURIComponent(q));
+  return (j.results||[]).map(r=>({name:r.name, country:r.country||'', cc:r.country_code||'', admin:r.admin1||'', lat:r.latitude, lon:r.longitude, pop:r.population||0}));
+}
+const _wsCache={};
+function wikiSummary(title, lang='es'){ const k=lang+'|'+title; return _wsCache[k] || (_wsCache[k]=_wikiSummary(title,lang)); }
+async function _wikiSummary(title, lang='es'){
+  try{
+    const j = await fetchJSON(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+    return {img:(j.originalimage||j.thumbnail||{}).source||'', text:j.extract||'', url:(j.content_urls&&j.content_urls.desktop||{}).page||''};
+  }catch(e){ return null; }
+}
+async function wikiNearby(lat, lon, lang='es'){
+  const u = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggscoord=${lat}%7C${lon}&ggsradius=10000&ggslimit=100&prop=pageimages%7Cdescription%7Ccoordinates%7Cinfo&piprop=thumbnail&pithumbsize=400&pilimit=100&colimit=100&inprop=url`;
+  const j = await fetchJSON(u, 12000);
+  return Object.values((j.query||{}).pages||{}).map(p=>({
+    title:p.title, desc:p.description||'', img:(p.thumbnail||{}).source||'', len:p.length||0,
+    lat:(p.coordinates&&p.coordinates[0]||{}).lat, lon:(p.coordinates&&p.coordinates[0]||{}).lon,
+    url:p.fullurl||`https://${lang}.wikipedia.org/wiki/${encodeURIComponent(p.title)}`, lang
+  }));
+}
+async function wikiExtracts(titles, lang='es'){
+  const out={};
+  for(let i=0;i<titles.length;i+=20){
+    const chunk = titles.slice(i,i+20);
+    try{
+      const j = await fetchJSON(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=extracts&exintro=1&explaintext=1&exsentences=2&exlimit=20&titles=${encodeURIComponent(chunk.join('|'))}`);
+      Object.values((j.query||{}).pages||{}).forEach(p=>{ if(p.extract) out[p.title]=p.extract; });
+    }catch(e){}
+  }
+  return out;
+}
+async function weatherFor(stop, start, end){
+  const today = D.today();
+  const daysAhead = D.diff(today, start);
+  const daily = 'weather_code,temperature_2m_max,temperature_2m_min';
+  try{
+    if(daysAhead >= 0 && D.diff(today,end) <= 15){
+      const j = await fetchJSON(`https://api.open-meteo.com/v1/forecast?latitude=${stop.lat}&longitude=${stop.lon}&daily=${daily},precipitation_probability_max,precipitation_sum&timezone=auto&start_date=${start}&end_date=${end}`);
+      return {kind:'pronostico', days:j.daily.time.map((t,i)=>({date:t, code:j.daily.weather_code[i], tmax:j.daily.temperature_2m_max[i], tmin:j.daily.temperature_2m_min[i], rain:j.daily.precipitation_sum[i], prob:(j.daily.precipitation_probability_max||[])[i]}))};
+    }
+    // referencia: mismas fechas del año anterior (o del último año con datos)
+    let back = 1; while(D.diff(D.add(end,-365*back), today) < 6) back++;
+    const s = D.add(start,-365*back), e = D.add(end,-365*back);
+    const j = await fetchJSON(`https://archive-api.open-meteo.com/v1/archive?latitude=${stop.lat}&longitude=${stop.lon}&daily=${daily},precipitation_sum&timezone=auto&start_date=${s}&end_date=${e}`);
+    return {kind:'referencia', days:j.daily.time.map((t,i)=>({date:D.add(t,365*back), code:j.daily.weather_code[i], tmax:j.daily.temperature_2m_max[i], tmin:j.daily.temperature_2m_min[i], rain:j.daily.precipitation_sum[i]}))};
+  }catch(e){ return null; }
+}
+function wxEmoji(c){ if(c==null) return '🌡️'; if(c===0) return '☀️'; if(c<=2) return '🌤️'; if(c===3) return '☁️'; if(c<=48) return '🌫️'; if(c<=67) return '🌧️'; if(c<=77) return '❄️'; if(c<=82) return '🌦️'; if(c<=86) return '🌨️'; return '⛈️'; }
+const isRainy = w => w && ((w.rain!=null && w.rain>=5) || (w.prob!=null && w.prob>=65) || (w.code>=61 && w.code!==71 && w.code!==73 && w.code!==75));
+
+/* ---------- clasificación de lugares ---------- */
+const KW = {
+  playa:['playa','beach','balneario'],
+  ninos:['zoo','zoologico','acuario','aquarium','parque de atracciones','parque tematico','theme park','amusement','planetario','planetarium','museo de ciencia','science museum','museo de los ninos','children','juguete','toy museum','granja'],
+  naturaleza:['parque nacional','parque natural','reserva','jardin','bosque','lago','laguna','cascada','catarata','salto ','montana','cerro','volcan','glaciar','valle','isla','park','garden','lake','waterfall','mountain','forest','nature','parque','rio ','botanic'],
+  cultura:['museo','museum','galeria','gallery','pinacoteca','teatro','theatre','theater','opera','auditorio','sala de conciertos','concert hall','biblioteca','library','centro cultural','arte '],
+  historia:['catedral','cathedral','iglesia','church','basilica','castillo','castle','palacio','palace','monumento','monument','fortaleza','fortress','fuerte','ruinas','ruins','sinagoga','synagogue','mezquita','mosque','templo','temple','abadia','abbey','monasterio','monastery','convento','puente','bridge','torre','tower','plaza','square','memorial','cementerio','cemetery','muralla','historic','historico','arqueolog','archaeolog','barrio','casco antiguo','old town','santuario'],
+  shopping:['mercado','market','centro comercial','shopping','mall','galeria comercial','bazar','bazaar','outlet','calle comercial','grandes almacenes','department store','paseo comercial'],
+  gastronomia:['mercado','market','cerveceria','brewery','bodega','winery','vinedo','restaurante','restaurant','cafe ','gastronom','food hall'],
+  nocturna:['club nocturno','nightclub','casino','cabaret','pub ','opera','teatro','theatre'],
+  aventura:['mirador','sendero','trail','escalada','climbing','rafting','canopy','tirolesa','ski','esqui','trekking','volcan','canon','canyon','glaciar'],
+  foto:['mirador','viewpoint','lookout','observatorio','panoram','torre','tower','puente','bridge']
+};
+const EXCL = ['estacion','station','metro','subte','aeropuerto','airport','hospital','escuela','school','colegio','universidad','university','instituto','empresa','company','hotel','embajada','embassy','ministerio','ministry','oficina','office','edificio de oficinas','persona','politico','futbolista','club de futbol','football club','equipo de','municipio','municipality','localidad','parroquia civil','diocesis','periodico','newspaper','banco ','bank','tribunal','court','autopista','carretera','highway','linea de','sede de','headquarters','partido','district of','distrito de','calle de','street in','avenida de','barrio de','neighbourhood','compania','sociedad','asociacion','fundacion','canal de television','emisora'];
+function classify(p){
+  const t = ' '+norm(p.title+' '+p.desc)+' ';
+  if(EXCL.some(k=>t.includes(k)) && !/museo|museum|catedral|castillo|palacio|mercado|market|parque|zoo|acuario/.test(t)) return null;
+  const cats = Object.keys(KW).filter(c=>KW[c].some(k=>t.includes(k)));
+  if(!cats.length){ if(p.len>25000 && p.img) cats.push('imperdible'); else return null; }
+  let cost = 0;
+  if(/castillo|castle|palacio|palace|torre|tower|zoo|acuario|aquarium|teatro|opera|theatre|parque nacional|bodega|winery/.test(t)) cost=2;
+  else if(/museo|museum|galeria|gallery|planetario|observatorio|abadia|abbey|monasterio/.test(t)) cost=1;
+  if(/parque de atracciones|parque tematico|theme park|amusement|casino|ski|esqui|rafting/.test(t)) cost=3;
+  const indoor = cats.some(c=>['cultura','shopping','gastronomia'].includes(c)) || /museo|museum|acuario|aquarium|catedral|iglesia|church/.test(t);
+  return {cats, cost, indoor};
+}
+/* experiencias genéricas por interés (rellenan lo que no está en Wikipedia) */
+const EXP = {
+  gastronomia:[['Almuerzo de comida típica','Probá el plato emblemático del lugar en un bodegón o restaurante tradicional.',1,'mediodia','comida típica'],['Mercado gastronómico local','Recorré puestos, degustá productos regionales y comprá algo para picar.',0,'manana','mercado gastronómico'],['Clase de cocina o degustación','Una experiencia guiada para aprender recetas locales.',2,'tarde','clase de cocina']],
+  shopping:[['Paseo de compras por la zona comercial','La calle o el barrio comercial más conocido de la ciudad.',0,'tarde','shopping'],['Outlet o centro comercial','Ideal para un día de lluvia o para compras grandes.',0,'tarde','outlet']],
+  nocturna:[['Cena y paseo nocturno','El centro iluminado, una cena tranquila y un bar con vista.',1,'noche','vida nocturna'],['Show o espectáculo en vivo','Música, teatro o un espectáculo típico del lugar.',2,'noche','espectáculo']],
+  relax:[['Tarde libre para descansar','Sin agenda: pileta, siesta o un café largo.',0,'tarde',''],['Spa o termas','Masajes, sauna o aguas termales cercanas.',3,'tarde','spa']],
+  aventura:[['Excursión de aventura','Actividad al aire libre con guía en los alrededores.',3,'tarde','aventura excursión']],
+  naturaleza:[['Excursión a la naturaleza cercana','Un parque natural, reserva o paseo fuera de la ciudad.',2,'manana','naturaleza excursión']],
+  playa:[['Día de playa','Llevá protector solar, agua y sombrilla.',0,'manana','playa']],
+  ninos:[['Plaza o parque con juegos','Un rato libre para que los chicos se descarguen.',0,'tarde','niños']],
+  foto:[['Atardecer en un mirador','La mejor luz del día para las fotos del viaje.',0,'noche','mirador atardecer']],
+  cultura:[['Free walking tour por el centro','Tour a pie guiado (a la gorra) para ubicarte el primer día.',0,'manana','free walking tour']],
+  historia:[['Recorrido por el casco histórico','Caminata por las calles y edificios más antiguos.',0,'manana','tour histórico']],
+};
+
+/* ---------- Claude (dentro de claude.ai) ---------- */
+async function initClaude(){
+  if(!window.claude || !claude.use) return;
+  try{ SAMPLE = await claude.use('sample'); }catch(e){ SAMPLE=null; }
+  try{ DOWNLOADS = await claude.use('downloads'); }catch(e){ DOWNLOADS=null; }
+}
+async function claudePlaces(trip, stop, nights){
+  const who = trip.travelers.map(t=>AGES.find(a=>a[0]===t.age)[1]).join(', ');
+  const ints = trip.interests.map(i=>CAT[i].l).join(', ') || 'variado';
+  const prompt = `Sos un planificador de viajes experto. Devolvé SOLO JSON válido, sin texto extra.
+Destino: ${stop.name}${stop.country?', '+stop.country:''}. Estadía: ${nights} noches desde ${trip.start}.
+Viajeros: ${who}. Intereses: ${ints}. Presupuesto: ${LEVELS[trip.budget.level].l}. Ritmo: ${PACE[trip.pace].l}.
+Formato: {"intro":"2 frases sobre el destino","climate":{"tmin":número,"tmax":número,"note":"clima típico en esas fechas, 1 frase"},"activities":[{"title":"nombre real del lugar o actividad","desc":"1-2 frases útiles","cats":["una o más de: ${Object.keys(CAT).join(', ')}"],"cost":0-3,"indoor":true/false,"area":"barrio o zona","lat":número,"lon":número}]}
+Incluí entre 14 y 18 actividades reales y representativas, variadas según los intereses, con coordenadas aproximadas. cost: 0 gratis, 1 barato, 2 medio, 3 caro.`;
+  let v;
+  if(typeof SAMPLE.json === 'function') v = await SAMPLE.json(prompt, {modelTier:'default'});
+  else { const r = await SAMPLE(prompt, {modelTier:'default'}); v = JSON.parse(r.text.slice(r.text.indexOf('{'), r.text.lastIndexOf('}')+1)); }
+  return v;
+}
+
+/* =========================================================
+   MOTOR DEL ITINERARIO
+   ========================================================= */
+function km(a,b){ if(a.lat==null||b.lat==null) return 3; const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180; const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(x)); }
+function hasKids(trip){ return trip.travelers.some(t=>t.age==='nino'||t.age==='bebe'); }
+function scoreItem(it, trip){
+  const w = c => trip.interests.includes(c) ? 3 : (c==='historia'||c==='imperdible'||c==='cultura' ? 1.2 : 0.6);
+  let s = Math.max(...it.cats.map(w));
+  if(it.len) s *= 1 + Math.log10(Math.max(it.len,1000))/4;
+  if(it.img) s += .6;
+  if(hasKids(trip) && it.cats.includes('ninos')) s += 2;
+  if(hasKids(trip) && it.cats.includes('nocturna')) s -= 2;
+  if(it.generic) s *= .55;
+  return s;
+}
+function genericFor(trip, stop){
+  const list=[]; const ints = trip.interests.length ? trip.interests : ['historia','gastronomia','cultura'];
+  ints.forEach(i => (EXP[i]||[]).forEach(([title,desc,cost,slot,q])=>{
+    list.push({id:uid(), title, desc, cats:[i], cost, slot, generic:true, indoor:['gastronomia','shopping','relax','nocturna'].includes(i),
+      url: q ? `https://www.getyourguide.com/s/?q=${encodeURIComponent(stop.name+' '+q)}` : '', lat:stop.lat, lon:stop.lon});
+  }));
+  return list;
+}
+function buildDays(trip){
+  // un día por fecha, de la salida a la vuelta
+  const days=[]; let date=trip.start;
+  trip.stops.forEach((s,si)=>{
+    for(let n=0;n<s.nights;n++){ days.push({date, stop:si, items:[], kind: n===0 ? (si===0?'llegada':'traslado') : 'normal'}); date=D.add(date,1); }
+  });
+  days.push({date, stop:trip.stops.length-1, items:[], kind:'regreso'});
+  return days;
+}
+function schedule(trip){
+  const days = buildDays(trip);
+  const maxCost = LEVELS[trip.budget.level].max;
+  let cap = PACE[trip.pace].n; if(trip.travelers.some(t=>t.age==='bebe')) cap=Math.max(2,cap-1);
+  trip.pool = trip.pool || {};
+  trip.stops.forEach((stop, si)=>{
+    const pool = (trip.pool[si]||[]).filter(p=>p.cost<=maxCost).map(p=>({...p, score:scoreItem(p,trip)})).sort((a,b)=>b.score-a.score);
+    const used = new Set();
+    const sd = days.filter(d=>d.stop===si);
+    sd.forEach(day=>{
+      let n = cap; if(day.kind!=='normal') n = day.kind==='regreso' ? 1 : Math.max(1,cap-2);
+      if(day.kind==='regreso' && trip.stops.length && si===trip.stops.length-1){ /* mañana libre antes de volver */ }
+      const w = (trip.weather||{})[day.date]; const rainy = isRainy(w);
+      const chosen=[];
+      for(let k=0;k<n;k++){
+        const anchor = chosen[0];
+        let best=null, bs=-1e9;
+        for(const p of pool){ if(used.has(p.id)) continue;
+          let s = p.score; if(anchor) s -= km(anchor,p)*0.5; if(rainy && !p.indoor) s -= 2.5;
+          if(chosen.some(c=>c.generic) && p.generic) s -= 3;
+          if(s>bs){bs=s;best=p;} }
+        if(!best) break; used.add(best.id); chosen.push(best);
+      }
+      // orden: mañana → tarde → noche
+      const ord = {manana:0, mediodia:1, tarde:2, noche:3};
+      chosen.sort((a,b)=>(ord[a.slot]??(a.cats.includes('nocturna')?3:1.5))-(ord[b.slot]??(b.cats.includes('nocturna')?3:1.5)));
+      const times = day.kind==='normal' ? ({1:['10:00'],2:['10:00','16:00'],3:['09:30','13:30','17:00'],4:['09:00','12:30','16:00','20:30']}[chosen.length]||['10:00'])
+                   : day.kind==='regreso' ? ['09:30'] : ({1:['17:00'],2:['16:00','20:00']}[chosen.length]||['17:00']);
+      day.items = chosen.map((p,i)=>({ref:p.id, time:times[i]||'', done:false}));
+    });
+    trip.used = trip.used || {}; trip.used[si] = [...used];
+  });
+  return days;
+}
+
+/* ---------- generación completa ---------- */
+async function generate(trip, log){
+  trip.pool = {}; trip.weather = {}; trip.source = 'basico'; trip.intro = {};
+  const end = D.add(trip.start, trip.stops.reduce((a,s)=>a+s.nights,0));
+  const live = await detectLive();
+  if(!SAMPLE && window.claude) await initClaude();
+  if(live){
+    for(const s of trip.stops){ if(s.lat==null){ try{ const g=(await geocode(s.name))[0]; if(g) Object.assign(s,{lat:g.lat,lon:g.lon,country:g.country,cc:g.cc,admin:g.admin}); }catch(e){} } }
+    if(trip.origin && !trip.origin.cc && trip.origin.name){ try{ const g=(await geocode(trip.origin.name))[0]; if(g) trip.origin={...g}; }catch(e){} }
+    trip.source='web';
+    let date = trip.start;
+    for(const [si,stop] of trip.stops.entries()){
+      log(`Buscando lugares en ${stop.name}…`);
+      let raw=[];
+      try{ raw = await wikiNearby(stop.lat, stop.lon, 'es'); if(raw.length<25) raw = raw.concat(await wikiNearby(stop.lat, stop.lon, 'en')); }catch(e){}
+      const seen=new Set(); const items=[];
+      raw.forEach(p=>{ const k=norm(p.title); if(seen.has(k)) return; seen.add(k); const c=classify(p); if(!c) return; items.push({id:uid(), ...p, ...c}); });
+      items.sort((a,b)=>b.len-a.len);
+      const top = items.slice(0,45);
+      const ex = await wikiExtracts(top.filter(i=>i.lang==='es').map(i=>i.title),'es');
+      const exEn = await wikiExtracts(top.filter(i=>i.lang==='en').map(i=>i.title),'en');
+      top.forEach(i=>{ i.text = ex[i.title]||exEn[i.title]||''; });
+      trip.pool[si] = top.concat(genericFor(trip, stop));
+      log(`Consultando el clima en ${stop.name}…`);
+      const sEnd = D.add(date, stop.nights);
+      const w = await weatherFor(stop, date, sEnd);
+      if(w){ trip.weatherKind = w.kind; w.days.forEach(d=>{ if(!trip.weather[d.date] || d.date!==sEnd) trip.weather[d.date]={...d, stop:si}; }); }
+      if(!stop.img){ const s = await wikiSummary(stop.name,'es'); if(s){ stop.img=s.img; trip.intro[si]=s.text; } }
+      date = sEnd;
+    }
+  } else if(SAMPLE){
+    trip.source='claude';
+    let date = trip.start;
+    for(const [si,stop] of trip.stops.entries()){
+      log(`Claude está armando ${stop.name}…`);
+      try{
+        const v = await claudePlaces(trip, stop, stop.nights);
+        trip.intro[si] = v.intro||'';
+        const acts = (v.activities||[]).map(a=>({id:uid(), title:a.title, desc:a.area||'', text:a.desc||'', cats:(a.cats||[]).filter(c=>CAT[c]).length?(a.cats||[]).filter(c=>CAT[c]):['imperdible'], cost:Math.max(0,Math.min(3,+a.cost||0)), indoor:!!a.indoor, lat:+a.lat||null, lon:+a.lon||null, len:20000,
+          url:`https://www.google.com/maps/search/${encodeURIComponent(a.title+' '+stop.name)}`}));
+        if(stop.lat==null && acts[0]){ stop.lat=acts[0].lat; stop.lon=acts[0].lon; }
+        trip.pool[si] = acts.concat(genericFor(trip, stop));
+        if(v.climate){ for(let i=0;i<=stop.nights;i++){ const d=D.add(date,i); trip.weather[d]={date:d, tmin:v.climate.tmin, tmax:v.climate.tmax, code:null, note:v.climate.note, stop:si}; } trip.weatherKind='tipico'; }
+      }catch(e){ console.warn(e); trip.pool[si] = genericFor(trip, stop); }
+      date = D.add(date, stop.nights);
+    }
+  } else {
+    trip.stops.forEach((stop,si)=>{ trip.pool[si] = genericFor(trip, stop); });
+  }
+  log('Distribuyendo actividades día por día…');
+  trip.days = schedule(trip);
+  log('Armando las valijas…');
+  trip.packing = buildPacking(trip);
+  trip.end = end;
+}
+
+/* =========================================================
+   VALIJAS
+   ========================================================= */
+function tripClimate(trip){
+  const ws = Object.values(trip.weather||{});
+  if(!ws.length) return null;
+  return {tmin:Math.min(...ws.map(w=>w.tmin)), tmax:Math.max(...ws.map(w=>w.tmax)), rain:ws.some(isRainy)};
+}
+function isIntl(trip){ return trip.origin && trip.origin.cc && trip.stops.some(s=>s.cc && s.cc!==trip.origin.cc); }
+function buildPacking(trip){
+  const nights = trip.stops.reduce((a,s)=>a+s.nights,0);
+  const n = Math.min(nights+1, 7); const wash = nights+1>7;
+  const cl = tripClimate(trip); const I = i=>trip.interests.includes(i);
+  const intl = isIntl(trip);
+  const P = {};
+  const add=(who,item,why='')=>{ (P[who]=P[who]||[]).push({id:uid(), item, why, on:false}); };
+  trip.travelers.forEach((t,ti)=>{
+    const who = t.name || ('Viajero '+(ti+1));
+    add(who, intl?'Pasaporte (vigente 6 meses después del regreso)':'DNI', intl?'viaje internacional':'');
+    if(t.age==='bebe'){
+      add(who, `Pañales (~${(nights+1)*6} + extra)`, '6 por día aprox.');
+      ['Toallitas húmedas','Cambiador portátil','Mamadera / vasito','Cochecito o mochila portabebé','Muda extra en el bolso de mano','Chupete de repuesto','Juguete o mantita de apego'].forEach(x=>add(who,x));
+      add(who, `${n+2} bodies / remeras`, 'mudas extra');
+    } else {
+      add(who, `${n} remeras`, wash?'lavar a mitad del viaje':''); add(who, `${n} mudas de ropa interior`); add(who, `${n} pares de medias`);
+      add(who, `${Math.ceil(n/3)+1} pantalones`); add(who,'Pijama'); add(who,'Calzado cómodo para caminar');
+      add(who,'Cepillo de dientes y neceser');
+    }
+    if(cl){
+      if(cl.tmin<10){ add(who,'Campera de abrigo', `mínimas de ${Math.round(cl.tmin)}°`); add(who,'Gorro, guantes y bufanda'); if(cl.tmin<3) add(who,'Primera capa térmica'); }
+      else if(cl.tmin<18) add(who,'Buzo o campera liviana', `mínimas de ${Math.round(cl.tmin)}°`);
+      if(cl.tmax>26){ add(who,'Shorts / ropa fresca', `máximas de ${Math.round(cl.tmax)}°`); add(who,'Gorra y anteojos de sol'); }
+      if(cl.rain) add(who,'Piloto o campera impermeable','hay días con lluvia');
+    }
+    if(I('playa')){ add(who,'Malla'); add(who,'Ojotas'); }
+    if(I('naturaleza')||I('aventura')){ if(t.age!=='bebe'){ add(who,'Zapatillas de trekking'); add(who,'Botella de agua reutilizable'); } }
+    if(I('nocturna') && (t.age==='adulto'||t.age==='mayor')) add(who,'Una muda para salir de noche');
+    if(t.age==='nino'){ add(who,'Libro, juego o tablet con auriculares','para traslados'); add(who,'Snacks para el viaje'); }
+    if(t.age==='adolescente'){ add(who,'Auriculares y cargador'); }
+    if(t.age==='adulto'||t.age==='mayor'){ add(who,'Celular y cargador'); }
+    if(t.age==='mayor'){ add(who,'Anteojos de repuesto'); }
+  });
+  const S = 'Para todo el grupo';
+  ['Botiquín básico (curitas, termómetro, gasas, alcohol en gel)','Medicación habitual de cada uno, con receta','Copias digitales de documentos y reservas','Power bank','Bolsas para ropa sucia'].forEach(x=>add(S,x));
+  if(cl && cl.tmax>24) add(S,'Protector solar','sol fuerte');
+  if(cl && cl.tmax>24 && (I('naturaleza')||I('playa'))) add(S,'Repelente de insectos');
+  if(I('playa')) add(S,'Toallones y sombrilla');
+  if(intl){ add(S,'Adaptador de enchufe universal','viaje internacional'); add(S,'Seguro de viaje impreso / en el celular'); add(S,'Tarjeta sin comisión en el exterior o algo de efectivo local'); }
+  if(I('naturaleza')||I('aventura')) add(S,'Mochila de día');
+  if(hasKids(trip)) add(S,'Toallitas y alcohol en gel extra');
+  if(wash) add(S,'Jabón para lavar ropa en viaje','viaje de más de una semana');
+  return P;
+}
+
+/* =========================================================
+   PRESUPUESTO
+   ========================================================= */
+const MULT = {adulto:1, mayor:1, adolescente:.85, nino:.6, bebe:.1};
+function budgetCalc(trip){
+  const days = trip.stops.reduce((a,s)=>a+s.nights,0) || 1;
+  const lv = LEVELS[trip.budget.level]; const m = trip.travelers.reduce((a,t)=>a+(MULT[t.age]||1),0);
+  const total = Math.round(lv.usd*m*days);
+  const split = [['Alojamiento',.4,'#14213d'],['Comidas',.25,'#e0a84f'],['Transporte local',.15,'#2a9d8f'],['Actividades',.2,'#e76f51']];
+  const booked = (trip.bookings||[]).filter(b=>b.price && (!b.cur || b.cur===trip.budget.cur)).reduce((a,b)=>a+priceNum(b.price),0);
+  return {days, total, split, booked};
+}
+
+/* =========================================================
+   ALERTAS
+   ========================================================= */
+function dtOf(date, time){ return new Date(`${date}T${time||'09:00'}:00`); }
+function buildAlerts(trip){
+  const A=[]; const add=(when,icon,title,detail,ref)=>A.push({when,icon,title,detail,ref});
+  const start = dtOf(trip.start,'09:00');
+  const intl = isIntl(trip);
+  add(new Date(start-30*864e5),'🛂', intl?'Revisar pasaportes, visas y seguro':'Revisar documentos y reservas', intl?'Pasaportes vigentes, requisitos de entrada y seguro de viaje.':'DNI de todos y reservas confirmadas.');
+  add(new Date(start-7*864e5),'🧳','Revisar el clima y empezar la valija','La lista de Valijas se ajusta al clima del viaje.');
+  add(new Date(start-1*864e5),'📲','Descargar mapas sin conexión y cargar todo','Mapas offline, power bank cargado, reservas en el celular.');
+  (trip.bookings||[]).forEach(b=>{
+    if(!b.date) return;
+    const t = dtOf(b.date, b.time); const lbl = `${BK[b.type].e} ${b.title||BK[b.type].l}${b.code?' · '+b.code:''}`;
+    if(b.type==='vuelo'){
+      add(new Date(t-24*36e5),'✅','Hacer el check-in online', lbl+' — la mayoría de las aerolíneas lo habilitan 24 a 48 h antes.', b.id);
+      add(new Date(t-(intl?3:2)*36e5),'🚕',`Estar en el aeropuerto (${intl?'3':'2'} h antes)`, lbl+(b.from?` · sale de ${b.from}`:''), b.id);
+      add(t,'✈️','Sale el vuelo', lbl+(b.from||b.to?` · ${b.from||''} → ${b.to||''}`:''), b.id);
+    } else if(['tren','bus','barco'].includes(b.type)){
+      add(new Date(t-45*6e4),'🚉','Estar en la estación (45 min antes)', lbl+(b.from?` · ${b.from}`:''), b.id);
+      add(t,BK[b.type].e,'Sale '+BK[b.type].l.toLowerCase(), lbl+(b.from||b.to?` · ${b.from||''} → ${b.to||''}`:''), b.id);
+    } else if(LODGING.includes(b.type)){
+      if(b.type==='airbnb') add(new Date(dtOf(b.date,'10:00')-2*864e5),'💬','Confirmar llegada con el anfitrión', lbl+' — horario de llegada y cómo retirar las llaves.', b.id);
+      add(dtOf(b.date, b.time||'15:00'),'🔑','Check-in', lbl+(b.address?` · ${b.address}`:''), b.id);
+      if(b.endDate) add(dtOf(b.endDate, b.endTime||'11:00'),'🚪','Check-out', lbl, b.id);
+    } else if(b.type==='auto'){
+      add(t,'🚗','Retirar el auto', lbl+(b.from?` · ${b.from}`:''), b.id);
+      if(b.endDate) add(dtOf(b.endDate,b.endTime||'10:00'),'⛽','Devolver el auto (con tanque lleno)', lbl, b.id);
+    } else {
+      add(new Date(t-2*36e5),BK[b.type].e, b.title||BK[b.type].l, (b.code?'Código '+b.code+'. ':'')+(b.notes||''), b.id);
+    }
+  });
+  return A.sort((a,b)=>a.when-b.when);
+}
+function icsDate(d){ return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''); }
+function buildICS(trip){
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Travel Wizard//ES','CALSCALE:GREGORIAN'];
+  const e = s => String(s||'').replace(/[,;\\]/g,m=>'\\'+m).replace(/\n/g,'\\n');
+  buildAlerts(trip).forEach(a=>{
+    L.push('BEGIN:VEVENT','UID:'+uid()+'@travelwizard','DTSTAMP:'+icsDate(new Date()),'DTSTART:'+icsDate(a.when),'DTEND:'+icsDate(new Date(+a.when+30*6e4)),
+      'SUMMARY:'+e(a.icon+' '+a.title),'DESCRIPTION:'+e(a.detail),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+e(a.title),'TRIGGER:-PT15M','END:VALARM','END:VEVENT');
+  });
+  L.push('END:VCALENDAR'); return L.join('\r\n');
+}
+async function saveFile(filename, text, mime){
+  if(DOWNLOADS){ try{ await DOWNLOADS.save({filename, data:new Blob([text],{type:mime})}); return; }catch(e){ if(e && e.code) { toast('No se pudo descargar'); return; } } }
+  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:mime})); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); }
+  catch(e){ toast('Este visor no permite descargas'); }
+}
+let notifTimers=[];
+function scheduleNotifs(trip){
+  notifTimers.forEach(clearTimeout); notifTimers=[];
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  const now=Date.now();
+  buildAlerts(trip).forEach(a=>{ const ms=+a.when-now; if(ms>0 && ms<2147483000) notifTimers.push(setTimeout(()=>{ try{ new Notification(a.icon+' '+a.title,{body:a.detail}); }catch(e){} }, ms)); });
+}
+
+/* =========================================================
+   VISTAS
+   ========================================================= */
+const app = $('#app');
+/* Logo Travel Wizard (mejora 7): brújula de 8 puntas + estrella de mago.
+   variant: 'light' (sobre fondo claro), 'dark' (sobre fondo oscuro), 'icon' (ícono de app, cuadrado). */
+let _lgN=0;
+function logoSVG(variant='light', cls=''){
+  const g='twg'+(++_lgN);
+  const disc = variant==='dark' ? '#1f3160' : '#14213d';
+  const bg = variant==='icon' ? `<rect width="64" height="64" rx="15" fill="#0b1430"/><rect width="64" height="64" rx="15" fill="url(#${g}b)" opacity=".9"/>` : '';
+  const r = variant==='icon' ? 25 : 30;
+  return `<svg class="twlogo ${cls}" viewBox="0 0 64 64" role="img" aria-label="Travel Wizard"><defs>
+<linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4d38f"/><stop offset=".55" stop-color="#e0a84f"/><stop offset="1" stop-color="#e76f51"/></linearGradient>
+<radialGradient id="${g}b" cx=".3" cy=".2" r="1"><stop offset="0" stop-color="#2b3f75"/><stop offset="1" stop-color="#0b1430"/></radialGradient></defs>${bg}
+<circle class="lg-disc" cx="32" cy="32" r="${r}" fill="${disc}"/>
+<circle class="lg-ring" cx="32" cy="32" r="${r}" fill="none" stroke="url(#${g})" stroke-width="1.3" opacity="${variant==='light'?.55:1}"/>
+<circle cx="32" cy="32" r="${r*.74}" fill="none" stroke="url(#${g})" stroke-width="1.5" stroke-dasharray="1.4 3.1" opacity=".9"/>
+<g class="lg-needle">
+<path d="M32 ${32-r*.5}L34.4 29.6L${32+r*.5} 32L34.4 34.4L32 ${32+r*.5}L29.6 34.4L${32-r*.5} 32L29.6 29.6Z" fill="#f4d38f" opacity=".5" transform="rotate(45 32 32)"/>
+<path d="M32 ${32-r*.8}L35.4 28.6L${32+r*.8} 32L35.4 35.4L32 ${32+r*.8}L28.6 35.4L${32-r*.8} 32L28.6 28.6Z" fill="url(#${g})"/>
+<path d="M32 ${32-r*.8}L35.4 28.6L32 32L28.6 28.6Z" fill="#fff" opacity=".42"/>
+<path d="M32 ${32+r*.8}L28.6 35.4L32 32L35.4 35.4Z" fill="#14213d" opacity=".22"/></g>
+<circle cx="32" cy="32" r="3" fill="${disc}" stroke="#f4d38f" stroke-width="1.2"/>
+<path d="M${variant==='icon'?49:51} 4.5l1.7 5.6 5.6 1.7-5.6 1.7-1.7 5.6-1.7-5.6-5.6-1.7 5.6-1.7z" fill="#f4d38f"/>
+<path d="M${variant==='icon'?12:9} 50l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="#e76f51"/></svg>`;
+}
+function setIcons(){
+  try{ $('#brandLogo').innerHTML = logoSVG('light'); }catch(e){}
+  const svg = logoSVG('icon').replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ');
+  const url = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  try{ $('#favIcon').href = url; }catch(e){}
+  try{ const im=new Image(); im.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=c.height=180; c.getContext('2d').drawImage(im,0,0,180,180); $('#touchIcon').href=c.toDataURL('image/png'); }catch(e){} }; im.src=url; }catch(e){}
+}
+function logoFile(variant){ return logoSVG(variant).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" ').replace(/ class="twlogo [^"]*"/,''); }
+function starsSVG(){ let s=''; for(let i=0;i<60;i++){ const tw=i%3===0; s+=`<circle${tw?` class="tw" style="animation-delay:${(Math.random()*4).toFixed(2)}s;animation-duration:${(2.4+Math.random()*3).toFixed(2)}s"`:''} cx="${Math.random()*100}%" cy="${Math.random()*100}%" r="${Math.random()*1.3+.2}" fill="#fff" opacity="${Math.random()*.8+.2}"/>`; } return `<svg class="stars" width="100%" height="100%" aria-hidden="true">${s}</svg><span class="shoot" aria-hidden="true"></span>`; }
+/* Próximo viaje destacado en la portada (mejora 8) */
+function nextTripFeature(){
+  const act=trips.map(t=>({t,st:tripStatus(t)})).filter(x=>x.st.k!=='past').sort((a,b)=>a.t.start>b.t.start?1:-1);
+  if(!act.length) return '';
+  const {t,st}=act[0]; const img=(t.stops.find(x=>x.img)||{}).img;
+  const big = st.k==='now' ? `<b>${D.diff(t.start,D.today())+1}</b><span>día</span>` : `<b>${st.d}</b><span>${st.d===1?'día':'días'}</span>`;
+  return `<button class="nextfeat" id="nextFeat" data-id="${t.id}" style="${img?`background-image:url('${esc(img)}')`:''}">
+    <span class="nf-go">Abrir ›</span>
+    <div class="nf"><div class="nf-cd">${big}</div><div class="grow"><i>${st.k==='now'?'Estás de viaje':'Tu próximo viaje'}</i><h3>${esc(t.name)}</h3><small>${D.nice(t.start,{day:'numeric',month:'long'})} · ${nightsOf(t)} noches · ${t.travelers.length} ${t.travelers.length===1?'viajero':'viajeros'}</small></div></div></button>`;
+}
+
+function renderHome(){
+  document.body.classList.remove('intrip'); window.scrollTo(0,0);
+  app.innerHTML = `
+  <section class="hero">${starsSVG()}<div class="wrap" style="position:relative">${logoSVG('dark','hero-logo')}
+    <div class="eyebrow">Tu viaje, armado en 1 minuto</div>
+    <h1>Decime a dónde vas.<br><em>Yo armo el resto.</em></h1>
+    <p>Itinerario día por día con fotos, clima y actividades a tu medida. Reservas, alertas, valijas y presupuesto en un solo lugar.</p>
+    <button class="btn" id="newTrip">✨ Armar un viaje nuevo</button>
+    ${nextTripFeature() || `<div class="feat"><div><b>🗺️</b>Itinerario con mapa</div><div><b>🎫</b>Reservas y alertas</div><div><b>🧳</b>Valija por persona</div></div>`}
+  </div></section>
+  <div class="wrap">
+    <h2 class="sec">Mis viajes</h2>
+    <div id="tripList">${trips.length ? tripGroups() : `<div class="card empty">Todavía no armaste ningún viaje.<br>Empezá con el botón de arriba o elegí una idea.</div>`}</div>
+    <h2 class="sec">Ideas para tu próximo viaje</h2>
+    <div class="ideas">${IDEAS.map((x,i)=>`<button class="idea" data-idea="${i}" style="background:${x.bg}"><span class="ie">${x.e}</span><i>${esc(x.tag)}</i><b>${esc(x.t)}</b><span>${esc(x.sub)}</span></button>`).join('')}</div>
+    ${sponsorSlot('home')}
+    <div class="toolbar"><button class="btn ghost sm" id="impBtn">⬆️ Importar viaje (.json)</button><input type="file" id="impFile" accept=".json,application/json" class="hidden"></div>
+    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
+  </div>`;
+  $('#newTrip').onclick = ()=>startWizard();
+  if($('#nextFeat')) $('#nextFeat').onclick = ()=>openTrip($('#nextFeat').dataset.id);
+  $$('[data-idea]').forEach(b=>b.onclick=()=>startWizard(IDEAS[+b.dataset.idea]));
+  $('#goNews').onclick = renderNews; $('#goBrands').onclick = renderBrands;
+  wireSponsors();
+  $$('.tripcard').forEach(c=>c.onclick=()=>openTrip(c.dataset.id));
+  $('#impBtn').onclick=()=>$('#impFile').click();
+  $('#impFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const t=JSON.parse(await f.text()); if(!t.stops||!t.days) throw 0; t.id=uid(); trips.unshift(t); saveTrips(); toast('Viaje importado'); renderHome(); }catch(err){ toast('El archivo no es un viaje válido'); } };
+}
+
+/* ---------- asistente ---------- */
+function startWizard(idea){
+  wz = {step:0, origin:null, originText:'', stops:[], start:D.add(D.today(),30), travelers:[{name:'',age:'adulto'}], group:null, interests:[], pace:'moderado', budget:{level:'moderado', amount:'', cur:'USD'}};
+  if(idea){
+    wz.stops = idea.stops.map(([name,nights])=>({name, country:'', cc:'', admin:'', lat:null, lon:null, manual:true, nights}));
+    wz.interests = [...idea.ints];
+    if(idea.ints.includes('ninos')){ wz.group='familia'; wz.travelers=[{name:'',age:'adulto'},{name:'',age:'adulto'},{name:'',age:'nino'}]; }
+    // completar país y coordenadas en segundo plano si hay red
+    detectLive().then(async live=>{ if(!live) return; for(const s of wz.stops){ try{ const g=(await geocode(s.name))[0]; if(g){ Object.assign(s,{name:g.name,country:g.country,cc:g.cc,admin:g.admin,lat:g.lat,lon:g.lon,manual:false}); } }catch(e){} } if(WSTEPS[wz.step]==='destino' && $('#stops')) renderWizard(); });
+  }
+  renderWizard();
+  if(idea) toast(`Idea cargada: ${idea.t}. Ajustá lo que quieras.`);
+}
+const WSTEPS = ['destino','fechas','viajeros','intereses','presupuesto'];
+function renderWizard(){
+  window.scrollTo(0,0);
+  const st = WSTEPS[wz.step];
+  const pct = (wz.step+1)/WSTEPS.length*100;
+  let body='';
+  if(st==='destino') body = `
+    <h2>¿A dónde querés ir?</h2><p class="lead">Una ciudad o varias. Ajustá cuántas noches en cada una.</p>
+    <div class="field"><label>Salgo desde</label><div class="sugg"><input class="inp" id="orig" placeholder="Ej.: Buenos Aires" value="${esc(wz.originText)}" autocomplete="off"><ul class="hidden" id="origS"></ul></div></div>
+    <div class="field"><label>Destinos</label><div class="sugg"><input class="inp" id="dest" placeholder="Escribí un destino y elegilo de la lista" autocomplete="off"><ul class="hidden" id="destS"></ul></div></div>
+    <div id="stops">${wz.stops.map((s,i)=>`<div class="card stop"><div class="num">${i+1}</div><div class="grow"><b>${esc(s.name)}</b><div class="small muted">${esc([s.admin,s.country].filter(Boolean).join(', '))}</div></div>
+      <div class="stepper"><button data-n="${i}" data-d="-1">−</button><b>${s.nights}</b><button data-n="${i}" data-d="1">+</button></div><span class="small muted">noches</span><button class="x" data-rm="${i}" aria-label="Quitar">×</button></div>`).join('')}</div>
+    ${wz.stops.length?'':`<div class="note">💡 Ejemplos: <b>Iguazú</b> · <b>Praga + Viena + Innsbruck</b> · <b>Sierra de la Ventana</b></div>`}`;
+  if(st==='fechas'){
+    const tot = wz.stops.reduce((a,s)=>a+s.nights,0);
+    body = `<h2>¿Cuándo salís?</h2><p class="lead">Con la fecha calculo el clima y armo las alertas.</p>
+    <div class="field"><label>Fecha de salida</label><input type="date" class="inp" id="start" value="${wz.start}" min="${D.today()}"></div>
+    <div class="card" style="padding:14px">${wz.stops.map((s,i)=>{ const a=D.add(wz.start, wz.stops.slice(0,i).reduce((x,y)=>x+y.nights,0)); return `<div class="row" style="padding:5px 0"><b class="grow">${esc(s.name)}</b><span class="small muted">${D.nice(a)} → ${D.nice(D.add(a,s.nights))}</span></div>`; }).join('')}
+    <div class="row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><b class="grow">Vuelta</b><b>${D.nice(D.add(wz.start,tot),{weekday:'long',day:'numeric',month:'long'})}</b></div></div>`;
+  }
+  if(st==='viajeros') body = `<h2>¿Con quiénes viajás?</h2><p class="lead">Así ajusto las actividades y armo la valija de cada uno.</p>
+    <div class="chips" style="margin-bottom:14px">${[['solo','🧍 Solo/a'],['pareja','💑 En pareja'],['familia','👨‍👩‍👧 En familia'],['amigos','🧑‍🤝‍🧑 Con amigos']].map(([k,l])=>`<button class="chip lg ${wz.group===k?'on':''}" data-g="${k}">${l}</button>`).join('')}</div>
+    <div id="travs">${wz.travelers.map((t,i)=>`<div class="card trav"><input class="inp" data-tn="${i}" placeholder="Nombre (opcional)" value="${esc(t.name)}"><select data-ta="${i}">${AGES.map(([k,l])=>`<option value="${k}" ${t.age===k?'selected':''}>${l}</option>`).join('')}</select>${wz.travelers.length>1?`<button class="x" data-trm="${i}" aria-label="Quitar">×</button>`:''}</div>`).join('')}</div>
+    <button class="btn ghost sm" id="addTrav">＋ Agregar viajero</button>`;
+  if(st==='intereses') body = `<h2>¿Qué les gusta?</h2><p class="lead">Tocá todo lo que aplique. Con esto elijo qué ver primero.</p>
+    <div class="chips">${INTERESTS.map(([k,e,l])=>`<button class="chip lg ${wz.interests.includes(k)?'on':''}" data-i="${k}">${e} ${l}</button>`).join('')}</div>
+    <div class="field" style="margin-top:22px"><label>Ritmo</label><div class="chips">${Object.entries(PACE).map(([k,p])=>`<button class="chip ${wz.pace===k?'on':''}" data-p="${k}">${p.l} · ${p.n} por día</button>`).join('')}</div></div>`;
+  if(st==='presupuesto') body = `<h2>¿Cuánto querés gastar?</h2><p class="lead">Con esto filtro qué actividades te ofrezco.</p>
+    <div class="levels">${Object.entries(LEVELS).map(([k,l])=>`<button class="level ${wz.budget.level===k?'on':''}" data-l="${k}"><b>${l.e} ${l.l}</b><span>${l.d}</span><br><span>≈ USD ${l.usd} por persona/día</span></button>`).join('')}</div>
+    <div class="g2" style="margin-top:14px"><div class="field"><label>Presupuesto total (opcional)</label><input class="inp" id="bamt" inputmode="decimal" placeholder="Ej.: 5000" value="${esc(wz.budget.amount)}"></div>
+    <div class="field"><label>Moneda</label><select class="inp" id="bcur">${['USD','EUR','ARS','BRL','CLP','UYU','MXN'].map(c=>`<option ${wz.budget.cur===c?'selected':''}>${c}</option>`).join('')}</select></div></div>`;
+  app.innerHTML = `<div class="wrap wz"><div class="prog"><i style="width:${pct}%"></i></div><div class="stepn">Paso ${wz.step+1} de ${WSTEPS.length}</div>${body}
+    <div class="wznav"><button class="btn ghost" id="wBack">${wz.step?'← Atrás':'Cancelar'}</button><button class="btn dark grow" id="wNext">${wz.step===WSTEPS.length-1?'✨ Crear mi viaje':'Siguiente →'}</button></div></div>`;
+  $('#wBack').onclick = () => { if(wz.step) { wz.step--; renderWizard(); } else renderHome(); };
+  $('#wNext').onclick = wizNext;
+  wireStep(st);
+  validateStep();
+}
+function validateStep(){
+  const st=WSTEPS[wz.step]; let ok=true;
+  if(st==='destino') ok = wz.stops.length>0;
+  if(st==='viajeros') ok = wz.travelers.length>0;
+  $('#wNext').disabled = !ok;
+}
+function wireSuggest(inp, ul, onPick){
+  let tmr, res=[];
+  inp.addEventListener('input', ()=>{ clearTimeout(tmr); const q=inp.value.trim(); if(q.length<2){ul.classList.add('hidden');return;}
+    tmr=setTimeout(async()=>{
+      const live = await detectLive();
+      if(live){ try{ res = await geocode(q); }catch(e){ res=[]; } }
+      else res = [];
+      const manual = {name:q, country:'', cc:'', admin:'', lat:null, lon:null, manual:true};
+      const list = res.length ? res : [manual];
+      ul.innerHTML = list.map((r,i)=>`<li data-i="${i}"><b>${esc(r.name)}</b> <span class="small muted">${esc([r.admin,r.country].filter(Boolean).join(', ')||(r.manual?'Usar este nombre':''))}</span></li>`).join('');
+      ul.classList.remove('hidden');
+      $$('li',ul).forEach(li=>li.onclick=()=>{ onPick(list[+li.dataset.i]); ul.classList.add('hidden'); });
+    }, 280);
+  });
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); const f=$('li',ul); if(f && !ul.classList.contains('hidden')) f.click(); } });
+  inp.addEventListener('blur', ()=>setTimeout(()=>ul.classList.add('hidden'),200));
+}
+function wireStep(st){
+  if(st==='destino'){
+    wireSuggest($('#orig'), $('#origS'), r=>{ wz.origin=r; wz.originText=r.name; $('#orig').value=r.name; });
+    $('#orig').addEventListener('change', e=>{ wz.originText=e.target.value; if(!wz.origin||wz.origin.name!==e.target.value) wz.origin={name:e.target.value,cc:''}; });
+    wireSuggest($('#dest'), $('#destS'), r=>{ wz.stops.push({...r, nights: wz.stops.length? 3 : 4}); renderWizard(); setTimeout(()=>$('#dest')&&$('#dest').focus(),50); });
+    $$('#stops [data-d]').forEach(b=>b.onclick=()=>{ const s=wz.stops[+b.dataset.n]; s.nights=Math.max(1,Math.min(30,s.nights+ +b.dataset.d)); renderWizard(); });
+    $$('#stops [data-rm]').forEach(b=>b.onclick=()=>{ wz.stops.splice(+b.dataset.rm,1); renderWizard(); });
+  }
+  if(st==='fechas') $('#start').onchange=e=>{ if(e.target.value){ wz.start=e.target.value; renderWizard(); } };
+  if(st==='viajeros'){
+    $$('[data-g]').forEach(b=>b.onclick=()=>{ const g=b.dataset.g; wz.group=g;
+      const keep = wz.travelers.filter(t=>t.name);
+      if(g==='solo') wz.travelers=[keep[0]||{name:'',age:'adulto'}];
+      if(g==='pareja') wz.travelers=[keep[0]||{name:'',age:'adulto'}, keep[1]||{name:'',age:'adulto'}];
+      if(g==='familia' && wz.travelers.length<3) wz.travelers=[keep[0]||{name:'',age:'adulto'}, keep[1]||{name:'',age:'adulto'}, {name:'',age:'nino'}];
+      if(g==='amigos' && wz.travelers.length<3) wz.travelers=[{name:'',age:'adulto'},{name:'',age:'adulto'},{name:'',age:'adulto'}];
+      renderWizard(); });
+    $$('[data-tn]').forEach(i=>i.oninput=()=>{ wz.travelers[+i.dataset.tn].name=i.value; });
+    $$('[data-ta]').forEach(s=>s.onchange=()=>{ wz.travelers[+s.dataset.ta].age=s.value; });
+    $$('[data-trm]').forEach(b=>b.onclick=()=>{ wz.travelers.splice(+b.dataset.trm,1); renderWizard(); });
+    $('#addTrav').onclick=()=>{ wz.travelers.push({name:'',age:'adulto'}); renderWizard(); };
+  }
+  if(st==='intereses'){
+    $$('[data-i]').forEach(b=>b.onclick=()=>{ const k=b.dataset.i; wz.interests = wz.interests.includes(k)? wz.interests.filter(x=>x!==k) : [...wz.interests,k]; b.classList.toggle('on'); });
+    $$('[data-p]').forEach(b=>b.onclick=()=>{ wz.pace=b.dataset.p; $$('[data-p]').forEach(x=>x.classList.toggle('on',x===b)); });
+  }
+  if(st==='presupuesto'){
+    $$('[data-l]').forEach(b=>b.onclick=()=>{ wz.budget.level=b.dataset.l; $$('[data-l]').forEach(x=>x.classList.toggle('on',x===b)); });
+    $('#bamt').oninput=e=>wz.budget.amount=e.target.value.replace(/[^\d.,]/g,'');
+    $('#bcur').onchange=e=>wz.budget.cur=e.target.value;
+  }
+}
+async function wizNext(){
+  if(wz.step<WSTEPS.length-1){ wz.step++; renderWizard(); return; }
+  // crear viaje
+  const trip = {
+    id:uid(), createdAt:Date.now(), name: wz.stops.map(s=>s.name).join(' · '),
+    origin: wz.origin && wz.origin.name ? wz.origin : (wz.originText?{name:wz.originText,cc:''}:null),
+    stops: wz.stops.map(s=>({...s})), start: wz.start, travelers: wz.travelers.map((t,i)=>({name:t.name.trim()||(wz.travelers.length===1?'Yo':'Viajero '+(i+1)), age:t.age})),
+    interests: wz.interests, pace: wz.pace, budget:{...wz.budget}, bookings:[]
+  };
+  const gs = genScreen(trip); const t0=Date.now();
+  try{ await generate(trip, gs.log); }catch(e){ console.error(e); }
+  gs.done(); await sleep(Math.max(350, 1300-(Date.now()-t0)));
+  gs.stop();
+  cur = trip; trips.unshift(trip); saveTrips(); tab='plan'; renderTrip();
+}
+
+/* Pantalla de carga «el mago está armando tu viaje» (mejora 9) */
+const WIZ_TIPS = [
+  'Pegá el mail o subí el PDF de la confirmación en Reservas y la reserva se carga sola.',
+  'Exportá las alertas al calendario (.ics): el celular te avisa aunque la app esté cerrada.',
+  'Bajá el mapa de cada ciudad en tu app de mapas para usarlo sin datos.',
+  'Sacale una foto al pasaporte y guardala en un lugar seguro fuera del celular.',
+  'Avisale a tu banco que vas a viajar para que no te bloquee la tarjeta.',
+  'Con chicos, una actividad fuerte a la mañana y otra tranqui a la tarde suele funcionar mejor.',
+  'Si llueve, el mago prioriza planes bajo techo: tocá «cambiar» en cualquier actividad.',
+  'Cada viajero tiene su propia valija: tildá lo que ya guardaste y mirá el progreso.',
+];
+function genScreen(trip){
+  const names = trip.stops.map(s=>s.name);
+  const where = names.length>1 ? names.slice(0,-1).join(', ')+' y '+names[names.length-1] : names[0];
+  app.innerHTML = `<div class="wrap gen" id="genScr">
+    <div class="gcomp">${logoSVG('light')}</div>
+    <div class="eyebrow">El mago está armando tu viaje</div>
+    <h2>${esc(where)}</h2>
+    <div class="gbar" role="progressbar" aria-label="Progreso"><i id="gbar"></i></div>
+    <ul class="genlog" id="glog" aria-live="polite"></ul>
+    <div class="gfact" id="gfact"><div class="gk" id="gk">Consejo del mago</div><p id="gtx"></p><small id="gsrc"></small></div></div>`;
+  const ul=$('#glog'); let last=null, n=0, fi=0, stopped=false;
+  const facts = WIZ_TIPS.map(t=>({k:'Consejo del mago', t, src:'', img:''})).sort(()=>Math.random()-.5);
+  const show = () => {
+    const box=$('#gfact'); if(!box) return; const f=facts[fi%facts.length]; fi++;
+    box.classList.add('fade');
+    setTimeout(()=>{ if(!$('#gfact')) return; $('#gk').textContent=f.k; $('#gtx').textContent=f.t; $('#gsrc').textContent=f.src; box.style.backgroundImage=f.img?`url('${f.img.replace(/'/g,'%27')}')`:''; box.classList.remove('fade'); }, fi===1?0:350);
+  };
+  show(); const timer=setInterval(show, 4200);
+  // datos curiosos del destino (Wikipedia) cuando hay red
+  if(LIVE!==false) detectLive().then(live=>{ if(!live) return;
+    trip.stops.forEach(st=> wikiSummary(st.name,'es').then(sm=>{ if(stopped||!sm||!sm.text) return;
+      const sents=(sm.text.match(/[^.!?]+[.!?]+/g)||[]).map(x=>x.trim()).filter(x=>x.length>40&&x.length<260).slice(0,3);
+      const nw=sents.map(t=>({k:'¿Sabías que…? · '+st.name, t, src:'Fuente: Wikipedia', img:sm.img||''}));
+      facts.splice(fi, 0, ...nw); }).catch(()=>{}) ); });
+  const total = () => LIVE ? names.length*2+2 : SAMPLE ? names.length+2 : 2;
+  const bar = () => { const b=$('#gbar'); if(b) b.style.width=Math.min(96,Math.max(4,n/total()*100))+'%'; };
+  bar();
+  return {
+    log(msg){ if(last){ last.className='ok'; n++; } last=document.createElement('li'); last.className='run'; last.textContent=msg; ul.appendChild(last); bar(); },
+    done(){ if(last) last.className='ok'; const b=$('#gbar'); if(b) b.style.width='100%'; },
+    stop(){ stopped=true; clearInterval(timer); }
+  };
+}
+
+/* ---------- viaje ---------- */
+function openTrip(id){ cur = trips.find(t=>t.id===id); if(!cur) return renderHome(); tab='plan'; renderTrip(); scheduleNotifs(cur); }
+function itemById(si, id){ return (cur.pool[si]||[]).find(p=>p.id===id); }
+function renderTrip(){
+  document.body.classList.add('intrip');
+  const t = cur; const nights = t.stops.reduce((a,s)=>a+s.nights,0);
+  const img = (t.stops.find(s=>s.img)||{}).img;
+  const upcoming = buildAlerts(t).filter(a=>+a.when>Date.now() && +a.when-Date.now()<7*864e5).length;
+  app.innerHTML = `
+  <section class="thero" style="${img?`background-image:url('${esc(img)}')`:''}"><button class="editbtn" id="editTrip">✏️ Editar</button><div class="wrap">
+    <div class="eyebrow">${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(t.end||D.add(t.start,nights),{day:'numeric',month:'long',year:'numeric'})}</div>
+    <h1>${esc(t.name)}</h1>
+    <div class="pills"><span class="pill">🌙 ${nights} noches</span><span class="pill">👥 ${t.travelers.map(x=>esc(x.name)).join(', ')}</span><span class="pill">${LEVELS[t.budget.level].e} ${LEVELS[t.budget.level].l}</span>${t.interests.slice(0,4).map(i=>`<span class="pill">${CAT[i].e} ${CAT[i].l}</span>`).join('')}</div>
+  </div></section>
+  <div class="wrap page" id="tabBody"></div>
+  <nav class="tabs"><div class="wrap">
+    ${[['plan','🗺️','Itinerario'],['reservas','🎫','Reservas'],['valijas','🧳','Valijas'],['plata','💰','Presupuesto'],['alertas','🔔','Alertas']].map(([k,e,l])=>`<button class="tab ${tab===k?'on':''}" data-t="${k}"><span class="ic">${e}</span>${l}${k==='alertas'&&upcoming?`<span class="badge">${upcoming}</span>`:''}</button>`).join('')}
+  </div></nav>`;
+  $('#editTrip').onclick = editTripModal;
+  $$('.tab').forEach(b=>b.onclick=()=>{ tab=b.dataset.t; renderTrip(); window.scrollTo({top:$('.thero').offsetHeight-10, behavior:'smooth'}); });
+  ({plan:renderPlan, reservas:renderBookings, valijas:renderPacking, plata:renderBudget, alertas:renderAlerts})[tab]();
+}
+
+function bookingsOn(date){ return (cur.bookings||[]).filter(b=>b.date===date || (LODGING.includes(b.type)&&b.endDate===date) || (b.type==='auto'&&b.endDate===date)); }
+function renderPlan(){
+  const t=cur, B=$('#tabBody');
+  const srcTxt = {web:'Lugares y fotos: Wikipedia · Clima: Open-Meteo', claude:'Itinerario sugerido por Claude · verificá horarios y precios', basico:'Modo básico sin conexión: abrí la app con internet para sumar lugares, fotos y clima.'}[t.source];
+  const wxDays = t.days.map(d=>t.weather&&t.weather[d.date]).filter(Boolean);
+  const wxLabel = {pronostico:'Pronóstico', referencia:'Clima de referencia (mismas fechas del año pasado)', tipico:'Clima típico para esas fechas'}[t.weatherKind]||'';
+  B.innerHTML = `
+    ${summaryCard(t)}
+    ${wxDays.length?`<div class="subh">🌤️ ${wxLabel}</div><div class="wx">${t.days.map(d=>{const w=t.weather[d.date]; if(!w) return ''; return `<div class="wxd"><div class="small muted">${D.nice(d.date,{weekday:'short',day:'numeric'})}</div><div class="e">${wxEmoji(w.code)}</div><b>${Math.round(w.tmax)}°</b><span class="muted">${Math.round(w.tmin)}°</span></div>`;}).join('')}</div>${t.weatherKind==='tipico'&&wxDays[0].note?`<div class="srcnote">${esc(wxDays[0].note)}</div>`:''}`:''}
+    <div id="map" class="hidden"></div>
+    ${t.stops.map((s,si)=>t.intro&&t.intro[si]?`<p class="small muted" style="margin:10px 0"><b>${esc(s.name)}.</b> ${esc(t.intro[si].slice(0,320))}${t.intro[si].length>320?'…':''}</p>`:'').join('')}
+    <div class="toolbar"><button class="btn sm dark" id="regen">🔄 Rearmar itinerario</button><button class="btn sm ghost" id="copyTxt">📋 Copiar para WhatsApp</button><button class="btn sm ghost" id="dupTrip">🧬 Duplicar</button><button class="btn sm ghost" id="expJson">💾 Exportar viaje</button><button class="btn sm ghost" id="delTrip" aria-label="Borrar viaje">🗑️</button></div>
+    <div id="days"></div>
+    <div class="srcnote">${srcTxt}</div>`;
+  const dd = $('#days');
+  dd.innerHTML = t.days.map((d,di)=>{
+    const s=t.stops[d.stop]; const w=t.weather&&t.weather[d.date];
+    const title = d.kind==='llegada'?`Llegada a ${s.name}`: d.kind==='traslado'?`${t.stops[d.stop-1].name} → ${s.name}`: d.kind==='regreso'?(t.origin?`Regreso a ${t.origin.name}`:'Día de regreso'):s.name;
+    const bks = bookingsOn(d.date).map(b=>{ const isEnd = b.date!==d.date; return `<div class="it bkit"><div class="tm">${esc(isEnd?(b.endTime||''):(b.time||''))}</div><div class="im" style="font-size:26px">${BK[b.type].e}</div><div class="grow"><h4>${isEnd?(b.type==='auto'?'Devolver: ':'Check-out: '):''}${esc(b.title||BK[b.type].l)}</h4><p>${esc([b.from&&b.to?`${b.from} → ${b.to}`:(b.from||b.to||''), b.address, b.code?'Código '+b.code:''].filter(Boolean).join(' · '))}</p><div class="tags"><span class="tag rsv">Reserva</span></div></div></div>`; }).join('');
+    const travel = d.kind==='traslado' ? `<div class="it travel"><div class="tm"></div><div class="im" style="font-size:26px">🧭</div><div class="grow"><h4>Traslado ${esc(t.stops[d.stop-1].name)} → ${esc(s.name)}</h4><p>Compará tren, micro, avión o auto.</p><div class="acts"><a href="https://www.rome2rio.com/map/${encodeURIComponent(t.stops[d.stop-1].name)}/${encodeURIComponent(s.name)}" target="_blank" rel="noopener">Ver opciones ↗</a></div></div></div>`:'';
+    const items = d.items.map((x,xi)=>{ const p=itemById(d.stop,x.ref); if(!p) return ''; const c=p.cats[0];
+      return `<div class="it ${x.done?'done':''}"><div class="tm">${esc(x.time)}</div><div class="im" style="${p.img?`background-image:url('${esc(p.img)}')`:''}">${p.img?'':(CAT[c]||CAT.imperdible).e}</div>
+      <div class="grow"><h4>${esc(p.title)}</h4><p>${esc(p.text||p.desc||'')}</p>
+      <div class="tags">${p.cats.slice(0,2).map(c=>`<span class="tag">${(CAT[c]||CAT.imperdible).e} ${(CAT[c]||CAT.imperdible).l}</span>`).join('')}<span class="tag cost">${COST[p.cost]}</span>${p.indoor?'<span class="tag">☂️ Bajo techo</span>':''}</div>
+      <div class="acts"><button data-done="${di}:${xi}">${x.done?'↩︎':'✓ Hecho'}</button><button data-swap="${di}:${xi}">🔀 Cambiar</button><button data-rmi="${di}:${xi}">✕</button>
+      ${p.lat!=null&&!p.generic?`<a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">📍 Mapa</a>`:''}${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${p.generic?'🎟️ Buscar':'ℹ️ Más'}</a>`:''}</div></div></div>`; }).join('');
+    return `<article class="card day"><div class="dayh"><div class="dn">${String(di+1).padStart(2,'0')}</div><div><h3>${esc(title)}</h3><div class="small" style="opacity:.85">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}</div></div>
+      ${w?`<div class="w"><b>${wxEmoji(w.code)} ${Math.round(w.tmax)}°</b><br>${Math.round(w.tmin)}°${isRainy(w)?' · lluvia':''}</div>`:''}</div>
+      <div class="items">${travel}${bks}${items||'<p class="small muted" style="padding:8px 4px">Día libre.</p>'}<div class="acts" style="padding:6px 4px 0"><button data-add="${di}">＋ Agregar actividad</button></div></div></article>`;
+  }).join('');
+  const act=(sel,fn)=>$$(sel,dd).forEach(b=>b.onclick=()=>{ const [di,xi]=(b.dataset[Object.keys(b.dataset)[0]]).split(':').map(Number); fn(di,xi); saveCur(); renderPlan(); });
+  act('[data-done]',(di,xi)=>{ const x=cur.days[di].items[xi]; x.done=!x.done; });
+  act('[data-rmi]',(di,xi)=>{ cur.days[di].items.splice(xi,1); });
+  act('[data-swap]',(di,xi)=>{ const d=cur.days[di]; const usedIds=new Set(cur.days.flatMap(x=>x.items.map(i=>i.ref))); const cs=d.items[xi]; const curP=itemById(d.stop,cs.ref);
+    const maxCost=LEVELS[cur.budget.level].max;
+    const alt=(cur.pool[d.stop]||[]).filter(p=>!usedIds.has(p.id)&&p.cost<=maxCost).map(p=>({p,s:scoreItem(p,cur)-(curP?km(curP,p)*.3:0)})).sort((a,b)=>b.s-a.s)[0];
+    if(alt) cs.ref=alt.p.id; else toast('No hay más alternativas para este destino'); });
+  $$('[data-add]',dd).forEach(b=>b.onclick=()=>addActivityModal(+b.dataset.add));
+  $('#regen').onclick=()=>{ cur.days = schedule(cur); saveCur(); renderPlan(); toast('Itinerario rearmado'); };
+  $('#copyTxt').onclick=async()=>{ try{ await navigator.clipboard.writeText(tripText(cur)); toast('Copiado. Pegalo en WhatsApp o donde quieras.'); }catch(e){ showText('Itinerario', tripText(cur)); } };
+  $('#expJson').onclick=()=>saveFile(`viaje-${norm(cur.name).replace(/[^a-z0-9]+/g,'-')}.json`, JSON.stringify(cur), 'application/json');
+  $('#dupTrip').onclick=duplicateTrip;
+  $$('[data-kpi]',B).forEach(k=>k.onclick=()=>{ tab=k.dataset.kpi; renderTrip(); window.scrollTo({top:$('.thero').offsetHeight-10, behavior:'smooth'}); });
+  $('#delTrip').onclick=()=>confirmModal('¿Borrar este viaje?','Se borra de este dispositivo.',()=>{ trips=trips.filter(x=>x.id!==cur.id); saveTrips(); cur=null; renderHome(); });
+  drawMap();
+}
+function drawMap(){
+  const el=$('#map'); if(!el || !LIVE) return;
+  const pts=[]; cur.days.forEach((d,di)=>d.items.forEach(x=>{ const p=itemById(d.stop,x.ref); if(p&&p.lat!=null&&!p.generic) pts.push({p,di}); }));
+  if(!pts.length) return;
+  const go=()=>{ if(!window.L) return; el.classList.remove('hidden');
+    const m=L.map(el,{scrollWheelZoom:false}); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(m);
+    const b=[]; pts.forEach(({p,di})=>{ b.push([p.lat,p.lon]); L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:`<div style="background:#14213d;color:#f4d38f;border:2px solid #f4d38f;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font:700 11px Plus Jakarta Sans,sans-serif">${di+1}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(m).bindPopup(`<b>Día ${di+1}</b><br>${esc(p.title)}`); });
+    m.fitBounds(b,{padding:[24,24]}); };
+  if(window.L) go(); else {
+    if(!document.getElementById('lfcss')){ const c=document.createElement('link'); c.id='lfcss'; c.rel='stylesheet'; c.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(c); }
+    const s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload=go; s.onerror=()=>{}; document.head.appendChild(s);
+  }
+}
+function tripText(t){
+  let s=`🧭 *${t.name}*\n${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(t.end,{day:'numeric',month:'long',year:'numeric'})}\n`;
+  t.days.forEach((d,di)=>{ s+=`\n*Día ${di+1} · ${D.nice(d.date,{weekday:'long',day:'numeric',month:'short'})}* — ${t.stops[d.stop].name}\n`;
+    bookingsOn(d.date).forEach(b=>s+=`${BK[b.type].e} ${b.time||''} ${b.title||BK[b.type].l}${b.code?' ('+b.code+')':''}\n`);
+    d.items.forEach(x=>{ const p=(t.pool[d.stop]||[]).find(q=>q.id===x.ref); if(p) s+=`• ${x.time} ${p.title}\n`; }); });
+  return s+'\nArmado con Travel Wizard';
+}
+
+/* ---------- reservas ---------- */
+function renderBookings(){
+  const t=cur, B=$('#tabBody');
+  const bs=[...(t.bookings||[])].sort((a,b)=>(a.date||'9')+(a.time||'')>(b.date||'9')+(b.time||'')?1:-1);
+  const adults=t.travelers.filter(x=>['adulto','mayor','adolescente'].includes(x.age)).length||1, kids=t.travelers.length-adults;
+  let date=t.start; const legs=[]; let prev=t.origin&&t.origin.name;
+  const lodg = t.stops.map(s=>{ const a=date, b=D.add(date,s.nights); date=b; if(prev) legs.push([prev,s.name,a]); prev=s.name; return {s,a,b}; });
+  if(t.origin&&t.origin.name) legs.push([t.stops[t.stops.length-1].name, t.origin.name, date]);
+  B.innerHTML = `
+    <div class="toolbar"><button class="btn dark" id="addBk">＋ Agregar reserva</button><button class="btn ghost" id="mailBk">📩 Mail o PDF</button></div>
+    <div class="card list">${bs.length?bs.map(b=>`<div class="bk"><div class="ico">${BK[b.type].e}</div><div class="grow">
+      <h4>${esc(b.title||BK[b.type].l)}</h4>
+      <div class="small muted">${b.date?D.nice(b.date):'Sin fecha'}${b.time?' · '+esc(b.time):''}${b.endDate?` → ${D.nice(b.endDate)}${b.endTime?' '+esc(b.endTime):''}`:''}</div>
+      <div class="small">${esc([b.from&&b.to?`${b.from} → ${b.to}`:(b.from||b.to||''), b.address].filter(Boolean).join(' · '))}</div>
+      <div class="tags" style="margin-top:4px">${b.code?`<span class="tag rsv">Código ${esc(b.code)}</span>`:''}${b.price?`<span class="tag cost">${esc(b.cur||'')} ${esc(b.price)}</span>`:''}${b.fileId?`<span class="tag">📎 ${esc(b.fileName||'Adjunto')}</span>`:''}</div>
+      ${b.notes?`<div class="small muted" style="margin-top:4px">${esc(b.notes)}</div>`:''}
+      <div class="acts">${b.fileId?`<button data-open="${b.id}">📎 Ver adjunto</button>`:''}${b.link?`<a href="${esc(b.link)}" target="_blank" rel="noopener">🔗 Abrir</a>`:''}<button data-edit="${b.id}">✏️ Editar</button><button data-del="${b.id}">🗑️</button></div>
+    </div></div>`).join(''):`<div class="empty">Cargá vuelos, trenes, hoteles, Airbnb, autos o entradas.<br>Aparecen en el itinerario y generan alertas automáticas.<br>📩 ¿Tenés el mail o el PDF de confirmación? Subilo o pegalo y la cargo yo.</div>`}</div>
+    <div class="subh">🔎 Buscar y reservar</div>
+    ${lodg.map(({s,a,b})=>`<div class="card" style="margin-bottom:10px"><div style="padding:12px 14px 0"><b>${esc(s.name)}</b> <span class="small muted">${D.nice(a)} → ${D.nice(b)}</span></div><div class="links">
+      <a target="_blank" rel="noopener" href="https://www.booking.com/searchresults.html?ss=${encodeURIComponent(s.name)}&checkin=${a}&checkout=${b}&group_adults=${adults}&group_children=${kids}&no_rooms=1">🏨 Hoteles</a>
+      <a target="_blank" rel="noopener" href="https://www.airbnb.com/s/${encodeURIComponent(s.name)}/homes?checkin=${a}&checkout=${b}&adults=${adults}&children=${kids}">🏠 Airbnb</a>
+      <a target="_blank" rel="noopener" href="https://www.getyourguide.com/s/?q=${encodeURIComponent(s.name)}&date_from=${a}&date_to=${b}">🎟️ Excursiones</a>
+      <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent('restaurantes en '+s.name)}">🍽️ Restaurantes</a></div></div>`).join('')}
+    ${legs.length?`<div class="card" style="margin-bottom:10px"><div style="padding:12px 14px 0"><b>Traslados</b></div>${legs.map(([f,to,d])=>`<div style="padding:8px 14px 0" class="small"><b>${esc(f)} → ${esc(to)}</b> · ${D.nice(d)}</div><div class="links" style="padding-top:6px">
+      <a target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q=${encodeURIComponent(`vuelos de ${f} a ${to} el ${d}`)}">✈️ Vuelos</a>
+      <a target="_blank" rel="noopener" href="https://www.rome2rio.com/map/${encodeURIComponent(f)}/${encodeURIComponent(to)}">🚆 Tren · micro · auto</a></div>`).join('')}<div style="height:6px"></div></div>`:''}
+    <div class="srcnote">Los enlaces abren búsquedas con tus fechas y viajeros ya cargados.</div>`;
+  $('#addBk').onclick=()=>bookingModal();
+  $('#mailBk').onclick=importMailModal;
+  $$('[data-edit]',B).forEach(b=>b.onclick=()=>bookingModal(t.bookings.find(x=>x.id===b.dataset.edit)));
+  $$('[data-del]',B).forEach(b=>b.onclick=()=>confirmModal('¿Borrar esta reserva?','',()=>{ const x=t.bookings.find(y=>y.id===b.dataset.del); if(x) dropFile(x.fileId, x.id); t.bookings=t.bookings.filter(y=>y.id!==b.dataset.del); saveCur(); renderTrip(); }));
+  $$('[data-open]',B).forEach(b=>b.onclick=async()=>{ const x=t.bookings.find(y=>y.id===b.dataset.open); try{ const f=await idb.get(x.fileId); if(!f) throw 0; viewFile(f, x.fileName); }catch(e){ toast('No encontré el adjunto en este dispositivo'); } });
+}
+/* ---------- importar reservas desde el mail ---------- */
+function priceNum(v){ let x=String(v??'').replace(/[^\d.,]/g,''); if(!x) return 0;
+  const lc=x.lastIndexOf(','), ld=x.lastIndexOf('.');
+  if(lc>=0&&ld>=0){ const dec=lc>ld?',':'.'; x=x.split(dec===','?'.':',').join('').replace(dec,'.'); }
+  else if(lc>=0||ld>=0){ const sep=lc>=0?',':'.'; const parts=x.split(sep); x = (parts.length>2||parts[parts.length-1].length===3) ? parts.join('') : parts.join('.'); }
+  return +x||0; }
+const MONTH_NAMES = ['enero january janeiro janvier','febrero february fevereiro fevrier','marzo march marco mars','abril april avril','mayo may maio mai','junio june junho juin','julio july julho juillet','agosto august aout','septiembre setiembre september setembro','octubre october outubro octobre','noviembre november novembro novembre','diciembre december dezembro decembre'].map(x=>x.split(' '));
+function monthNum(w){ const k=norm(w).replace(/\./g,''); if(k.length<3) return 0; const i=MONTH_NAMES.findIndex(ns=>ns.some(n=>n.startsWith(k))); return i+1; }
+function pickYear(m,d,ref){ const r=D.parse(ref||D.today()); let y=r.getUTCFullYear(); const dt=Date.UTC(y,m-1,d); if(dt < +r - 60*864e5) y++; return y; }
+function mkDate(y,m,d){ if(!(m>=1&&m<=12&&d>=1&&d<=31)) return null; if(y<100) y+=2000; return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function findDates(txt, ref){
+  const out=[]; const add=(i,v)=>{ if(v) out.push({i,v}); };
+  const MW='([A-Za-zÀ-ÿ]{3,10})\\.?';
+  let m; let re=/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/g; while((m=re.exec(txt))) add(m.index, mkDate(+m[1],+m[2],+m[3]));
+  re=/\b(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})\b/g; while((m=re.exec(txt))) add(m.index, mkDate(+m[3],+m[2],+m[1]));
+  re=new RegExp('\\b(\\d{1,2})(?:º|°)?\\s*(?:de\\s+)?'+MW+'(?:\\s*(?:de\\s+|,\\s*)?(20\\d{2}))?','g');
+  while((m=re.exec(txt))){ const mo=monthNum(m[2]); if(!mo) continue; add(m.index, mkDate(m[3]?+m[3]:pickYear(mo,+m[1],ref),mo,+m[1])); }
+  re=new RegExp('\\b'+MW+'\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s*(20\\d{2}))?\\b','g');
+  while((m=re.exec(txt))){ const mo=monthNum(m[1]); if(!mo) continue; if(out.some(o=>Math.abs(o.i-m.index)<4)) continue; add(m.index, mkDate(m[3]?+m[3]:pickYear(mo,+m[2],ref),mo,+m[2])); }
+  return out.sort((a,b)=>a.i-b.i);
+}
+function findTimes(txt){
+  const out=[]; let m; const re=/\b([01]?\d|2[0-3])[:h]([0-5]\d)\s*(a\.?\s?m\.?|p\.?\s?m\.?)?/gi;
+  while((m=re.exec(txt))){ let h=+m[1]; const ap=m[3]&&norm(m[3])[0]; if(ap==='p'&&h<12) h+=12; if(ap==='a'&&h===12) h=0; out.push({i:m.index, v:`${String(h).padStart(2,'0')}:${m[2]}`}); }
+  return out;
+}
+const BK_KW = {
+  vuelo:/\b(vuelo|flight|voo|boarding|embarque|aerol[ií]nea|airline|tarjeta de embarque|asiento|seat|aeropuerto|airport|latam|iberia|aerol[ií]neas argentinas|flybondi|jetsmart|ryanair|vueling|easyjet|american airlines|united|delta|air europa|gol|azul|copa)\b/gi,
+  tren:/\b(tren|train|trem|renfe|trenitalia|italo|sncf|ouigo|eurostar|deutsche bahn|db bahn|[öo]bb|railjet|coche \d+|vag[oó]n|wagon)\b/gi,
+  bus:/\b(micro|[oó]mnibus|[oô]nibus|bus|flixbus|terminal de [oó]mnibus|plataforma|via bariloche|andesmar|chevallier|plusmar)\b/gi,
+  barco:/\b(ferry|buquebus|colonia express|barco|crucero|cruise|naviera|puerto|port)\b/gi,
+  hotel:/\b(hotel|hostel|hospedaje|posada|apart|room|habitaci[oó]n|quarto|booking\.com|despegar|check-?in|check-?out|noches|nights)\b/gi,
+  airbnb:/\b(airbnb|anfitri[oó]n|host|alojamiento entero|entire home|vrbo)\b/gi,
+  auto:/\b(alquiler de auto|rental car|car rental|rentalcars|hertz|avis|localiza|europcar|sixt|budget rent|retiro del veh[ií]culo|pick-?up|drop-?off|devoluci[oó]n)\b/gi,
+  entrada:/\b(entrada|ticket|tickets|tour|excursi[oó]n|getyourguide|civitatis|museo|museum|admission|visita guiada)\b/gi,
+  seguro:/\b(seguro|insurance|assist card|asistencia al viajero|p[oó]liza|policy|universal assistance|coris)\b/gi
+};
+function guessType(txt){
+  const sc={}; for(const [k,re] of Object.entries(BK_KW)) sc[k]=(txt.match(re)||[]).length;
+  if(sc.airbnb) sc.airbnb+=3; if(/\b[A-Z]{3}\s*(?:→|->|–|—|-|>)\s*[A-Z]{3}\b/.test(txt)) sc.vuelo+=2;
+  if(sc.vuelo&&sc.hotel&&sc.vuelo>=sc.hotel-1&&/check-?in online|web check-?in/i.test(txt)) sc.hotel-=2;
+  const best=Object.entries(sc).sort((a,b)=>b[1]-a[1])[0];
+  return best[1]>0?best[0]:'otro';
+}
+const GENERIC_KW=/^(vuelo|flight|voo|boarding|embarque|aerol[ií]nea|airline|tarjeta de embarque|asiento|seat|aeropuerto|airport|tren|train|trem|coche \d+|vag[oó]n|wagon|micro|[oó]mnibus|[oô]nibus|bus|terminal de [oó]mnibus|plataforma|ferry|barco|crucero|cruise|naviera|puerto|port|alquiler de auto|rental car|car rental|retiro del veh[ií]culo|pick-?up|drop-?off|devoluci[oó]n)$/i;
+const cap = w => w.split(' ').map(x=>x?x[0].toUpperCase()+x.slice(1):x).join(' ');
+function carrierOf(txt, type){ const re=BK_KW[type]; if(!re) return ''; const w=(txt.match(re)||[]).find(w=>!GENERIC_KW.test(w)); return w?cap(w):''; }
+function labelVal(txt, labels){
+  const re=new RegExp('(?:'+labels+')\\s*[:：]\\s*([^\\n]{2,80})','i'); const m=txt.match(re); return m?m[1].trim().replace(/\s{2,}/g,' '):'';
+}
+function dateAfter(txt, labels, ref){
+  const re=new RegExp('(?:'+labels+')[^\\n]{0,40}','i'); const m=txt.match(re); if(!m) return null;
+  const seg=txt.slice(m.index, m.index+m[0].length+40); const ds=findDates(seg, ref); const ts=findTimes(seg);
+  return ds.length?{date:ds[0].v, time:ts.length?ts[0].v:''}:null;
+}
+function parseBookingText(txt, trip, forceType){
+  txt=String(txt||'').replace(/\r/g,''); const ref=trip&&trip.start; const b={};
+  b.type=forceType||guessType(txt);
+  const code=[...txt.matchAll(/(?:c[oó]digo(?: de)? (?:reserva|confirmaci[oó]n)|localizador|booking (?:reference|code|number)|confirmation (?:number|code|#)|reservation (?:code|number)|n[uú]mero de (?:reserva|confirmaci[oó]n)|n[º°] de reserva|record locator|PNR|c[oó]digo)\s*[:#]?\s*\n?\s*([A-Z0-9][A-Z0-9.-]{4,16})/gi)].map(m=>m[1].replace(/[.-]+$/,'')).find(c=>c.length>=5&&c===c.toUpperCase());
+  if(code) b.code=code;
+  const lo=LODGING.includes(b.type), au=b.type==='auto';
+  if(lo||au){
+    const a=dateAfter(txt, lo?'check-?in|entrada|llegada|arrival|chegada':'retiro|pick-?up|recogida|retirada', ref);
+    const z=dateAfter(txt, lo?'check-?out|salida|departure|sa[ií]da':'devoluci[oó]n|drop-?off|entrega|return', ref);
+    if(a){ b.date=a.date; b.time=a.time; } if(z){ b.endDate=z.date; b.endTime=z.time; }
+  }
+  const ds=findDates(txt, ref), ts=findTimes(txt);
+  if(!b.date&&ds.length){ b.date=ds[0].v; const t0=ts.find(t=>t.i>ds[0].i && t.i-ds[0].i<80) || ts[0]; if(t0) b.time=t0.v; }
+  if((lo||au)&&!b.endDate){ const o=ds.find(d=>d.v>b.date); if(o) b.endDate=o.v; }
+  if(TRANSPORT.includes(b.type)){
+    const iata=txt.match(/\b([A-Z]{3})\s*(?:→|->|–|—|-|>|a|to)\s*([A-Z]{3})\b/);
+    const rt=!iata&&txt.match(/([A-ZÀ-Ý][A-Za-zÀ-ÿ.' ]{1,30}?)\s*\(([A-Z]{3})\)\s*(?:→|->|–|—|-|>|a|to)\s*([A-ZÀ-Ý][A-Za-zÀ-ÿ.' ]{1,30}?)\s*\(([A-Z]{3})\)/);
+    b.from=labelVal(txt,'origen|desde|from|sale de|partida|salida desde|departure from')||(iata?iata[1]:rt?`${rt[1].trim()} (${rt[2]})`:'');
+    b.to=labelVal(txt,'destino|hasta|to|llega a|arrival to|chegada')||(iata?iata[2]:rt?`${rt[3].trim()} (${rt[4]})`:'');
+    if(!b.from&&!b.to){ const ar=txt.match(/([^\n→]{2,70}?)\s*(?:→|->)\s*([^\n]{2,70})/);
+      if(ar){ const l=ar[1].replace(/^.*\b\d{2,5}\b\s*[·|:-]?\s*/,'').trim(), r=ar[2].replace(/\s*(?:[·|,]|\b\d{1,2}[\/.]\d{1,2}|\b\d{1,2}\s+de\s|\b\d{1,2}:\d{2}|\b20\d{2}-).*$/,'').trim();
+        if(/[A-Za-zÀ-ÿ]{2}/.test(l)) b.from=l.slice(0,50); if(/[A-Za-zÀ-ÿ]{2}/.test(r)) b.to=r.slice(0,50); } }
+    const fl=b.type==='vuelo'&&txt.match(/\b(?:vuelo|flight|voo)\s*(?:n[º°.]|number|#)?\s*:?\s*([A-Z0-9]{2})\s?(\d{2,4})\b/i);
+    const tn=b.type==='tren'&&txt.match(/\b(?:tren|train|treno|frecciarossa|frecciargento|italo|ave|alvia|tgv|ice|railjet|eurostar)\s*(?:n[º°.]\s*)?(\d{2,5})\b/i);
+    b.title=[carrierOf(txt,b.type), fl?fl[1].toUpperCase()+fl[2]:tn?tn[0].replace(/\s+/g,' '):''].filter(Boolean).join(' ');
+  } else {
+    b.title=labelVal(txt,'hotel|alojamiento|propiedad|property|establecimiento|nombre del alojamiento|anuncio|listing|tour|actividad|activity|compa[ñn][ií]a|empresa|aseguradora');
+    if(!b.title){ const h=txt.match(/\b((?:Hotel|Hostel|Posada|Apart|Hostería|Cabañas)\s+[A-ZÁÉÍÓÚ][^\n,.;:]{2,40})/); if(h) b.title=h[1].trim(); }
+    if(b.title) b.title=b.title.replace(/\s+(est[aá]|is|was|ha sido|fue|foi|has been|confirmad[ao]|confirmed)(?=\s|$|[.,!]).*$/i,'').trim();
+    if(au){ const cut=v=>v.replace(/,?\s*(?:\d{1,2}[\/.-]\d{1,2}|\d{4}-\d{2}|\d{1,2}\s+de\s+[a-záéíóú]+).*$/i,'').trim();
+      b.from=cut(labelVal(txt,'retiro|pick-?up|recogida|retirada')); b.to=cut(labelVal(txt,'devoluci[oó]n|drop-?off|entrega|return'));
+      if(!b.title) b.title=carrierOf(txt,'auto'); }
+    if(!b.title&&b.type==='airbnb') b.title='Airbnb';
+    if(!b.title&&b.type==='seguro') b.title=carrierOf(txt,'seguro');
+  }
+  b.address=labelVal(txt,'direcci[oó]n|address|ubicaci[oó]n|endere[cç]o|location');
+  const pr=txt.match(/(?:total|importe|precio|price|amount|valor|monto)[^\d\n]{0,25}?(USD|US\$|U\$S|EUR|€|ARS|R\$|BRL|CLP|UYU|MXN|\$)?\s*([\d][\d.,]*)/i);
+  if(pr){ const n=priceNum(pr[2]); if(n) b.price=String(Math.round(n*100)/100); if(pr[1]) b.mailCur=pr[1].replace(/^(US\$|U\$S)$/,'USD').replace('€','EUR').replace('R$','BRL'); }
+  const ln=txt.match(/https?:\/\/[^\s<>"')]+/); if(ln) b.link=ln[0];
+  Object.keys(b).forEach(k=>{ if(b[k]==null||b[k]==='') delete b[k]; });
+  return b;
+}
+/* varias reservas en un mismo mail (ida y vuelta, varios tramos) */
+const SEG_HEAD=/^[ \t]*(?:[-*•·>|#]+[ \t]*)?(?:[←-⯿\u{1F300}-\u{1FAFF}️]+[ \t]*)?(?:vuelo de (?:ida|vuelta|regreso)|tramo de (?:ida|vuelta|regreso)|ida|vuelta|regreso|retorno|volta|outbound(?: flight)?|inbound(?: flight)?|return flight|departure flight|tramo[ \t]*\d+|segmento[ \t]*\d+|segment[ \t]*\d+|trecho[ \t]*\d+|leg[ \t]*\d+|vuelo[ \t]*\d[ \t]*(?:de|of)[ \t]*\d|flight[ \t]*\d[ \t]*of[ \t]*\d)\b(?![ \t]*(?:y|e|and|&)[ \t]*(?:vuelta|volta|return))/gimu;
+const FLNUM=/\b(?!(?:EUR|USD|ARS|BRL|CLP)\b)([A-Z][A-Z0-9]|[A-Z0-9][A-Z])[ ]?(\d{2,4})\b/g;
+function segmentBlocks(txt, type){
+  if(!TRANSPORT.includes(type)) return [];
+  const heads=[...txt.matchAll(SEG_HEAD)].map(m=>m.index);
+  if(heads.length>=2) return heads.map((h,i)=>txt.slice(h, heads[i+1]??txt.length));
+  const hasRoute=t=>/\b[A-Z]{3}\s*(?:→|->|–|—|>)\s*[A-Z]{3}\b|\([A-Z]{3}\)\s*(?:→|->|–|—|-|>|a|to)\s*[^\n]*\([A-Z]{3}\)/.test(t);
+  const paras=txt.split(/\n[ \t]*\n/).filter(p=>findDates(p).length&&hasRoute(p));
+  if(paras.length>=2) return paras;
+  const lines=txt.split('\n'); const idx=lines.map((l,i)=>findDates(l).length&&hasRoute(l)?i:-1).filter(i=>i>=0);
+  if(idx.length>=2) return idx.map((i,k)=>lines.slice(i, Math.min(idx[k+1]??lines.length, i+3)).join('\n'));
+  return [];
+}
+function parseBookingsText(txt, trip){
+  txt=String(txt||'').replace(/\r/g,''); const g=parseBookingText(txt, trip);
+  const blocks=segmentBlocks(txt, g.type); if(blocks.length<2) return [g];
+  const carrier=carrierOf(txt, g.type);
+  const segs=blocks.map(bl=>{ const s=parseBookingText(bl, trip, g.type);
+    if(!s.code&&g.code) s.code=g.code; delete s.price; delete s.mailCur; s.link=g.link;
+    if(!s.title||!/\s/.test(s.title)){ const fl=[...bl.matchAll(FLNUM)].map(m=>m[1]+m[2]).find(x=>/\d/.test(x)&&!/^\d+$/.test(x));
+      const num=s.title||(g.type==='vuelo'&&fl&&fl.replace(/^([A-Z0-9]{2})(\d)/,'$1 $2'))||''; s.title=[carrier, num].filter(Boolean).join(' ')||g.title||''; }
+    Object.keys(s).forEach(k=>{ if(s[k]==null||s[k]==='') delete s[k]; }); return s; }).filter(s=>s.date);
+  const uniq=segs.filter((s,i)=>segs.findIndex(o=>o.date===s.date&&o.time===s.time&&o.from===s.from)===i);
+  if(uniq.length<2) return [g];
+  if(g.price){ uniq[0].price=g.price; if(g.mailCur) uniq[0].mailCur=g.mailCur; }
+  return uniq;
+}
+/* PDF de la confirmación → texto (pdf.js desde cdnjs, carga diferida; sin red no hay lectura pero sí adjunto) */
+const PDFJS={v4:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/', v3:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/'};
+let pdfLibP=null;
+function loadPdfLib(){
+  if(pdfLibP) return pdfLibP;
+  pdfLibP=(async()=>{
+    try{ const m=await import(PDFJS.v4+'pdf.min.mjs'); m.GlobalWorkerOptions.workerSrc=PDFJS.v4+'pdf.worker.min.mjs'; return m; }
+    catch(e){ console.warn('pdf.js 4', e);
+      await new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=PDFJS.v3+'pdf.min.js'; sc.onload=res; sc.onerror=()=>rej(new Error('pdf.js no disponible')); document.head.appendChild(sc); });
+      const L=window.pdfjsLib; if(!L) throw new Error('pdf.js no disponible'); L.GlobalWorkerOptions.workerSrc=PDFJS.v3+'pdf.worker.min.js'; return L; }
+  })();
+  pdfLibP.catch(()=>{ pdfLibP=null; });
+  return pdfLibP;
+}
+async function pdfText(file){
+  let L; try{ L=await loadPdfLib(); }catch(e){ const er=new Error('sin lector de PDF'); er.noLib=true; throw er; }
+  const doc=await L.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const pages=[], n=Math.min(doc.numPages,8);
+  for(let p=1;p<=n;p++){
+    const tc=await (await doc.getPage(p)).getTextContent(); const lines=[]; let line='', lastY=null, lastX=null;
+    tc.items.forEach(it=>{ if(typeof it.str!=='string') return; const x=it.transform[4], y=it.transform[5];
+      if(lastY!==null && Math.abs(y-lastY)>2){ lines.push(line); line=''; lastX=null; }
+      if(line && lastX!==null && x-lastX>1 && !/\s$/.test(line) && !/^\s/.test(it.str)) line+=' ';
+      line+=it.str; lastY=y; lastX=x+(it.width||0);
+      if(it.hasEOL){ lines.push(line); line=''; lastY=null; lastX=null; } });
+    if(line) lines.push(line);
+    pages.push(lines.map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean).join('\n'));
+  }
+  try{ doc.destroy(); }catch(e){}
+  return {text:pages.join('\n\n'), pages:n};
+}
+/* un mismo adjunto puede estar en varias reservas (tramos del mismo PDF): se borra solo si nadie más lo usa */
+function dropFile(fid, exceptId){ if(fid && !(cur.bookings||[]).some(x=>x.fileId===fid && x.id!==exceptId)) idb.del(fid); }
+async function claudeBooking(txt, trip){
+  const prompt = `Extraé los datos de esta confirmación de reserva de viaje. Devolvé SOLO JSON válido, sin texto extra.
+Si el mail tiene varios tramos o reservas (ida y vuelta, escalas con otro vuelo, varios hoteles), devolvé una por cada uno, en orden.
+Formato: {"reservas":[{"type":"una de: ${Object.keys(BK).join(', ')}","title":"empresa + número de vuelo/tren, o nombre del alojamiento/actividad","code":"código de reserva","date":"AAAA-MM-DD (salida, check-in o retiro)","time":"HH:MM","endDate":"AAAA-MM-DD (check-out o devolución, si aplica)","endTime":"HH:MM","from":"origen","to":"destino","address":"dirección","price":"monto total como aparece, solo números","link":"url de la reserva"}]}
+"price" va solo en la primera reserva si el mail trae un total único. Dejá vacío ("") lo que no figure; no inventes nada. Si falta el año, el viaje empieza el ${trip.start}.
+Texto:
+"""${txt.slice(0,6000)}"""`;
+  let v;
+  if(typeof SAMPLE.json === 'function') v = await SAMPLE.json(prompt, {modelTier:'fast'});
+  else { const r = await SAMPLE(prompt, {modelTier:'fast'}); v = JSON.parse(r.text.slice(r.text.indexOf('{'), r.text.lastIndexOf('}')+1)); }
+  const list = Array.isArray(v) ? v : (v&&Array.isArray(v.reservas)) ? v.reservas : (v&&typeof v==='object') ? [v] : [];
+  return list.slice(0,8).map(normClaudeBk).filter(o=>Object.keys(o).length>1);
+}
+function normClaudeBk(v){
+  const out={}; if(!v||typeof v!=='object') return out;
+  if(BK[v.type]) out.type=v.type;
+  ['title','code','from','to','address','price','link'].forEach(k=>{ if(typeof v[k]==='string'&&v[k].trim()) out[k]=v[k].trim().slice(0,160); });
+  ['date','endDate'].forEach(k=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(v[k]||'')) out[k]=v[k]; });
+  ['time','endTime'].forEach(k=>{ if(/^\d{2}:\d{2}$/.test(v[k]||'')) out[k]=v[k]; });
+  if(out.code) out.code=out.code.toUpperCase(); if(out.link&&!/^https?:\/\//.test(out.link)) delete out.link;
+  return out;
+}
+function importMailModal(){
+  let att=null;
+  openModal(`<h3>📩 Importar desde el mail o el PDF</h3>
+    <p class="muted small">Subí el PDF de la confirmación o pegá el texto del mail (vuelo, tren, hotel, Airbnb, auto, entrada). Leo tipo, fechas, horarios, código y lugares; si trae ida y vuelta o varios tramos, armo una reserva por tramo. Después revisás y guardás.</p>
+    <label class="btn ghost block" for="mailFile" style="margin-bottom:6px">📄 Subir PDF o foto del comprobante</label><input type="file" id="mailFile" accept="application/pdf,image/*" class="hidden">
+    <div class="small muted" id="mailFileInfo" style="margin-bottom:10px;overflow-wrap:anywhere"></div>
+    <textarea class="inp" id="mailTxt" rows="9" placeholder="…o pegá acá el texto de la confirmación"></textarea>
+    <div class="small muted" style="margin:6px 0 12px">${SAMPLE?'✨ Lo lee Claude; si no puede, uso el lector automático.':'🔍 Lector automático: revisá siempre los datos antes de guardar.'} El texto no sale de tu dispositivo${SAMPLE?' salvo hacia Claude':''}.</div>
+    <div class="row"><button class="btn ghost" data-close>Cancelar</button><button class="btn dark grow" id="mailGo">Leer reserva</button></div>`);
+  $('#mailFile').onchange=async e=>{ const fl=e.target.files[0]; if(!fl) return; att=fl; const info=$('#mailFileInfo');
+    if(fl.type==='application/pdf'||/\.pdf$/i.test(fl.name)){ info.textContent='📄 Leyendo el PDF…';
+      try{ const r=await pdfText(fl); if(r.text.replace(/\s/g,'').length<20) throw new Error('PDF sin texto');
+        if(!$('#mailTxt')) return; $('#mailTxt').value=r.text;
+        info.textContent=`📎 ${fl.name} · leí ${r.pages} página${r.pages>1?'s':''}. El PDF queda adjunto a la reserva.`; $('#mailGo').click(); }
+      catch(err){ console.warn('pdfText', err); info.textContent=`📎 ${fl.name} queda adjunto, pero no pude sacarle el texto ${err&&err.noLib?'(para leer PDFs hace falta internet)':'(puede ser un escaneo)'}: abrilo, copiá el texto y pegalo abajo.`; } }
+    else info.textContent=`📎 ${fl.name} queda adjunto. De una foto no leo el texto: copialo del mail y pegalo abajo.`;
+  };
+  $('#mailGo').onclick=async()=>{
+    const txt=$('#mailTxt').value.trim(); if(txt.length<20){ toast(att?'No hay texto para leer: pegalo del mail':'Pegá el texto completo del mail o subí el PDF'); return; }
+    const btn=$('#mailGo'); btn.disabled=true; btn.textContent='Leyendo…';
+    let list=parseBookingsText(txt, cur), via='lector automático';
+    if(SAMPLE){ try{ const c=await claudeBooking(txt, cur); if(c.length){ list = c.length===list.length ? c.map((x,i)=>({...list[i],...x})) : c.length===1 ? [{...list[0],...c[0]}] : c; via='Claude'; } }catch(e){ console.warn('claudeBooking', e); } }
+    if(list.length>1){ closeModal(); multiImportModal(list, via, att); return; }
+    let b=list[0]||{};
+    const n=['date','code','title','from','to','endDate','address'].filter(k=>b[k]).length;
+    b.notes='Importada del mail ('+via+'). Revisá los datos.'+(b.mailCur&&b.mailCur!=='$'&&b.mailCur!==cur.budget.cur?` Precio del mail en ${b.mailCur}.`:''); delete b.mailCur;
+    closeModal(); bookingModal({...b, id:uid(), cur:cur.budget.cur, type:b.type||'otro'}, true, att);
+    toast(n?`Encontré ${n} dato${n>1?'s':''} · revisá y guardá`:'No encontré datos claros: completalos a mano', 3400);
+  };
+}
+function multiImportModal(list, via, att){
+  const n=list.length; const fix=(b,i)=>{ const o={...b, id:uid(), cur:cur.budget.cur, type:b.type||'otro'};
+    o.notes=`Tramo ${i+1} de ${n} importado del mail (${via}). Revisá los datos.`+(b.price?(b.mailCur&&b.mailCur!=='$'&&b.mailCur!==cur.budget.cur?` Precio del mail en ${b.mailCur}.`:'')+(n>1?' Es el total de la reserva.':''):(i&&list[0].price?' Precio incluido en el tramo 1.':''));
+    delete o.mailCur; return o; };
+  const items=list.map(fix);
+  openModal(`<h3>📩 Encontré ${n} reservas en el mail</h3>
+    <p class="muted small">Elegí cuáles guardar. Después podés editar cada una desde la lista (✏️).</p>
+    <div id="mlist">${items.map((b,i)=>`<label class="ck" style="align-items:flex-start"><input type="checkbox" data-mi="${i}" checked style="margin-top:3px"><span style="font-size:20px">${BK[b.type].e}</span><span class="grow"><b>${esc(b.title||BK[b.type].l)}</b><br><span class="small muted">${b.date?D.nice(b.date):'Sin fecha'}${b.time?' · '+esc(b.time):''}${b.endDate?' → '+D.nice(b.endDate):''}</span>${b.from||b.to?`<br><span class="small">${esc([b.from,b.to].filter(Boolean).join(' → '))}</span>`:''}${b.code?`<br><span class="tag rsv">Código ${esc(b.code)}</span>`:''}</span></label>`).join('')}</div>
+    <div class="small muted" style="margin:8px 0 12px">${via==='Claude'?'✨ Leído por Claude.':'🔍 Lector automático.'} Revisá fechas y horarios antes de viajar.${att?` 📎 ${esc(att.name)} queda adjunto a cada una.`:''}</div>
+    <div class="row"><button class="btn ghost" data-close>Cancelar</button><button class="btn dark grow" id="mSave">Guardar ${n}</button></div>`);
+  const upd=()=>{ const k=$$('[data-mi]:checked').length; $('#mSave').textContent=k?`Guardar ${k}`:'Elegí al menos una'; $('#mSave').disabled=!k; };
+  $$('[data-mi]').forEach(c=>c.onchange=upd);
+  $('#mSave').onclick=async()=>{ const sel=$$('[data-mi]:checked').map(c=>items[+c.dataset.mi]); cur.bookings=cur.bookings||[];
+    if(att){ try{ const fid=uid(); await idb.put(fid, att); sel.forEach(b=>{ b.fileId=fid; b.fileName=att.name; }); }catch(e){ toast('No se pudo guardar el adjunto en este visor'); } }
+    cur.bookings.push(...sel);
+    saveCur(); closeModal(); renderTrip(); scheduleNotifs(cur); toast(`${sel.length} reserva${sel.length>1?'s':''} guardada${sel.length>1?'s':''} · alertas actualizadas`, 3200); };
+}
+function viewFile(blob, name){
+  const url=URL.createObjectURL(blob); const isImg=/^image\//.test(blob.type);
+  openModal(`<h3>📎 ${esc(name||'Adjunto')}</h3>${isImg?`<img src="${url}" style="width:100%;border-radius:12px">`:`<p class="muted">Vista previa no disponible para este tipo de archivo.</p><a class="btn" href="${url}" download="${esc(name||'adjunto')}" target="_blank">Abrir archivo</a>`}<div style="height:12px"></div><button class="btn ghost block" data-close>Cerrar</button>`);
+}
+function bookingModal(b, imported, att){
+  const isNew=!b||!!imported; b = b ? {...b} : {id:uid(), type:'vuelo', date:cur.start, cur:cur.budget.cur};
+  const f = ()=>{ const tp=b.type; const tr=TRANSPORT.includes(tp), lo=LODGING.includes(tp), au=tp==='auto';
+    return `<h3>${imported?'Revisá la reserva importada':isNew?'Nueva reserva':'Editar reserva'}</h3>${imported?`<div class="note" style="margin-bottom:12px">📩 Completé lo que encontré en el mail. Corregí lo que haga falta y elegí el tipo si no es el correcto.</div>`:''}
+    <div class="chips" style="margin-bottom:14px">${Object.entries(BK).map(([k,v])=>`<button class="chip ${b.type===k?'on':''}" data-bt="${k}">${v.e} ${v.l}</button>`).join('')}</div>
+    <div class="field"><label>${tr?'Empresa y número (ej.: Aerolíneas AR1132)':lo?'Nombre del alojamiento':'Descripción'}</label><input class="inp" id="b_title" value="${esc(b.title||'')}"></div>
+    ${tr||au?`<div class="g2"><div class="field"><label>${au?'Retiro en':'Desde'}</label><input class="inp" id="b_from" value="${esc(b.from||'')}"></div><div class="field"><label>${au?'Devolución en':'Hasta'}</label><input class="inp" id="b_to" value="${esc(b.to||'')}"></div></div>`:''}
+    ${lo?`<div class="field"><label>Dirección</label><input class="inp" id="b_address" value="${esc(b.address||'')}"></div>`:''}
+    <div class="g2"><div class="field"><label>${lo?'Check-in':au?'Retiro':'Fecha'}</label><input type="date" class="inp" id="b_date" value="${esc(b.date||'')}"></div><div class="field"><label>Hora</label><input type="time" class="inp" id="b_time" value="${esc(b.time||'')}"></div></div>
+    ${lo||au?`<div class="g2"><div class="field"><label>${lo?'Check-out':'Devolución'}</label><input type="date" class="inp" id="b_endDate" value="${esc(b.endDate||'')}"></div><div class="field"><label>Hora</label><input type="time" class="inp" id="b_endTime" value="${esc(b.endTime||'')}"></div></div>`:''}
+    <div class="g2"><div class="field"><label>Código de reserva</label><input class="inp" id="b_code" value="${esc(b.code||'')}" style="text-transform:uppercase"></div><div class="field"><label>Precio (${esc(cur.budget.cur)})</label><input class="inp" id="b_price" inputmode="decimal" value="${esc(b.price||'')}"></div></div>
+    <div class="field"><label>Link de la reserva</label><input class="inp" id="b_link" type="url" placeholder="https://" value="${esc(b.link||'')}"></div>
+    <div class="field"><label>Notas</label><textarea class="inp" id="b_notes" rows="2">${esc(b.notes||'')}</textarea></div>
+    <div class="field"><label>Adjuntar comprobante (PDF o foto)</label><input type="file" id="b_file" accept="image/*,application/pdf" class="inp">${att?`<div class="small muted">📎 Se adjunta: ${esc(att.name)}</div>`:b.fileName?`<div class="small muted">Actual: ${esc(b.fileName)}</div>`:''}</div>
+    <div class="row"><button class="btn ghost" data-close>Cancelar</button><button class="btn dark grow" id="b_save">Guardar</button></div>`; };
+  const read=()=>{ ['title','from','to','address','date','time','endDate','endTime','code','price','link','notes'].forEach(k=>{ const el=$('#b_'+k); if(el) b[k]=el.value.trim(); }); if(b.code) b.code=b.code.toUpperCase(); };
+  const draw=()=>{ openModal(f()); $$('[data-bt]').forEach(x=>x.onclick=()=>{ read(); b.type=x.dataset.bt; draw(); });
+    $('#b_save').onclick=async()=>{ read(); const file=$('#b_file').files[0]||att;
+      if(file){ try{ dropFile(b.fileId, b.id); b.fileId=uid(); await idb.put(b.fileId,file); b.fileName=file.name; }catch(e){ toast('No se pudo guardar el adjunto en este visor'); b.fileId=null; } }
+      b.cur=cur.budget.cur; cur.bookings=cur.bookings||[]; const i=cur.bookings.findIndex(x=>x.id===b.id); if(i>=0) cur.bookings[i]=b; else cur.bookings.push(b);
+      saveCur(); closeModal(); renderTrip(); scheduleNotifs(cur); toast('Reserva guardada · alertas actualizadas'); }; };
+  draw();
+}
+function addActivityModal(di){
+  const d=cur.days[di];
+  const usedIds=new Set(cur.days.flatMap(x=>x.items.map(i=>i.ref)));
+  const alts=(cur.pool[d.stop]||[]).filter(p=>!usedIds.has(p.id)).map(p=>({p,s:scoreItem(p,cur)})).sort((a,b)=>b.s-a.s).slice(0,10);
+  openModal(`<h3>Agregar al día ${di+1}</h3>
+    ${alts.length?`<div class="subh">Sugerencias</div>${alts.map(({p})=>`<div class="ck" style="cursor:pointer" data-pick="${p.id}"><span style="font-size:20px">${(CAT[p.cats[0]]||CAT.imperdible).e}</span><span><b>${esc(p.title)}</b><br><span class="small muted">${COST[p.cost]}</span></span></div>`).join('')}`:''}
+    <div class="subh">O escribí la tuya</div>
+    <div class="g2"><input class="inp" id="na_t" placeholder="Actividad"><input type="time" class="inp" id="na_h" value="18:00"></div><div style="height:10px"></div>
+    <div class="row"><button class="btn ghost" data-close>Cerrar</button><button class="btn dark grow" id="na_ok">Agregar</button></div>`);
+  $$('[data-pick]').forEach(x=>x.onclick=()=>{ d.items.push({ref:x.dataset.pick, time:'18:00', done:false}); saveCur(); closeModal(); renderPlan(); });
+  $('#na_ok').onclick=()=>{ const title=$('#na_t').value.trim(); if(!title) return; const p={id:uid(), title, desc:'Agregada por vos', cats:['imperdible'], cost:0, custom:true, lat:null, lon:null}; cur.pool[d.stop].push(p); d.items.push({ref:p.id, time:$('#na_h').value, done:false}); d.items.sort((a,b)=>a.time>b.time?1:-1); saveCur(); closeModal(); renderPlan(); };
+}
+
+/* ---------- valijas ---------- */
+function renderPacking(){
+  const P=cur.packing, B=$('#tabBody');
+  const cl=tripClimate(cur);
+  B.innerHTML = `${cl?`<div class="note">🌡️ Armada para ${Math.round(cl.tmin)}° a ${Math.round(cl.tmax)}°${cl.rain?' con días de lluvia':''}, ${cur.stops.reduce((a,s)=>a+s.nights,0)} noches y lo que les gusta hacer.</div>`:`<div class="note">Sin datos de clima: revisá abrigo según el destino.</div>`}
+  <div class="toolbar"><button class="btn sm ghost" id="pkRe">🔄 Regenerar listas</button></div>
+  ${Object.entries(P).map(([who,list])=>{ const on=list.filter(x=>x.on).length; return `<div class="card pk"><h3>${who==='Para todo el grupo'?'🎒':'🧳'} ${esc(who)} <span class="small muted" style="margin-left:auto">${on}/${list.length}</span></h3><div class="bar"><i style="width:${list.length?on/list.length*100:0}%"></i></div>
+    ${list.map(x=>`<label class="ck ${x.on?'on':''}"><input type="checkbox" data-pk="${esc(who)}|${x.id}" ${x.on?'checked':''}><span>${esc(x.item)}</span>${x.why?`<span class="why">${esc(x.why)}</span>`:''}</label>`).join('')}
+    <div class="row" style="margin-top:8px"><input class="inp" placeholder="Agregar algo…" data-pkadd="${esc(who)}" style="padding:9px 12px;font-size:14px"></div></div>`; }).join('')}`;
+  $$('[data-pk]',B).forEach(c=>c.onchange=()=>{ const [who,id]=c.dataset.pk.split('|'); const x=P[who].find(y=>y.id===id); x.on=c.checked; saveCur(); renderPacking(); });
+  $$('[data-pkadd]',B).forEach(i=>i.onkeydown=e=>{ if(e.key==='Enter'&&i.value.trim()){ P[i.dataset.pkadd].push({id:uid(), item:i.value.trim(), why:'', on:false, custom:true}); saveCur(); renderPacking(); } });
+  $('#pkRe').onclick=()=>confirmModal('¿Regenerar las listas?','Se pierden los tildes y lo que agregaste a mano.',()=>{ cur.packing=buildPacking(cur); saveCur(); renderPacking(); });
+}
+
+/* ---------- presupuesto ---------- */
+function renderBudget(){
+  const b=budgetCalc(cur), B=$('#tabBody'); const lv=LEVELS[cur.budget.level];
+  const amt=parseFloat(String(cur.budget.amount||'').replace(',','.'))||0;
+  B.innerHTML = `<div class="card money" style="margin-top:14px"><div class="small muted">Estimado total · nivel ${lv.e} ${lv.l}</div><div class="big">USD ${b.total.toLocaleString('es-AR')}</div>
+    <div class="small muted">≈ USD ${lv.usd} por adulto por día · ${b.days} días · ${cur.travelers.length} viajeros (chicos y bebés cuentan menos)</div>
+    <div class="stack">${b.split.map(([l,p,c])=>`<i style="width:${p*100}%;background:${c}"></i>`).join('')}</div>
+    <div class="brk">${b.split.map(([l,p,c])=>`<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${c};margin-right:6px"></span>${l}</span><b>USD ${Math.round(b.total*p).toLocaleString('es-AR')}</b>`).join('')}</div></div>
+  ${amt?`<div class="card money" style="margin-top:12px"><div class="small muted">Tu presupuesto</div><div class="big">${esc(cur.budget.cur)} ${amt.toLocaleString('es-AR')}</div>
+    ${cur.budget.cur==='USD'?`<div class="note" style="margin-bottom:0">${amt>=b.total?`✅ Te alcanza para el nivel ${lv.l}. Te sobran ≈ USD ${(amt-b.total).toLocaleString('es-AR')}.`:`⚠️ Te faltan ≈ USD ${(b.total-amt).toLocaleString('es-AR')} para el nivel ${lv.l}. Probá bajar de nivel o acortar el viaje.`}</div>`:`<div class="small muted">La comparación automática por ahora es solo en USD.</div>`}
+    <div class="brk"><span>Ya reservado (cargado en Reservas)</span><b>${esc(cur.budget.cur)} ${b.booked.toLocaleString('es-AR')}</b><span>Resta</span><b>${esc(cur.budget.cur)} ${(amt-b.booked).toLocaleString('es-AR')}</b></div></div>`:''}
+  <div class="subh">Cambiar nivel</div><div class="levels">${Object.entries(LEVELS).map(([k,l])=>`<button class="level ${cur.budget.level===k?'on':''}" data-l="${k}"><b>${l.e} ${l.l}</b><span>${l.d}</span></button>`).join('')}</div>
+  <div class="srcnote">Los montos son estimaciones orientativas por nivel de gasto, no cotizaciones. Al cambiar de nivel se rearma el itinerario con las actividades que entran en ese presupuesto.</div>`;
+  $$('[data-l]',B).forEach(x=>x.onclick=()=>{ cur.budget.level=x.dataset.l; cur.days=schedule(cur); saveCur(); renderTrip(); toast('Nivel actualizado e itinerario rearmado'); });
+}
+
+/* ---------- alertas ---------- */
+function renderAlerts(){
+  const A=buildAlerts(cur), B=$('#tabBody'), now=Date.now();
+  const canNotif = 'Notification' in window;
+  B.innerHTML = `<div class="toolbar"><button class="btn dark sm" id="ics">📅 Agregar alertas a mi calendario</button>${canNotif?`<button class="btn ghost sm" id="notif">🔔 ${Notification.permission==='granted'?'Avisos activados':'Activar avisos'}</button>`:''}</div>
+  <div class="note">El calendario del celular te avisa aunque la app esté cerrada (15 min antes de cada alerta). Cada reserva que cargues suma sus propias alertas.</div>
+  <div class="card">${A.map(a=>{ const ms=+a.when-now; const soon=ms>0&&ms<48*36e5; return `<div class="al ${ms<0?'past':''} ${soon?'soon':''}"><div class="when"><b>${a.when.getDate()}</b>${a.when.toLocaleDateString('es-AR',{month:'short'})}<br>${a.when.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</div><div class="grow"><b>${a.icon} ${esc(a.title)}</b><div class="small muted">${esc(a.detail)}</div>${ms>0?`<div class="small" style="color:${soon?'var(--coral)':'var(--teal)'};font-weight:700">${countdown(ms)}</div>`:''}</div></div>`; }).join('')}</div>`;
+  $('#ics').onclick=()=>saveFile(`alertas-${norm(cur.name).replace(/[^a-z0-9]+/g,'-')}.ics`, buildICS(cur), 'text/calendar');
+  if(canNotif) $('#notif').onclick=async()=>{ try{ const p=await Notification.requestPermission(); if(p==='granted'){ scheduleNotifs(cur); toast('Listo: te aviso mientras la app esté abierta'); } else toast('El navegador no dio permiso'); renderAlerts(); }catch(e){ toast('Este visor no permite avisos: usá el calendario'); } };
+}
+function countdown(ms){ const d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5); return d>0?`Faltan ${d} día${d>1?'s':''}${d<3&&h?` y ${h} h`:''}`:`Faltan ${h} h ${Math.floor(ms%36e5/6e4)} min`; }
+
+/* ---------- modales ---------- */
+function openModal(html){ $('#modalRoot').innerHTML=`<div class="modal"><div class="sheet">${html}</div></div>`; const m=$('.modal'); m.onclick=e=>{ if(e.target===m) closeModal(); }; $$('[data-close]',m).forEach(b=>b.onclick=closeModal); }
+function closeModal(){ $('#modalRoot').innerHTML=''; }
+function confirmModal(title,sub,ok){ openModal(`<h3>${esc(title)}</h3>${sub?`<p class="muted">${esc(sub)}</p>`:''}<div class="row"><button class="btn ghost grow" data-close>Cancelar</button><button class="btn grow" id="cfOk" style="background:var(--bad);color:#fff">Confirmar</button></div>`); $('#cfOk').onclick=()=>{ closeModal(); ok(); }; }
+function showText(title,txt){ openModal(`<h3>${esc(title)}</h3><textarea class="inp" rows="14" readonly>${esc(txt)}</textarea><div style="height:10px"></div><button class="btn ghost block" data-close>Cerrar</button>`); }
+
+/* =========================================================
+   v0.5 — mejoras 1–6, 21, 22
+   ========================================================= */
+function nightsOf(t){ return t.stops.reduce((a,s)=>a+s.nights,0); }
+function tripStatus(t){
+  const today=D.today(), end=t.end||D.add(t.start,nightsOf(t));
+  const d=D.diff(today,t.start);
+  if(d>0) return {k:'next', d, label: d===1?'¡Sale mañana!':`Faltan ${d} días`};
+  if(D.diff(today,end)>=0) return {k:'now', d:0, label:`En viaje · día ${D.diff(t.start,today)+1}`};
+  return {k:'past', d, label:'Terminado'};
+}
+function tripCardHTML(t){
+  const st=tripStatus(t); const img=t.stops[0]&&t.stops[0].img;
+  return `<div class="card tripcard" data-id="${t.id}">
+    <div class="ph" style="${img?`background-image:url('${esc(img)}')`:''}">${img?'':'🧭'}</div>
+    <div class="grow"><h3>${esc(t.name)}</h3><div class="small muted">${D.nice(t.start,{day:'numeric',month:'short',year:'numeric'})} · ${nightsOf(t)} noches · ${t.travelers.length} ${t.travelers.length===1?'viajero':'viajeros'}</div>
+    <span class="when-pill ${st.k==='now'?'now':st.k==='past'?'past':''}">${st.label}</span></div>
+    <span class="muted">›</span></div>`;
+}
+function tripGroups(){
+  const withSt=trips.map(t=>({t,st:tripStatus(t)}));
+  const act=withSt.filter(x=>x.st.k!=='past').sort((a,b)=>a.t.start>b.t.start?1:-1);
+  const past=withSt.filter(x=>x.st.k==='past').sort((a,b)=>a.t.start<b.t.start?1:-1);
+  return (act.length?`${past.length?'<div class="tripgroup">Próximos</div>':''}${act.map(x=>tripCardHTML(x.t)).join('')}`:'')
+       + (past.length?`<div class="tripgroup">Viajes pasados</div>${past.map(x=>tripCardHTML(x.t)).join('')}`:'');
+}
+
+/* Resumen del viaje (mejora 4) */
+function summaryCard(t){
+  const st=tripStatus(t);
+  const nextA=buildAlerts(t).find(a=>+a.when>Date.now());
+  const pk=Object.values(t.packing||{}).flat(); const pkOn=pk.filter(x=>x.on).length; const pkPct=pk.length?Math.round(pkOn/pk.length*100):0;
+  const b=budgetCalc(t); const nb=(t.bookings||[]).length;
+  const lodgNights=new Set(); (t.bookings||[]).filter(x=>LODGING.includes(x.type)&&x.date).forEach(x=>{ const e=x.endDate||D.add(x.date,1); for(let d=x.date; d<e && D.diff(d,e)>0 && lodgNights.size<400; d=D.add(d,1)) lodgNights.add(d); });
+  const nights=nightsOf(t); const covered=Math.min(nights,[...lodgNights].filter(d=>d>=t.start&&d<D.add(t.start,nights)).length);
+  const cdBig = st.k==='next' ? `<b>${st.d}</b><span>${st.d===1?'día':'días'}</span>` : st.k==='now' ? `<b>${D.diff(t.start,D.today())+1}</b><span>de ${nights+1}</span>` : `<b>✓</b><span>viajado</span>`;
+  return `<div class="card sum">
+    <div class="cd">${cdBig}</div>
+    <div class="nx"><span class="muted small">${st.k==='next'?'Para salir':st.k==='now'?'Día del viaje':'Viaje terminado'}</span>
+      ${nextA?`<b>${nextA.icon} ${esc(nextA.title)}</b><span class="muted">${nextA.when.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})} · ${nextA.when.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</span>`:`<b>${st.k==='past'?'¡Esperamos que lo hayan disfrutado!':'Sin eventos pendientes'}</b>`}</div>
+    <div class="kpis">
+      <button class="kpi" data-kpi="valijas"><b>${pkPct}%</b><span>Valijas listas</span><div class="mini"><i style="width:${pkPct}%"></i></div></button>
+      <button class="kpi" data-kpi="reservas"><b>${nb}</b><span>${nb===1?'Reserva':'Reservas'} · ${covered}/${nights} noches</span><div class="mini"><i style="width:${nights?covered/nights*100:0}%;background:var(--coral)"></i></div></button>
+      <button class="kpi" data-kpi="plata"><b>USD ${b.total>=10000?Math.round(b.total/1000)+'k':b.total.toLocaleString('es-AR')}</b><span>Estimado</span><div class="mini"><i style="width:100%;background:var(--gold)"></i></div></button>
+    </div></div>`;
+}
+
+/* Editar viaje (mejora 5) */
+function editTripModal(){
+  const t=cur; const e={name:t.name, start:t.start, stops:t.stops.map(s=>({...s})), travelers:t.travelers.map(x=>({...x})), interests:[...t.interests], pace:t.pace, budget:{...t.budget}};
+  const draw=()=>{ openModal(`<h3>Editar viaje</h3>
+    <div class="field"><label>Nombre</label><input class="inp" id="e_name" value="${esc(e.name)}"></div>
+    <div class="field"><label>Fecha de salida</label><input type="date" class="inp" id="e_start" value="${e.start}"></div>
+    <div class="ed-sec">Noches por ciudad</div>
+    ${e.stops.map((s,i)=>`<div class="card stop"><div class="num">${i+1}</div><div class="grow"><b>${esc(s.name)}</b></div><div class="stepper"><button data-en="${i}" data-d="-1">−</button><b>${s.nights}</b><button data-en="${i}" data-d="1">+</button></div></div>`).join('')}
+    <div class="ed-sec">Viajeros</div>
+    ${e.travelers.map((x,i)=>`<div class="card trav"><input class="inp" data-etn="${i}" value="${esc(x.name)}" placeholder="Nombre"><select data-eta="${i}">${AGES.map(([k,l])=>`<option value="${k}" ${x.age===k?'selected':''}>${l}</option>`).join('')}</select>${e.travelers.length>1?`<button class="x" data-etr="${i}" aria-label="Quitar">×</button>`:''}</div>`).join('')}
+    <button class="btn ghost sm" id="e_addT">＋ Agregar viajero</button>
+    <div class="ed-sec">Intereses</div>
+    <div class="chips">${INTERESTS.map(([k,em,l])=>`<button class="chip ${e.interests.includes(k)?'on':''}" data-ei="${k}">${em} ${l}</button>`).join('')}</div>
+    <div class="ed-sec">Ritmo y presupuesto</div>
+    <div class="chips">${Object.entries(PACE).map(([k,p])=>`<button class="chip ${e.pace===k?'on':''}" data-ep="${k}">${p.l}</button>`).join('')}</div><div style="height:8px"></div>
+    <div class="chips">${Object.entries(LEVELS).map(([k,l])=>`<button class="chip ${e.budget.level===k?'on':''}" data-el="${k}">${l.e} ${l.l}</button>`).join('')}</div>
+    <div class="g2" style="margin-top:10px"><div class="field"><label>Monto total</label><input class="inp" id="e_amt" inputmode="decimal" value="${esc(e.budget.amount||'')}"></div><div class="field"><label>Moneda</label><select class="inp" id="e_cur">${['USD','EUR','ARS','BRL','CLP','UYU','MXN'].map(c=>`<option ${e.budget.cur===c?'selected':''}>${c}</option>`).join('')}</select></div></div>
+    <div class="note">Si cambiás fechas, noches, intereses, ritmo o presupuesto se rearma el itinerario. Las reservas y los tildes de la valija se conservan.</div>
+    <div class="row"><button class="btn ghost" data-close>Cancelar</button><button class="btn dark grow" id="e_save">Guardar cambios</button></div>`);
+    const read=()=>{ e.name=$('#e_name').value.trim()||e.name; e.start=$('#e_start').value||e.start; e.budget.amount=$('#e_amt').value.replace(/[^\d.,]/g,''); e.budget.cur=$('#e_cur').value; };
+    $$('[data-en]').forEach(b=>b.onclick=()=>{ read(); const s=e.stops[+b.dataset.en]; s.nights=Math.max(1,Math.min(30,s.nights+ +b.dataset.d)); draw(); });
+    $$('[data-etn]').forEach(i=>i.oninput=()=>{ e.travelers[+i.dataset.etn].name=i.value; });
+    $$('[data-eta]').forEach(x=>x.onchange=()=>{ e.travelers[+x.dataset.eta].age=x.value; });
+    $$('[data-etr]').forEach(b=>b.onclick=()=>{ read(); e.travelers.splice(+b.dataset.etr,1); draw(); });
+    $('#e_addT').onclick=()=>{ read(); e.travelers.push({name:'Viajero '+(e.travelers.length+1),age:'adulto'}); draw(); };
+    $$('[data-ei]').forEach(b=>b.onclick=()=>{ const k=b.dataset.ei; e.interests=e.interests.includes(k)?e.interests.filter(x=>x!==k):[...e.interests,k]; b.classList.toggle('on'); });
+    $$('[data-ep]').forEach(b=>b.onclick=()=>{ e.pace=b.dataset.ep; $$('[data-ep]').forEach(x=>x.classList.toggle('on',x===b)); });
+    $$('[data-el]').forEach(b=>b.onclick=()=>{ e.budget.level=b.dataset.el; $$('[data-el]').forEach(x=>x.classList.toggle('on',x===b)); });
+    $('#e_save').onclick=async()=>{ read(); await applyTripEdit(e); };
+  };
+  draw();
+}
+async function applyTripEdit(e){
+  const t=cur;
+  const datesCh = e.start!==t.start || e.stops.some((s,i)=>s.nights!==t.stops[i].nights);
+  const travCh = JSON.stringify(e.travelers)!==JSON.stringify(t.travelers);
+  const planCh = datesCh || e.pace!==t.pace || e.budget.level!==t.budget.level || e.interests.join()!==t.interests.join();
+  t.name=e.name; t.start=e.start; t.stops.forEach((s,i)=>s.nights=e.stops[i].nights); t.travelers=e.travelers.map((x,i)=>({name:x.name.trim()||'Viajero '+(i+1),age:x.age}));
+  t.interests=e.interests; t.pace=e.pace; t.budget=e.budget; t.end=D.add(t.start,nightsOf(t));
+  closeModal();
+  if(datesCh && LIVE && t.source==='web'){
+    toast('Actualizando el clima…');
+    t.weather={}; let date=t.start;
+    for(const [si,stop] of t.stops.entries()){ const sEnd=D.add(date,stop.nights); if(stop.lat!=null){ const w=await weatherFor(stop,date,sEnd); if(w){ t.weatherKind=w.kind; w.days.forEach(d=>{ if(!t.weather[d.date]||d.date!==sEnd) t.weather[d.date]={...d,stop:si}; }); } } date=sEnd; }
+  } else if(datesCh && t.weatherKind==='tipico'){
+    const old=Object.values(t.weather||{}); const byStop={}; old.forEach(w=>{ byStop[w.stop]=w; }); t.weather={}; let date=t.start;
+    t.stops.forEach((s,si)=>{ const w=byStop[si]; if(w) for(let i=0;i<=s.nights;i++){ const d=D.add(date,i); t.weather[d]={...w,date:d}; } date=D.add(date,s.nights); });
+  } else if(datesCh){ t.weather={}; }
+  if(planCh) t.days=schedule(t);
+  if(travCh || datesCh){ const old=t.packing||{}; const nu=buildPacking(t); Object.entries(nu).forEach(([who,list])=>{ const prev=old[who]||[]; list.forEach(x=>{ const m=prev.find(y=>y.item===x.item); if(m) x.on=m.on; }); const extra=prev.filter(y=>!list.some(x=>x.item===y.item) && !y.auto && y.custom); list.push(...extra); }); t.packing=nu; }
+  saveCur(); renderTrip(); scheduleNotifs(t);
+  toast(planCh?'Viaje actualizado e itinerario rearmado':'Viaje actualizado');
+}
+
+/* Duplicar viaje (mejora 6) */
+function duplicateTrip(){
+  const c=JSON.parse(JSON.stringify(cur)); c.id=uid(); c.createdAt=Date.now(); c.name=cur.name+' (copia)'; c.bookings=[];
+  (c.days||[]).forEach(d=>d.items.forEach(x=>x.done=false)); Object.values(c.packing||{}).forEach(l=>l.forEach(x=>x.on=false));
+  trips.unshift(c); saveTrips(); cur=c; tab='plan'; renderTrip();
+  toast('Copia creada (sin reservas). Cambiale la fecha.'); setTimeout(editTripModal,400);
+}
+
+/* Sponsors (mejora 21) */
+function activeSponsors(where){
+  const today=D.today(); const t=cur;
+  return SPONSORS.filter(s=>(!s.where||s.where.includes(where)) && (!s.from||s.from<=today) && (!s.to||s.to>=today)
+    && (!s.dest||!t||t.stops.some(st=>s.dest.some(d=>norm(st.name+' '+(st.country||'')).includes(norm(d)))))
+    && (!s.ints||!t||s.ints.some(i=>t.interests.includes(i)))
+    && (s.kids==null||!t||s.kids===hasKids(t)));
+}
+function sponsorSlot(where){
+  const list=activeSponsors(where);
+  if(list.length){ const s=list[Math.floor(Math.random()*list.length)];
+    return `<a class="spon" href="${esc(s.url)}" target="_blank" rel="noopener sponsored" data-spon="${esc(s.id)}"><span class="sl">Patrocinado</span><div class="se" style="${s.img?`background-image:url('${esc(s.img)}')`:''}">${s.img?'':esc(s.emoji||'✨')}</div><div><b>${esc(s.title)}</b><p>${esc(s.text)}</p><span class="cta">${esc(s.cta||'Ver más')} ↗</span></div></a>`; }
+  const copy={home:'Llegá a familias y viajeros justo cuando planifican.',reservas:'Seguros, eSIM, traslados: aparecé cuando reservan.',valijas:'Tu producto en la lista de la valija, en el momento justo.',alertas:'Tu marca en la previa del viaje.'}[where]||'';
+  return `<button class="spon" data-house="1" style="width:100%;text-align:left;cursor:pointer;font:inherit"><span class="sl">Espacio disponible</span><div class="se">✨</div><div><b>Tu marca acá</b><p>${copy}</p><span class="cta">Ver formatos para marcas →</span></div></button>`;
+}
+function wireSponsors(root=document){ $$('[data-house]',root).forEach(b=>b.onclick=renderBrands); }
+function addSponsor(where){ const B=$('#tabBody'); if(!B||$('.spon',B)) return; B.insertAdjacentHTML('beforeend',sponsorSlot(where)); wireSponsors(B); }
+
+/* Página «Para marcas» (mejora 22) */
+function renderBrands(){
+  cur=null; document.body.classList.remove('intrip'); window.scrollTo(0,0);
+  app.innerHTML=`<section class="hero">${starsSVG()}<div class="wrap" style="position:relative"><div class="eyebrow">Para marcas y sponsors</div><h1>Aparecé cuando<br><em>planifican el viaje.</em></h1><p>Travel Wizard acompaña a familias y viajeros desde que eligen el destino hasta que vuelven: reservas, valijas, alertas y el itinerario de cada día.</p></div></section>
+  <div class="wrap doc">
+    <h2>Por qué funciona</h2>
+    <div class="card"><ul>
+      <li><b>Momento de compra:</b> la persona está decidiendo dónde dormir, qué hacer y qué llevar.</li>
+      <li><b>Contexto preciso:</b> destino, fechas, si viajan con chicos, intereses y nivel de presupuesto.</li>
+      <li><b>Sin datos personales:</b> los avisos se eligen por el contexto del viaje, que queda en el dispositivo.</li>
+      <li><b>Formatos nativos:</b> tarjetas cuidadas que suman al viaje, siempre señaladas como «Patrocinado».</li></ul></div>
+    <h2>Formatos</h2>
+    <div class="fmts">
+      <div class="fmt">🏠<b>Inicio</b><span>Tarjeta destacada en la pantalla principal.</span></div>
+      <div class="fmt">🗺️<b>Recomendado en el itinerario</b><span>Restaurante, excursión o tienda en el día y la ciudad justos. <i>(próximamente)</i></span></div>
+      <div class="fmt">🎫<b>Reservas</b><span>Seguros, eSIM, traslados, alquiler de autos.</span></div>
+      <div class="fmt">🧳<b>Valijas</b><span>Productos sugeridos según clima y viajeros.</span></div>
+      <div class="fmt">🔔<b>Alertas</b><span>Presencia en la previa del viaje.</span></div>
+      <div class="fmt">📖<b>Bitácora</b><span>«Este viaje te lo acerca…» en la bitácora exportable. <i>(próximamente)</i></span></div>
+    </div>
+    <h2>Segmentación</h2>
+    <div class="card"><p>Por destino o país · familias con chicos o adultos · intereses (playa, nieve, gastronomía, shopping…) · nivel de presupuesto · fechas de campaña.</p></div>
+    <h2>Logo e ícono</h2>
+    <div class="fmts logos">
+      <div class="fmt" style="text-align:center;background:#faf7f2;color:#1f2933">${logoSVG('light')}<b>Sobre claro</b></div>
+      <div class="fmt" style="text-align:center;background:#0e1525;color:#eef1f6;border-color:#26344f">${logoSVG('dark')}<b>Sobre oscuro</b></div>
+      <div class="fmt" style="text-align:center">${logoSVG('icon')}<b>Ícono de app</b></div>
+      <div class="fmt" style="display:flex;flex-direction:column;gap:8px;justify-content:center"><button class="btn sm" data-logo="light">⬇️ Logo claro</button><button class="btn ghost sm" data-logo="dark">⬇️ Logo oscuro</button><button class="btn ghost sm" data-logo="icon">⬇️ Ícono</button></div>
+    </div>
+    <h2>Contacto comercial</h2>
+    <div class="card">${CONTACT_EMAIL?`<p>Escribinos a <b>${esc(CONTACT_EMAIL)}</b></p><a class="btn" href="mailto:${esc(CONTACT_EMAIL)}?subject=${encodeURIComponent('Quiero anunciar en Travel Wizard')}">✉️ Quiero anunciar</a>`:`<p class="muted">Muy pronto: dirección de contacto comercial.</p>`}</div>
+    <div class="toolbar"><button class="btn ghost" id="backHome">← Volver al inicio</button></div>
+    <div class="foot">Travel Wizard · ${VERSION}</div></div>`;
+  $('#backHome').onclick=renderHome;
+  $$('[data-logo]').forEach(b=>b.onclick=()=>saveFile(`travel-wizard-${b.dataset.logo==='icon'?'icono':'logo-'+(b.dataset.logo==='light'?'claro':'oscuro')}.svg`, logoFile(b.dataset.logo), 'image/svg+xml'));
+}
+
+/* Novedades y hoja de ruta (mejora 1) */
+function renderNews(){
+  cur=null; document.body.classList.remove('intrip'); window.scrollTo(0,0);
+  const done=ROADMAP.done.length, pct=Math.round(done/ROADMAP.total*100);
+  app.innerHTML=`<div class="wrap doc">
+    <h2>Novedades</h2>
+    <div class="card"><b>Plan de 200 mejoras</b><div class="bigprog"><i style="width:${Math.max(pct,1)}%"></i></div><span class="small muted">${done} de ${ROADMAP.total} hechas (${pct}%) · versión ${VERSION}</span></div>
+    ${NEWS.map(([v,f,items])=>`<div class="ver"><h3>Versión ${v} <span class="muted small">· ${f}</span></h3><ul>${items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div>`).join('')}
+    <h2>Fuentes de datos</h2>
+    <div class="card small"><p>Lugares, descripciones y fotos: Wikipedia y Wikimedia Commons (licencias abiertas). Clima y búsqueda de ciudades: Open-Meteo. Mapas: OpenStreetMap y CARTO. Dentro de Claude, el itinerario lo sugiere Claude.</p></div>
+    <h2>Aviso</h2>
+    <div class="card small"><p>Los horarios, precios, requisitos de viaje y presupuestos son orientativos: confirmalos siempre con la fuente oficial o el prestador. Los enlaces a sitios de reserva son búsquedas públicas; los avisos patrocinados están señalados. Tus viajes quedan guardados solo en este dispositivo.</p></div>
+    <div class="toolbar"><button class="btn ghost" id="backHome">← Volver al inicio</button></div>
+    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira</div></div>`;
+  $('#backHome').onclick=renderHome;
+}
+
+/* sponsors al pie de algunas pestañas */
+{ const _rb=renderBookings, _rp=renderPacking, _ra=renderAlerts;
+  renderBookings=function(){ _rb(); addSponsor('reservas'); };
+  renderPacking=function(){ _rp(); addSponsor('valijas'); };
+  renderAlerts=function(){ _ra(); addSponsor('alertas'); }; }
+
+/* ---------- inicio ---------- */
+setIcons();
+renderHome();
+detectLive();
+initClaude();
+</script>
+</body>
+</html>
+
+</body></html>
