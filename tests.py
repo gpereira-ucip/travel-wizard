@@ -26,7 +26,10 @@ def handle(route, req):
         s=date.fromisoformat(q['start_date']); e=date.fromisoformat(q['end_date']); n=(e-s).days+1
         t=[str(s+timedelta(i)) for i in range(n)]
         return route.fulfill(json={'daily':{'time':t,'weather_code':[(0,2,61,3)[i%4] for i in range(n)],'temperature_2m_max':[16+i%4 for i in range(n)],'temperature_2m_min':[5+i%3 for i in range(n)],'precipitation_sum':[(0,0,8,1)[i%4] for i in range(n)]}})
-    if 'upload.wikimedia' in u or 'cartocdn' in u: return route.fulfill(body=PNG, content_type='image/png')
+    if 'leaflet.js' in u:  # Leaflet de prueba: registra qué mapas y teselas se piden
+        return route.fulfill(content_type='application/javascript', body="window.__lf={maps:[],tiles:[]};const _o={addTo(){return this},bindPopup(){return this}};window.L={map:(el)=>{window.__lf.maps.push(el.id);const m={fitBounds(){return m},setView(){return m},invalidateSize(){},remove(){}};return m},tileLayer:(u)=>{window.__lf.tiles.push(u);return {addTo(){return this}}},marker:()=>_o,polyline:()=>_o,divIcon:()=>({})};")
+    if 'leaflet.css' in u: return route.fulfill(content_type='text/css', body='')
+    if 'upload.wikimedia' in u or 'cartocdn' in u or 'tile.openstreetmap' in u: return route.fulfill(body=PNG, content_type='image/png')
     return route.abort()
 mode=sys.argv[1] if len(sys.argv)>1 else 'live'
 with sync_playwright() as p:
@@ -41,6 +44,11 @@ with sync_playwright() as p:
     assert pg.query_selector('.brand svg.twlogo') and pg.query_selector('.hero .hero-logo'), 'logo'
     assert pg.query_selector('#nextFeat') is None
     pg.click('#newTrip')
+    # v0.7: primero se elige uno o varios lugares; con varios hay recorridos sugeridos
+    assert pg.query_selector('#orig') is None, 'el destino aparece antes de elegir uno o varios'
+    pg.click('[data-mode=varios]'); pg.click('[data-reg="Europa"]'); pg.wait_for_timeout(150)
+    assert len(pg.query_selector_all('.route'))>=5, 'recorridos sugeridos de Europa'
+    pg.screenshot(path=f'shots/{mode}_1routes.png'); pg.click('[data-reg="Europa"]')
     pg.fill('#orig','Buenos'); pg.wait_for_timeout(900); pg.click('#origS li')
     for c in ['Praga','Viena']:
         pg.fill('#dest',c); pg.wait_for_timeout(900); pg.click('#destS li'); pg.wait_for_timeout(200)
@@ -58,6 +66,13 @@ with sync_playwright() as p:
     if mode=='live': print('facts', pg.evaluate("document.querySelector('#gk').textContent"))
     pg.wait_for_selector('.thero', timeout=30000); pg.wait_for_timeout(800)
     pg.screenshot(path=f'shots/{mode}_6plan.png'); pg.screenshot(path=f'shots/{mode}_6planfull.png', full_page=True)
+    if mode=='live':
+        pg.wait_for_timeout(1200)
+        assert pg.query_selector('#lm-all') and pg.query_selector('#lm-0') and pg.query_selector('#lm-1'), 'mapa del recorrido y uno por destino'
+        assert len(pg.query_selector_all('#maps .legs li'))==1 and 'Praga → Viena' in pg.inner_text('#maps .legs'), 'tramos del recorrido'
+        lf=pg.evaluate('window.__lf'); print('mapas', lf)
+        assert set(lf['maps'])>={'lm-all','lm-0','lm-1'} and all('tile.openstreetmap.org' in t for t in lf['tiles']), 'mapas por destino con teselas de OSM'
+        el=pg.query_selector('#maps'); el.scroll_into_view_if_needed(); pg.wait_for_timeout(300); el.screenshot(path=f'shots/{mode}_6maps.png')
     # swap & add booking
     pg.click('[data-swap]'); 
     for t in ['reservas','valijas','plata','alertas']:

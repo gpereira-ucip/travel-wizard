@@ -197,6 +197,9 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .wxd .e{font-size:24px}
 .wxd b{display:block;font-size:14px}
 #map{height:260px;border-radius:var(--r2);overflow:hidden;border:1px solid var(--line);margin:8px 0 6px;z-index:1}
+.mapc{margin:10px 0 14px}.mapc h4{margin:0 0 6px;font-size:.95rem}.mapc .lmap{height:240px;border-radius:var(--r2);overflow:hidden;border:1px solid var(--line);z-index:1}
+.legs{margin:8px 0 0;padding:0;list-style:none}.legs li{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px dashed var(--line);font-size:.86rem}.legs li:last-child{border-bottom:0}
+.routes{display:grid;gap:10px;margin:10px 0}.route{text-align:left;padding:12px 14px;border-radius:var(--r2);border:1px solid var(--line);background:var(--card);cursor:pointer;font:inherit;color:inherit}.route b{display:block;margin-bottom:2px}.route:active{transform:scale(.99)}
 .day{margin:18px 0;overflow:hidden}
 .dayh{display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(90deg,color-mix(in srgb,var(--night) 92%,transparent),color-mix(in srgb,var(--night2) 92%,transparent));color:#fff}
 .dayh .dn{font-family:var(--serif);font-size:30px;font-weight:700;line-height:1;color:var(--gold2)}
@@ -303,7 +306,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .ed-sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:16px 0 8px}
 @media (min-width:640px){.sheet{border-radius:24px;margin-bottom:5vh}.modal{align-items:center}.hero h1{font-size:58px}}
 @media (max-width:380px){.feat{grid-template-columns:1fr 1fr 1fr}.hero h1{font-size:38px}.it .im{width:60px;height:60px}}
-@media print{.top,.tabs,.acts,.toolbar,#map{display:none!important}.page{padding:0}.day{break-inside:avoid}}
+@media print{.top,.tabs,.acts,.toolbar,#map,#maps{display:none!important}.page{padding:0}.day{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -326,7 +329,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.6';
+const VERSION = '0.7';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -394,6 +397,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.7','14 nov 2026',['Un mapa por cada destino y, si son varios, el mapa del recorrido completo con la distancia y cómo conviene moverse entre ciudades. Los mapas vuelven a verse (antes aparecía «API KEY REQUIRED»).','El asistente pregunta si vas a conocer un solo lugar o varios. Con varios: recorridos sugeridos por zona (Europa, Sudamérica, Estados Unidos y Asia), flechas para cambiar el orden y un botón para ordenar el recorrido y viajar menos.']],
   ['0.6','10 nov 2026',['Logo nuevo: brújula de mago en versión clara, oscura e ícono de app (también como favicon). Se puede descargar desde «Para marcas».','Portada animada: estrellas que titilan, estrella fugaz, la brújula que gira al abrir y tu próximo viaje destacado con foto y cuenta regresiva.','Mientras se arma el viaje: el mago muestra el avance paso a paso con datos curiosos del destino (con internet) y consejos de viaje.']],
   ['0.5','9 nov 2026',['Empieza el plan de 200 mejoras: esta pantalla muestra el avance.','Inicio con ideas de viaje que precargan el asistente y «Mis viajes» con cuenta regresiva.','Resumen del viaje: cuenta regresiva, próximo evento, valijas, reservas y presupuesto.','Editar y duplicar viajes sin rehacerlos.','Espacios para sponsors y página «Para marcas».']],
   ['0.4','8 nov 2026',['Subir el PDF de la confirmación: se lee solo y queda adjunto.']],
@@ -881,9 +885,10 @@ function renderHome(){
 
 /* ---------- asistente ---------- */
 function startWizard(idea){
-  wz = {step:0, origin:null, originText:'', stops:[], start:D.add(D.today(),30), travelers:[{name:'',age:'adulto'}], group:null, interests:[], pace:'moderado', budget:{level:'moderado', amount:'', cur:'USD'}};
+  wz = {step:0, mode:null, region:null, origin:null, originText:'', stops:[], start:D.add(D.today(),30), travelers:[{name:'',age:'adulto'}], group:null, interests:[], pace:'moderado', budget:{level:'moderado', amount:'', cur:'USD'}};
   if(idea){
     wz.stops = idea.stops.map(([name,nights])=>({name, country:'', cc:'', admin:'', lat:null, lon:null, manual:true, nights}));
+    wz.mode = wz.stops.length>1?'varios':'uno';
     wz.interests = [...idea.ints];
     if(idea.ints.includes('ninos')){ wz.group='familia'; wz.travelers=[{name:'',age:'adulto'},{name:'',age:'adulto'},{name:'',age:'nino'}]; }
     // completar país y coordenadas en segundo plano si hay red
@@ -893,18 +898,61 @@ function startWizard(idea){
   if(idea) toast(`Idea cargada: ${idea.t}. Ajustá lo que quieras.`);
 }
 const WSTEPS = ['destino','fechas','viajeros','intereses','presupuesto'];
+/* Recorridos sugeridos (14/11/2026). Ciudades y noches orientativas; el usuario los ajusta. */
+const ROUTES = {
+  'Europa':[
+    {e:'🇪🇸',t:'España y Francia clásica',stops:[['Madrid',3],['Barcelona',3],['París',4]],how:'Tren de alta velocidad entre las tres',ints:['cultura','gastronomia']},
+    {e:'🇮🇹',t:'Italia esencial',stops:[['Roma',4],['Florencia',3],['Venecia',2],['Milán',2]],how:'Todo en tren',ints:['cultura','historia','gastronomia']},
+    {e:'🏰',t:'Europa central',stops:[['Praga',3],['Viena',3],['Budapest',3]],how:'Tren o bus, 3 a 4 h por tramo',ints:['cultura','historia']},
+    {e:'🌷',t:'Londres, París y Ámsterdam',stops:[['Londres',4],['París',4],['Ámsterdam',3]],how:'Tren por el túnel y tren a Ámsterdam',ints:['cultura','shopping']},
+    {e:'🇵🇹',t:'Portugal y Andalucía',stops:[['Lisboa',3],['Oporto',2],['Sevilla',3],['Granada',2]],how:'Tren en Portugal, auto o bus a Andalucía',ints:['cultura','gastronomia','historia']},
+    {e:'⛵',t:'Croacia y su costa',stops:[['Zagreb',2],['Plitvice',1],['Split',3],['Dubrovnik',3]],how:'Auto o bus por la costa',ints:['naturaleza','playa','historia']},
+    {e:'🇬🇷',t:'Grecia e islas',stops:[['Atenas',3],['Mykonos',3],['Santorini',3]],how:'Ferry entre islas',ints:['playa','historia','relax']}],
+  'Sudamérica':[
+    {e:'🦙',t:'Perú y Machu Picchu',stops:[['Lima',2],['Cusco',4],['Aguas Calientes',1],['Puno',2]],how:'Avión a Cusco, tren a Aguas Calientes',ints:['historia','aventura','gastronomia']},
+    {e:'🧊',t:'Patagonia austral',stops:[['El Calafate',3],['El Chaltén',3],['Ushuaia',3]],how:'Bus a El Chaltén, avión a Ushuaia',ints:['naturaleza','aventura']},
+    {e:'🌵',t:'Norte argentino',stops:[['Salta',3],['Cafayate',2],['Purmamarca',2]],how:'Auto por las rutas de las quebradas',ints:['naturaleza','historia','gastronomia']},
+    {e:'🏖️',t:'Costa de Brasil',stops:[['Río de Janeiro',4],['Paraty',3],['Ilhabela',3]],how:'Auto o bus por la costa',ints:['playa','naturaleza']},
+    {e:'🌋',t:'Chile de punta a punta',stops:[['Santiago',3],['San Pedro de Atacama',3],['Puerto Varas',3]],how:'Avión entre regiones',ints:['naturaleza','aventura']}],
+  'Estados Unidos':[
+    {e:'🗽',t:'Costa este',stops:[['Nueva York',5],['Washington',2],['Boston',2]],how:'Tren o bus entre ciudades',ints:['cultura','shopping']},
+    {e:'🌉',t:'Costa oeste',stops:[['San Francisco',3],['Los Ángeles',3],['Las Vegas',2]],how:'Auto por la costa y el desierto',ints:['aventura','nocturna']},
+    {e:'🎢',t:'Florida',stops:[['Orlando',6],['Miami',3]],how:'Auto, unas 3 h y media',ints:['ninos','playa','shopping']}],
+  'Asia':[
+    {e:'🗾',t:'Japón clásico',stops:[['Tokio',4],['Kioto',3],['Osaka',2],['Hiroshima',1]],how:'Tren bala entre ciudades',ints:['cultura','gastronomia','historia']},
+    {e:'🏝️',t:'Tailandia',stops:[['Bangkok',3],['Chiang Mai',3],['Phuket',4]],how:'Vuelos internos cortos',ints:['playa','gastronomia','cultura']}]
+};
+function routeKm(st){ let t=0; for(let i=1;i<st.length;i++){ if(st[i-1].lat==null||st[i].lat==null) return Infinity; t+=km(st[i-1],st[i]); } return t; }
+function orderRoute(st, origin){
+  if(st.some(x=>x.lat==null)){ toast('Primero elegí cada destino de la lista para saber dónde queda'); return st; }
+  const o = origin&&origin.lat!=null ? origin : null;
+  const tour=(arr)=>{ let t=o?km(o,arr[0]):0; for(let i=1;i<arr.length;i++) t+=km(arr[i-1],arr[i]); return t; };
+  let best=null;
+  for(let s0=0;s0<st.length;s0++){ const rest=st.filter((_,i)=>i!==s0), r=[st[s0]];
+    while(rest.length){ const last=r[r.length-1]; let bi=0; rest.forEach((x,i)=>{ if(km(last,x)<km(last,rest[bi])) bi=i; }); r.push(rest.splice(bi,1)[0]); }
+    let imp=true; while(imp){ imp=false; for(let i=0;i<r.length-1;i++) for(let j=i+1;j<r.length;j++){ const c=[...r.slice(0,i),...r.slice(i,j+1).reverse(),...r.slice(j+1)]; if(tour(c)<tour(r)-0.01){ r.splice(0,r.length,...c); imp=true; } } }
+    if(!best||tour(r)<tour(best)) best=r; }
+  return best;
+}
 function renderWizard(){
   window.scrollTo(0,0);
   const st = WSTEPS[wz.step];
   const pct = (wz.step+1)/WSTEPS.length*100;
   let body='';
   if(st==='destino') body = `
-    <h2>¿A dónde querés ir?</h2><p class="lead">Una ciudad o varias. Ajustá cuántas noches en cada una.</p>
+    <h2>¿A dónde querés ir?</h2><p class="lead">¿Vas a conocer un solo lugar o varios?</p>
+    <div class="chips" style="margin-bottom:14px"><button class="chip lg ${wz.mode==='uno'?'on':''}" data-mode="uno">📍 Un solo lugar</button><button class="chip lg ${wz.mode==='varios'?'on':''}" data-mode="varios">🗺️ Varios lugares (recorrido)</button></div>
+    ${wz.mode?`
     <div class="field"><label>Salgo desde</label><div class="sugg"><input class="inp" id="orig" placeholder="Ej.: Buenos Aires" value="${esc(wz.originText)}" autocomplete="off"><ul class="hidden" id="origS"></ul></div></div>
-    <div class="field"><label>Destinos</label><div class="sugg"><input class="inp" id="dest" placeholder="Escribí un destino y elegilo de la lista" autocomplete="off"><ul class="hidden" id="destS"></ul></div></div>
+    ${wz.mode==='varios'?`<div class="field"><label>¿Querés ideas de recorrido? Elegí una zona</label><div class="chips">${Object.keys(ROUTES).map(r=>`<button class="chip ${wz.region===r?'on':''}" data-reg="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+      ${wz.region?`<div class="routes">${ROUTES[wz.region].map((r,i)=>`<button class="route" data-route="${i}"><b>${r.e} ${esc(r.t)}</b><span class="small">${r.stops.map(x=>esc(x[0])+' ('+x[1]+')').join(' → ')}</span><br><span class="small muted">${esc(r.how)} · ${r.stops.reduce((a,x)=>a+x[1],0)} noches</span></button>`).join('')}</div><p class="small muted">Tocá uno para cargarlo y después ajustalo como quieras. Son sugerencias: verificá horarios y precios.</p>`:''}</div>`:''}
+    <div class="field"><label>${wz.mode==='uno'?'Destino':'Destinos (en el orden en que los visitás)'}</label><div class="sugg"><input class="inp" id="dest" placeholder="Escribí un destino y elegilo de la lista" autocomplete="off"><ul class="hidden" id="destS"></ul></div></div>
     <div id="stops">${wz.stops.map((s,i)=>`<div class="card stop"><div class="num">${i+1}</div><div class="grow"><b>${esc(s.name)}</b><div class="small muted">${esc([s.admin,s.country].filter(Boolean).join(', '))}</div></div>
+      ${wz.mode==='varios'&&wz.stops.length>1?`<div class="stepper"><button data-up="${i}" aria-label="Subir" ${i?'':'disabled'}>↑</button></div>`:''}
       <div class="stepper"><button data-n="${i}" data-d="-1">−</button><b>${s.nights}</b><button data-n="${i}" data-d="1">+</button></div><span class="small muted">noches</span><button class="x" data-rm="${i}" aria-label="Quitar">×</button></div>`).join('')}</div>
-    ${wz.stops.length?'':`<div class="note">💡 Ejemplos: <b>Iguazú</b> · <b>Praga + Viena + Innsbruck</b> · <b>Sierra de la Ventana</b></div>`}`;
+    ${wz.mode==='varios'&&wz.stops.length>2?`<button class="btn ghost sm" id="optRoute">🧭 Ordenar el recorrido para viajar menos</button>`:''}
+    ${wz.mode==='varios'&&wz.stops.length>1?`<div class="card" style="padding:10px 14px;margin-top:10px"><b class="small">Cómo moverte entre destinos</b>${legsHTML(wz.stops)||'<p class="small muted" style="margin:4px 0 0">Elegí los destinos de la lista para ver distancias y cómo conviene moverte.</p>'}</div>`:''}
+    ${wz.stops.length?'':`<div class="note">💡 ${wz.mode==='uno'?'Ejemplos: <b>Iguazú</b> · <b>Bariloche</b> · <b>Sierra de la Ventana</b>':'Elegí una zona arriba para ver recorridos armados, o agregá los destinos uno por uno.'}</div>`}`:''}`;
   if(st==='fechas'){
     const tot = wz.stops.reduce((a,s)=>a+s.nights,0);
     body = `<h2>¿Cuándo salís?</h2><p class="lead">Con la fecha calculo el clima y armo las alertas.</p>
@@ -932,7 +980,7 @@ function renderWizard(){
 }
 function validateStep(){
   const st=WSTEPS[wz.step]; let ok=true;
-  if(st==='destino') ok = wz.stops.length>0;
+  if(st==='destino') ok = !!wz.mode && wz.stops.length>0;
   if(st==='viajeros') ok = wz.travelers.length>0;
   $('#wNext').disabled = !ok;
 }
@@ -955,9 +1003,19 @@ function wireSuggest(inp, ul, onPick){
 }
 function wireStep(st){
   if(st==='destino'){
+    $$('[data-mode]').forEach(b=>b.onclick=()=>{ wz.mode=b.dataset.mode; if(wz.mode==='uno'&&wz.stops.length>1) wz.stops=wz.stops.slice(0,1); renderWizard(); });
+    if(!wz.mode) return;
+    $$('[data-reg]').forEach(b=>b.onclick=()=>{ wz.region = wz.region===b.dataset.reg?null:b.dataset.reg; renderWizard(); });
+    $$('[data-route]').forEach(b=>b.onclick=()=>{ const r=ROUTES[wz.region][+b.dataset.route];
+      wz.stops=r.stops.map(([name,nights])=>({name,country:'',cc:'',admin:'',lat:null,lon:null,manual:true,nights}));
+      wz.interests=[...new Set([...(wz.interests||[]),...(r.ints||[])])]; renderWizard(); toast(`Recorrido cargado: ${r.t}`);
+      detectLive().then(async live=>{ if(!live) return; for(const st of wz.stops){ try{ const g=(await geocode(st.name))[0]; if(g) Object.assign(st,{name:g.name,country:g.country,cc:g.cc,admin:g.admin,lat:g.lat,lon:g.lon,manual:false}); }catch(e){} } if(WSTEPS[wz.step]==='destino'&&$('#stops')) renderWizard(); }); });
+    $$('#stops [data-up]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.up; if(i>0){ [wz.stops[i-1],wz.stops[i]]=[wz.stops[i],wz.stops[i-1]]; renderWizard(); } });
+    if($('#optRoute')) $('#optRoute').onclick=()=>{ const before=routeKm(wz.stops); wz.stops=orderRoute(wz.stops, wz.origin); const after=routeKm(wz.stops); renderWizard();
+      toast(after<before-1?`Listo: ${Math.round(before-after).toLocaleString('es-AR')} km menos de viaje`:'El orden que tenías ya era el más corto'); };
     wireSuggest($('#orig'), $('#origS'), r=>{ wz.origin=r; wz.originText=r.name; $('#orig').value=r.name; });
     $('#orig').addEventListener('change', e=>{ wz.originText=e.target.value; if(!wz.origin||wz.origin.name!==e.target.value) wz.origin={name:e.target.value,cc:''}; });
-    wireSuggest($('#dest'), $('#destS'), r=>{ wz.stops.push({...r, nights: wz.stops.length? 3 : 4}); renderWizard(); setTimeout(()=>$('#dest')&&$('#dest').focus(),50); });
+    wireSuggest($('#dest'), $('#destS'), r=>{ if(wz.mode==='uno') wz.stops=[{...r, nights: wz.stops[0]?wz.stops[0].nights:4}]; else wz.stops.push({...r, nights: wz.stops.length? 3 : 4}); renderWizard(); setTimeout(()=>$('#dest')&&$('#dest').focus(),50); });
     $$('#stops [data-d]').forEach(b=>b.onclick=()=>{ const s=wz.stops[+b.dataset.n]; s.nights=Math.max(1,Math.min(30,s.nights+ +b.dataset.d)); renderWizard(); });
     $$('#stops [data-rm]').forEach(b=>b.onclick=()=>{ wz.stops.splice(+b.dataset.rm,1); renderWizard(); });
   }
@@ -1078,7 +1136,7 @@ function renderPlan(){
   B.innerHTML = `
     ${summaryCard(t)}
     ${wxDays.length?`<div class="subh">🌤️ ${wxLabel}</div><div class="wx">${t.days.map(d=>{const w=t.weather[d.date]; if(!w) return ''; return `<div class="wxd"><div class="small muted">${D.nice(d.date,{weekday:'short',day:'numeric'})}</div><div class="e">${wxEmoji(w.code)}</div><b>${Math.round(w.tmax)}°</b><span class="muted">${Math.round(w.tmin)}°</span></div>`;}).join('')}</div>${t.weatherKind==='tipico'&&wxDays[0].note?`<div class="srcnote">${esc(wxDays[0].note)}</div>`:''}`:''}
-    <div id="map" class="hidden"></div>
+    <div id="maps"></div>
     ${t.stops.map((s,si)=>t.intro&&t.intro[si]?`<p class="small muted" style="margin:10px 0"><b>${esc(s.name)}.</b> ${esc(t.intro[si].slice(0,320))}${t.intro[si].length>320?'…':''}</p>`:'').join('')}
     <div class="toolbar"><button class="btn sm dark" id="regen">🔄 Rearmar itinerario</button><button class="btn sm ghost" id="copyTxt">📋 Copiar para WhatsApp</button><button class="btn sm ghost" id="dupTrip">🧬 Duplicar</button><button class="btn sm ghost" id="expJson">💾 Exportar viaje</button><button class="btn sm ghost" id="delTrip" aria-label="Borrar viaje">🗑️</button></div>
     <div id="days"></div>
@@ -1115,17 +1173,39 @@ function renderPlan(){
   $('#delTrip').onclick=()=>confirmModal('¿Borrar este viaje?','Se borra de este dispositivo.',()=>{ trips=trips.filter(x=>x.id!==cur.id); saveTrips(); cur=null; renderHome(); });
   drawMap();
 }
+/* Mapas (14/11/2026, pedido de Gonzalo): un mapa por destino y, si hay varios, el recorrido completo.
+   Teselas de OpenStreetMap: las de CARTO pedían clave y se veían con «API KEY REQUIRED». */
+const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png', TILE_ATTR='© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+let _maps=[];
+function legMode(k){ return k<40?['🚶','A pie o transporte local']:k<700?['🚆','Tren, bus o auto']:['✈️','Avión (o tren nocturno)']; }
+function legsHTML(stops){ let h=''; for(let i=1;i<stops.length;i++){ const a=stops[i-1],b=stops[i]; if(a.lat==null||b.lat==null) continue; const k=km(a,b),[e,l]=legMode(k);
+  h+=`<li><span>${e}</span><span class="grow"><b>${esc(a.name)} → ${esc(b.name)}</b> · ${Math.round(k).toLocaleString('es-AR')} km</span><span class="small muted">${l}</span></li>`; }
+  return h?`<ul class="legs">${h}</ul><p class="small muted" style="margin:4px 0 0">Distancias en línea recta. El medio de transporte es una sugerencia: verificá horarios y precios.</p>`:''; }
 function drawMap(){
-  const el=$('#map'); if(!el || !LIVE) return;
-  const pts=[]; cur.days.forEach((d,di)=>d.items.forEach(x=>{ const p=itemById(d.stop,x.ref); if(p&&p.lat!=null&&!p.generic) pts.push({p,di}); }));
-  if(!pts.length) return;
-  const go=()=>{ if(!window.L) return; el.classList.remove('hidden');
-    const m=L.map(el,{scrollWheelZoom:false}); L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(m);
-    const b=[]; pts.forEach(({p,di})=>{ b.push([p.lat,p.lon]); L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:`<div style="background:#14213d;color:#f4d38f;border:2px solid #f4d38f;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font:700 11px Plus Jakarta Sans,sans-serif">${di+1}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(m).bindPopup(`<b>Día ${di+1}</b><br>${esc(p.title)}`); });
-    m.fitBounds(b,{padding:[24,24]}); };
+  const box=$('#maps'); if(!box) return;
+  _maps.forEach(m=>{ try{ m.remove(); }catch(e){} }); _maps=[];
+  const stops=cur.stops||[];
+  const byStop=stops.map(()=>[]);
+  cur.days.forEach((d,di)=>d.items.forEach(x=>{ const p=itemById(d.stop,x.ref); if(p&&p.lat!=null&&!p.generic&&byStop[d.stop]) byStop[d.stop].push({p,di}); }));
+  const multi=stops.filter(x=>x.lat!=null).length>1;
+  let html='';
+  if(multi) html+=`<section class="mapc"><h4>🗺️ Recorrido completo</h4>${LIVE?'<div class="lmap" id="lm-all"></div>':''}${legsHTML(stops)}</section>`;
+  if(LIVE) stops.forEach((st,si)=>{ if(byStop[si].length||st.lat!=null) html+=`<section class="mapc"><h4>📍 ${esc(st.name)}</h4><div class="lmap" id="lm-${si}"></div></section>`; });
+  box.innerHTML=html;
+  if(!LIVE || !html) return;
+  const pin=(txt,bg,fg)=>L.divIcon({className:'',html:`<div style="background:${bg};color:${fg};border:2px solid #f4d38f;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font:700 11px Plus Jakarta Sans,sans-serif">${txt}</div>`,iconSize:[26,26],iconAnchor:[13,13]});
+  const mk=(id)=>{ const el=document.getElementById(id); if(!el) return null; const m=L.map(el,{scrollWheelZoom:false}); L.tileLayer(TILE_URL,{attribution:TILE_ATTR,maxZoom:19}).addTo(m); _maps.push(m); return m; };
+  const go=()=>{ if(!window.L) return;
+    if(multi){ const m=mk('lm-all'); if(m){ const ll=stops.filter(x=>x.lat!=null).map(x=>[x.lat,x.lon]);
+      stops.forEach((x,i)=>{ if(x.lat!=null) L.marker([x.lat,x.lon],{icon:pin(i+1,'#14213d','#f4d38f')}).addTo(m).bindPopup(`<b>${i+1}. ${esc(x.name)}</b><br>${x.nights} noches`); });
+      L.polyline(ll,{color:'#e76f51',weight:3,dashArray:'6 6'}).addTo(m); m.fitBounds(ll,{padding:[28,28]}); } }
+    stops.forEach((st,si)=>{ const m=mk('lm-'+si); if(!m) return; const b=[];
+      byStop[si].forEach(({p,di})=>{ b.push([p.lat,p.lon]); L.marker([p.lat,p.lon],{icon:pin(di+1,'#14213d','#f4d38f')}).addTo(m).bindPopup(`<b>Día ${di+1}</b><br>${esc(p.title)}`); });
+      if(b.length>1) m.fitBounds(b,{padding:[24,24],maxZoom:15}); else if(b.length) m.setView(b[0],14); else m.setView([st.lat,st.lon],12); });
+    setTimeout(()=>_maps.forEach(m=>m.invalidateSize()),250); };
   if(window.L) go(); else {
     if(!document.getElementById('lfcss')){ const c=document.createElement('link'); c.id='lfcss'; c.rel='stylesheet'; c.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(c); }
-    const s=document.createElement('script'); s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; s.onload=go; s.onerror=()=>{}; document.head.appendChild(s);
+    const sc=document.createElement('script'); sc.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; sc.onload=go; sc.onerror=()=>{}; document.head.appendChild(sc);
   }
 }
 function tripText(t){

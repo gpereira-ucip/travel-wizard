@@ -93,3 +93,5 @@ Este documento ES la memoria del proyecto: cada sesión (incluida la tarea diari
 
 ## Publicación (14/11/2026)
 - La dirección https://gpereira-ucip.github.io/travel-wizard/ se publica desde la rama gh-pages. El workflow `.github/workflows/publicar.yml` copia main a gh-pages solo en cada push: no lo borres ni toques gh-pages a mano.
+
+- 14/11/2026 · v0.7 (pedido de Gonzalo): un mapa por destino + mapa del recorrido con tramos (distancia y medio sugerido); teselas de OpenStreetMap (CARTO pedía clave: «API KEY REQUIRED»). El asistente pregunta «un solo lugar o varios»; con varios, recorridos sugeridos por zona (const ROUTES), flechas para reordenar y «Ordenar el recorrido» (vecino más cercano + 2-opt). tests.py simula Leaflet para verificar los mapas.
