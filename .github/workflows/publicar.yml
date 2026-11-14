@@ -1,0 +1,17 @@
+# Copia main a gh-pages en cada push, para que la dirección de GitHub Pages
+# muestre siempre la última versión (la publica gh-pages).
+name: Publicar en GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  copiar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: git push -f origin HEAD:gh-pages

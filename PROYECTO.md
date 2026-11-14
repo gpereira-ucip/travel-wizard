@@ -89,3 +89,7 @@ Este documento ES la memoria del proyecto: cada sesión (incluida la tarea diari
 ## Instalación en el teléfono (14/11/2026)
 - `manifest.json`, `icon-192.png`, `icon-512.png` y `sw.js` permiten instalar la app con su ícono desde la dirección de GitHub Pages. No los borres ni quites las etiquetas `<link rel="manifest">`, ícono y el registro de `sw.js` del `<head>` de index.html.
 - `sw.js` no guarda caché a propósito: así Gonzalo ve siempre la última mejora diaria.
+
+
+## Publicación (14/11/2026)
+- La dirección https://gpereira-ucip.github.io/travel-wizard/ se publica desde la rama gh-pages. El workflow `.github/workflows/publicar.yml` copia main a gh-pages solo en cada push: no lo borres ni toques gh-pages a mano.
