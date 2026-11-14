@@ -71,6 +71,10 @@ with sync_playwright() as p:
         assert pg.query_selector('#lm-all') and pg.query_selector('#lm-0') and pg.query_selector('#lm-1'), 'mapa del recorrido y uno por destino'
         assert len(pg.query_selector_all('#maps .legs li'))==1 and 'Praga → Viena' in pg.inner_text('#maps .legs'), 'tramos del recorrido'
         lf=pg.evaluate('window.__lf'); print('mapas', lf)
+        assert len(pg.query_selector_all('details.lng'))==2, 'idioma y costumbres de Chequia y Austria'
+        pg.click('details.lng >> nth=0 >> summary'); pg.wait_for_timeout(200)
+        assert len(pg.query_selector_all('details.lng[open] .ph'))==12 and 'Děkuji' in pg.inner_text('details.lng[open]'), 'frases en checo'
+        pg.query_selector('details.lng[open]').screenshot(path=f'shots/{mode}_6lang.png')
         assert set(lf['maps'])>={'lm-all','lm-0','lm-1'} and all('tile.openstreetmap.org' in t for t in lf['tiles']), 'mapas por destino con teselas de OSM'
         el=pg.query_selector('#maps'); el.scroll_into_view_if_needed(); pg.wait_for_timeout(300); el.screenshot(path=f'shots/{mode}_6maps.png')
     # swap & add booking
