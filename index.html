@@ -307,6 +307,32 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .fmt span{font-size:13px;color:var(--muted)}
 .logos .twlogo{width:76px;height:76px;display:block;margin:4px auto 2px}
 .ed-sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:16px 0 8px}
+.sbtn{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:30px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.sbtn svg{width:16px;height:16px;flex:none}
+.sbtn .sbl{display:none}
+.modal.srchm{align-items:flex-start}
+.sheet.srchs{border-radius:0 0 24px 24px;padding-top:calc(14px + var(--safe-t));max-height:88vh;animation:srIn .18s ease-out}
+@keyframes srIn{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.srow{display:flex;gap:8px;align-items:center}
+.sfield{position:relative;flex:1}
+.sfield svg{position:absolute;left:13px;top:50%;width:18px;height:18px;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.sfield .inp{padding-left:40px;font-size:16px}
+.sgrp{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:16px 2px 6px}
+.sres{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;border:1px solid transparent;border-radius:14px;background:none;color:inherit;font:inherit;cursor:pointer}
+.sres:hover,.sres:focus-visible,.sres.sel{background:var(--card);border-color:var(--line);outline:none}
+.sres .si{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;font-size:19px;background:var(--bg2);background-size:cover;background-position:center}
+.sres .st{display:block;font-weight:700;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.sres .ss{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.sres mark{background:color-mix(in srgb,var(--gold) 38%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.smore{font-size:12.5px;color:var(--muted);padding:2px 12px 0}
+.sempty{text-align:center;padding:26px 10px 14px;color:var(--muted)}
+.sempty b{display:block;font-family:var(--serif);font-size:24px;color:var(--ink);margin-bottom:6px}
+.shint{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.shint button{border:1px solid var(--line);background:var(--bg2);color:inherit;border-radius:20px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.hit{animation:hitFx 2.2s ease-out;border-radius:14px}
+@keyframes hitFx{0%,40%{box-shadow:0 0 0 3px var(--gold),0 0 0 9px color-mix(in srgb,var(--gold) 25%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.sheet.srchs{animation:none}.hit{animation:none;outline:3px solid var(--gold)}}
+@media (min-width:640px){.sbtn{min-width:200px}.sbtn .sbl{display:inline}.sheet.srchs{border-radius:24px;margin-top:8vh}.modal.srchm{align-items:flex-start}}
 @media (min-width:640px){.sheet{border-radius:24px;margin-bottom:5vh}.modal{align-items:center}.hero h1{font-size:58px}}
 @media (max-width:380px){.feat{grid-template-columns:1fr 1fr 1fr}.hero h1{font-size:38px}.it .im{width:60px;height:60px}}
 @media print{.top,.tabs,.acts,.toolbar,#map,#maps{display:none!important}.page{padding:0}.day{break-inside:avoid}}
@@ -319,6 +345,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
     <span>Travel<b>Wizard</b></span>
   </button>
   <div class="grow"></div>
+  <button class="sbtn" id="searchBtn" aria-label="Buscar en tus viajes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span class="sbl">Buscar viajes, días, reservas…</span></button>
   <button class="switch" id="themeBtn" aria-label="Cambiar tema claro/oscuro"><i>☀️</i></button>
 </div></header>
 
@@ -332,7 +359,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.8';
+const VERSION = '0.9';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -400,6 +427,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.9','16 nov 2026',['Buscador arriba de todo (la lupa): encontrá al instante un viaje, un día, una actividad, una reserva (también por código o por fecha) o algo de la valija, y te lleva justo ahí, resaltado.']],
   ['0.8','14 nov 2026',['Idioma y costumbres de cada país del viaje: frases útiles para lo básico (saludar, pedir la cuenta, preguntar por el baño, pedir ayuda), con cómo se pronuncian leídas en castellano, la traducción literal y un botón para escucharlas. Más costumbres y datos útiles de cada lugar, como recomendación.']],
   ['0.7','14 nov 2026',['Un mapa por cada destino y, si son varios, el mapa del recorrido completo con la distancia y cómo conviene moverse entre ciudades. Los mapas vuelven a verse (antes aparecía «API KEY REQUIRED»).','El asistente pregunta si vas a conocer un solo lugar o varios. Con varios: recorridos sugeridos por zona (Europa, Sudamérica, Estados Unidos y Asia), flechas para cambiar el orden y un botón para ordenar el recorrido y viajar menos.']],
   ['0.6','10 nov 2026',['Logo nuevo: brújula de mago en versión clara, oscura e ícono de app (también como favicon). Se puede descargar desde «Para marcas».','Portada animada: estrellas que titilan, estrella fugaz, la brújula que gira al abrir y tu próximo viaje destacado con foto y cuenta regresiva.','Mientras se arma el viaje: el mago muestra el avance paso a paso con datos curiosos del destino (con internet) y consejos de viaje.']],
@@ -409,7 +437,7 @@ const NEWS = [
   ['0.2','6 nov 2026',['Pegar el mail de confirmación y que la reserva se complete sola.']],
   ['0.1','6 nov 2026',['Primera versión: asistente, itinerario con fotos, clima y mapa, reservas, alertas, valijas y presupuesto.']],
 ];
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -432,6 +460,7 @@ const saveCur = () => { if(!cur) return; const i = trips.findIndex(t=>t.id===cur
 /* ---------- tema ---------- */
 function setTheme(t){ document.documentElement.dataset.theme=t; $('#themeBtn i').textContent = t==='dark'?'🌙':'☀️'; store.set('theme',t); }
 setTheme(store.get('theme', matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'));
+$('#searchBtn').onclick = () => openSearch();
 $('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 $('#goHome').onclick = () => { cur=null; renderHome(); };
 
@@ -1634,6 +1663,90 @@ function countdown(ms){ const d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5
 /* ---------- modales ---------- */
 function openModal(html){ $('#modalRoot').innerHTML=`<div class="modal"><div class="sheet">${html}</div></div>`; const m=$('.modal'); m.onclick=e=>{ if(e.target===m) closeModal(); }; $$('[data-close]',m).forEach(b=>b.onclick=closeModal); }
 function closeModal(){ $('#modalRoot').innerHTML=''; }
+
+/* ---------- buscador global (mejora 10) ---------- */
+const SEARCH_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>';
+function dayTitleOf(t,d){ const s=t.stops[d.stop]||{name:''}; return d.kind==='llegada'?`Llegada a ${s.name}`: d.kind==='traslado'?`${(t.stops[d.stop-1]||{}).name} → ${s.name}`: d.kind==='regreso'?(t.origin?`Regreso a ${t.origin.name}`:'Día de regreso'):s.name; }
+function searchIndex(){
+  const E=[]; const fmt=d=>{ try{ return D.nice(d,{weekday:'long',day:'numeric',month:'long'}); }catch(e){ return d||''; } };
+  trips.forEach(t=>{
+    const nights=(t.stops||[]).reduce((a,s)=>a+s.nights,0);
+    const tImg=((t.stops||[]).find(s=>s.img)||{}).img;
+    E.push({g:'Viajes', ic:'🧭', img:tImg, title:t.name, sub:`${D.nice(t.start,{day:'numeric',month:'long',year:'numeric'})} · ${nights} noches · ${(t.stops||[]).map(s=>s.name).join(', ')}`,
+      extra:[(t.stops||[]).map(s=>[s.name,s.country].join(' ')).join(' '), (t.travelers||[]).map(x=>x.name).join(' ')].join(' '), go:{trip:t.id, tab:'plan'}});
+    (t.days||[]).forEach((d,di)=>{ const acts=(d.items||[]).map(x=>((t.pool&&t.pool[d.stop])||[]).find(p=>p.id===x.ref)).filter(Boolean);
+      E.push({g:'Días', ic:String(di+1).padStart(2,'0'), num:true, title:`Día ${di+1} · ${dayTitleOf(t,d)}`, sub:`${fmt(d.date)} · ${t.name}`, extra:[d.date, fmt(d.date), acts.map(p=>p.title).join(' ')].join(' '), go:{trip:t.id, tab:'plan', day:di}});
+      (d.items||[]).forEach((x,xi)=>{ const p=((t.pool&&t.pool[d.stop])||[]).find(q=>q.id===x.ref); if(!p) return;
+        E.push({g:'Actividades', ic:(CAT[(p.cats||[])[0]]||CAT.imperdible).e, img:p.img, title:p.title, sub:`Día ${di+1} · ${D.nice(d.date)}${x.time?' · '+x.time:''} · ${t.name}`, extra:[p.desc||'', (p.cats||[]).map(c=>(CAT[c]||{}).l||'').join(' ')].join(' '), go:{trip:t.id, tab:'plan', day:di, item:`${di}:${xi}`}}); }); });
+    (t.bookings||[]).forEach(b=>{ const k=BK[b.type]||BK.otro;
+      E.push({g:'Reservas', ic:k.e, title:b.title||k.l, sub:[b.date?D.nice(b.date):'Sin fecha', b.code?'Código '+b.code:'', t.name].filter(Boolean).join(' · '), extra:[k.l, b.code, b.from, b.to, b.address, b.notes, b.date, b.date?fmt(b.date):'', b.fileName].join(' '), go:{trip:t.id, tab:'reservas', bk:b.id}}); });
+    Object.entries(t.packing||{}).forEach(([who,list])=>(list||[]).forEach(x=>
+      E.push({g:'Valijas', ic:x.on?'✅':'🧳', title:x.item, sub:`${who==='Para todo el grupo'?who:'Valija de '+who} · ${t.name}`, extra:[who, x.why].join(' '), go:{trip:t.id, tab:'valijas', pk:`${who}|${x.id}`}})));
+  });
+  [['🗞️','Novedades y hoja de ruta','Qué cambió y cuántas de las 200 mejoras van','novedades version cambios',()=>renderNews()],
+   ['✨','Nuevo viaje','Armá un viaje con el asistente','crear armar planificar',()=>startWizard()],
+   ['🤝','Para marcas','Sponsors y publicidad en Travel Wizard','sponsor publicidad anunciar contacto',()=>renderBrands()],
+   ['🌓','Cambiar tema claro / oscuro','Modo noche o modo día','oscuro claro noche dia tema',()=>$('#themeBtn').click()]]
+   .forEach(([ic,title,sub,extra,fn])=>E.push({g:'En la app', ic, title, sub, extra, fn}));
+  return E;
+}
+function searchRun(q){
+  const toks=norm(q).split(/\s+/).filter(Boolean); if(!toks.length) return [];
+  const out=[];
+  searchIndex().forEach(e=>{ const T=norm(e.title), H=T+' '+norm(e.sub)+' '+norm(e.extra);
+    if(!toks.every(k=>H.includes(k))) return;
+    let sc=0; toks.forEach(k=>{ if(T.startsWith(k)) sc+=6; else if(new RegExp('(^|[^a-z0-9])'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(T)) sc+=4; else if(T.includes(k)) sc+=2; });
+    sc+={'Viajes':3,'Reservas':2,'Días':1}[e.g]||0; out.push({...e, sc}); });
+  return out.sort((a,b)=>b.sc-a.sc);
+}
+function markHit(txt,q){ let h=esc(txt); const toks=norm(q).split(/\s+/).filter(k=>k.length>1); if(!toks.length) return h;
+  const n=norm(txt); const marks=new Array(txt.length).fill(false);
+  if(n.length===txt.length) toks.forEach(k=>{ let i=n.indexOf(k); while(i>=0){ for(let j=i;j<i+k.length;j++) marks[j]=true; i=n.indexOf(k,i+k.length); } });
+  if(!marks.some(Boolean)) return h;
+  let o='', on=false; [...txt].forEach((c,i)=>{ if(marks[i]&&!on){ o+='<mark>'; on=true; } if(!marks[i]&&on){ o+='</mark>'; on=false; } o+=esc(c); }); return o+(on?'</mark>':''); }
+function openSearch(initial=''){
+  $('#modalRoot').innerHTML=`<div class="modal srchm" role="dialog" aria-label="Buscar"><div class="sheet srchs">
+    <div class="srow"><div class="sfield">${SEARCH_SVG}<input class="inp" id="sq" type="search" placeholder="Ciudad, actividad, código…" autocomplete="off" enterkeyhint="search" aria-label="Buscar"></div><button class="btn ghost sm" data-close>Cerrar</button></div>
+    <div id="sOut" aria-live="polite"></div></div></div>`;
+  const m=$('.modal'); m.onclick=e=>{ if(e.target===m) closeModal(); }; $$('[data-close]',m).forEach(b=>b.onclick=closeModal);
+  const inp=$('#sq'), out=$('#sOut'); let list=[];
+  const draw=()=>{ const q=inp.value.trim();
+    if(!q){ list=[];
+      out.innerHTML = trips.length ? `<div class="sgrp">Tus viajes</div>${[...trips].sort((a,b)=>a.start>b.start?1:-1).map((t,i)=>{ const img=((t.stops||[]).find(s=>s.img)||{}).img; return `<button class="sres" data-sv="${i}"><span class="si" style="${img?`background-image:url('${esc(img)}')`:''}">${img?'':'🧭'}</span><span><span class="st">${esc(t.name)}</span><span class="ss">${D.nice(t.start,{day:'numeric',month:'long',year:'numeric'})}</span></span></button>`; }).join('')}
+        <div class="sgrp">Probá buscar</div><div class="shint">${['vuelo','hotel','museo','pasaporte','sábado'].map(w=>`<button data-try="${w}">${w}</button>`).join('')}</div>`
+        : `<div class="sempty"><b>Todavía no hay nada para buscar</b>Cuando armes un viaje vas a poder encontrar acá sus días, actividades, reservas y valijas.<div style="height:12px"></div><button class="btn" id="sNew">✨ Armar mi primer viaje</button></div>`;
+      const sorted=[...trips].sort((a,b)=>a.start>b.start?1:-1);
+      $$('[data-sv]',out).forEach(b=>b.onclick=()=>{ closeModal(); searchGo({trip:sorted[+b.dataset.sv].id, tab:'plan'}); });
+      $$('[data-try]',out).forEach(b=>b.onclick=()=>{ inp.value=b.dataset.try; draw(); inp.focus(); });
+      const n=$('#sNew',out); if(n) n.onclick=()=>{ closeModal(); startWizard(); };
+      return; }
+    list=searchRun(q);
+    if(!list.length){ out.innerHTML=`<div class="sempty"><b>No encontré «${esc(q)}»</b>Probá con una ciudad, una actividad, el código de una reserva o una fecha (por ejemplo «12 de marzo» o «sábado»).</div>`; return; }
+    const groups=['Viajes','Días','Actividades','Reservas','Valijas','En la app']; let h='', idx=0; const shown=[];
+    groups.forEach(g=>{ const it=list.filter(e=>e.g===g); if(!it.length) return; const lim=g==='Viajes'?5:6;
+      h+=`<div class="sgrp">${g}</div>`+it.slice(0,lim).map(e=>{ shown.push(e); return `<button class="sres${idx===0?' sel':''}" data-si="${idx++}"><span class="si" style="${e.img?`background-image:url('${esc(e.img)}')`:''}${e.num?';font-weight:800;font-size:14px;color:var(--gold)':''}">${e.img?'':esc(e.ic)}</span><span><span class="st">${markHit(e.title,q)}</span><span class="ss">${markHit(e.sub,q)}</span></span></button>`; }).join('')
+        +(it.length>lim?`<div class="smore">y ${it.length-lim} más: sumá otra palabra para afinar.</div>`:''); });
+    out.innerHTML=h; list=shown;
+    $$('[data-si]',out).forEach(b=>b.onclick=()=>pick(list[+b.dataset.si]));
+  };
+  const pick=e=>{ if(!e) return; closeModal(); if(e.fn) e.fn(); else searchGo(e.go); };
+  inp.oninput=draw;
+  inp.onkeydown=ev=>{ if(ev.key==='Escape'){ ev.preventDefault(); closeModal(); } else if(ev.key==='Enter'){ ev.preventDefault(); pick(list[0]); } };
+  inp.value=initial; draw(); setTimeout(()=>inp.focus(),30);
+}
+function searchGo(g){
+  const t=trips.find(x=>x.id===g.trip); if(!t) return renderHome();
+  if(!cur||cur.id!==t.id){ cur=t; scheduleNotifs(cur); }
+  tab=g.tab||'plan'; renderTrip();
+  let el=null;
+  if(g.item) el=($(`[data-done="${g.item}"]`)||{}).closest?.('.it');
+  if(!el&&g.day!=null) el=$$('#days article.day')[g.day];
+  if(g.bk) el=($(`[data-edit="${CSS.escape(g.bk)}"]`)||{}).closest?.('.bk');
+  if(g.pk) el=($(`[data-pk="${CSS.escape(g.pk)}"]`)||{}).closest?.('label');
+  if(!el){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+  const ro=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(()=>{ el.scrollIntoView({block:'center', behavior:ro?'auto':'smooth'}); el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),2400); },60);
+}
 function confirmModal(title,sub,ok){ openModal(`<h3>${esc(title)}</h3>${sub?`<p class="muted">${esc(sub)}</p>`:''}<div class="row"><button class="btn ghost grow" data-close>Cancelar</button><button class="btn grow" id="cfOk" style="background:var(--bad);color:#fff">Confirmar</button></div>`); $('#cfOk').onclick=()=>{ closeModal(); ok(); }; }
 function showText(title,txt){ openModal(`<h3>${esc(title)}</h3><textarea class="inp" rows="14" readonly>${esc(txt)}</textarea><div style="height:10px"></div><button class="btn ghost block" data-close>Cerrar</button>`); }
 

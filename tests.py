@@ -88,6 +88,29 @@ with sync_playwright() as p:
             pg.click('#addBk'); pg.click('[data-bt=hotel]'); pg.fill('#b_title','Hotel Golden Well'); pg.fill('#b_endDate', pg.eval_on_selector('#b_date','e=>e.value')); pg.click('#b_save'); pg.wait_for_timeout(300); pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(300)
         pg.screenshot(path=f'shots/{mode}_8{t}.png', full_page=True)
     ow=pg.evaluate('document.documentElement.scrollWidth'); print('scrollWidth',ow)
+    # v0.9: buscador global (mejora 10)
+    pg.click('#searchBtn'); pg.wait_for_selector('#sq'); pg.wait_for_timeout(150)
+    assert len(pg.query_selector_all('[data-sv]'))>=1, 'viajes sugeridos con la búsqueda vacía'
+    pg.screenshot(path=f'shots/{mode}_8bsearch0.png')
+    pg.fill('#sq','ABC123'); pg.wait_for_timeout(150)
+    assert 'Aerolíneas AR1132' in pg.inner_text('#sOut') and pg.query_selector('#sOut mark'), 'reserva por código'
+    pg.screenshot(path=f'shots/{mode}_8csearch.png')
+    pg.keyboard.press('Enter'); pg.wait_for_timeout(500)
+    assert pg.query_selector('.tab.on[data-t=reservas]') and pg.query_selector('.bk.hit'), 'lleva a la reserva resaltada'
+    pg.screenshot(path=f'shots/{mode}_8dhit.png')
+    pg.click('#searchBtn'); pg.fill('#sq','praga castillo'); pg.wait_for_timeout(150)
+    if mode=='live':
+        assert 'Castillo de Praga' in pg.inner_text('#sOut'), 'actividad'
+        pg.click('#sOut [data-si]:has-text("Castillo de Praga") >> nth=0'); pg.wait_for_timeout(500)
+        assert pg.query_selector('.tab.on[data-t=plan]') and pg.query_selector('.it.hit'), 'lleva a la actividad'
+    else: pg.keyboard.press('Escape')
+    pg.click('#searchBtn'); pg.fill('#sq','cargador'); pg.wait_for_timeout(150)
+    assert 'valija' in pg.inner_text('#sOut').lower(), 'ítem de valija'
+    pg.keyboard.press('Enter'); pg.wait_for_timeout(500); assert pg.query_selector('label.hit'), 'valija resaltada'
+    pg.click('#searchBtn'); pg.fill('#sq','zzqx'); pg.wait_for_timeout(150); assert 'No encontré' in pg.inner_text('#sOut')
+    pg.fill('#sq','día 2'); pg.wait_for_timeout(150); assert 'Día 2' in pg.inner_text('#sOut'); pg.keyboard.press('Enter'); pg.wait_for_timeout(500)
+    assert pg.query_selector('article.day.hit'), 'día resaltado'
+    print('scrollWidthSearch', pg.evaluate('document.documentElement.scrollWidth'))
     pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_9planbk.png', full_page=True)
     pg.click('#themeBtn'); pg.wait_for_timeout(400); pg.screenshot(path=f'shots/{mode}_10dark.png')
     pg.click('#themeBtn'); pg.evaluate('window.scrollTo(0,0)')

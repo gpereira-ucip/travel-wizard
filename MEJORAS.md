@@ -12,7 +12,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 7. Logo definitivo (brújula + estrella de mago) en SVG con variantes clara/oscura, ícono de app y favicon embebidos. (v0.6)
 - [x] 8. Portada con animación sutil (estrellas que titilan, brújula que gira al cargar) y foto destacada del próximo viaje. (v0.6)
 - [x] 9. Pantalla de carga «el mago está armando tu viaje» con pasos animados y datos curiosos del destino. (v0.6)
-- [ ] 10. Barra superior con buscador global (viajes, días, reservas, lugares).
+- [x] 10. Barra superior con buscador global (viajes, días, reservas, lugares). (v0.9)
 - [ ] 11. Navegación por la URL (#viaje, #reservas…) para que «atrás» del celular funcione como se espera.
 - [ ] 12. Transiciones suaves entre pestañas y tarjetas con aparición escalonada.
 - [ ] 13. Estados vacíos ilustrados (sin reservas, sin viajes, sin clima) con el siguiente paso claro.
