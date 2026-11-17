@@ -359,7 +359,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.9';
+const VERSION = '0.10';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -427,6 +427,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.10','17 nov 2026',['El botón «atrás» del celular ahora funciona como esperás: vuelve de una pestaña al itinerario, de un paso del asistente al anterior, de un viaje al inicio, y cierra las ventanas y el buscador sin salir de la app.','Cada pantalla tiene su dirección propia (por ejemplo …/#/viaje/…/reservas): si recargás la página o la guardás como favorito, se abre justo ahí.']],
   ['0.9','16 nov 2026',['Buscador arriba de todo (la lupa): encontrá al instante un viaje, un día, una actividad, una reserva (también por código o por fecha) o algo de la valija, y te lleva justo ahí, resaltado.']],
   ['0.8','14 nov 2026',['Idioma y costumbres de cada país del viaje: frases útiles para lo básico (saludar, pedir la cuenta, preguntar por el baño, pedir ayuda), con cómo se pronuncian leídas en castellano, la traducción literal y un botón para escucharlas. Más costumbres y datos útiles de cada lugar, como recomendación.']],
   ['0.7','14 nov 2026',['Un mapa por cada destino y, si son varios, el mapa del recorrido completo con la distancia y cómo conviene moverse entre ciudades. Los mapas vuelven a verse (antes aparecía «API KEY REQUIRED»).','El asistente pregunta si vas a conocer un solo lugar o varios. Con varios: recorridos sugeridos por zona (Europa, Sudamérica, Estados Unidos y Asia), flechas para cambiar el orden y un botón para ordenar el recorrido y viajar menos.']],
@@ -437,7 +438,7 @@ const NEWS = [
   ['0.2','6 nov 2026',['Pegar el mail de confirmación y que la reserva se complete sola.']],
   ['0.1','6 nov 2026',['Primera versión: asistente, itinerario con fotos, clima y mapa, reservas, alertas, valijas y presupuesto.']],
 ];
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1662,7 +1663,7 @@ function countdown(ms){ const d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5
 
 /* ---------- modales ---------- */
 function openModal(html){ $('#modalRoot').innerHTML=`<div class="modal"><div class="sheet">${html}</div></div>`; const m=$('.modal'); m.onclick=e=>{ if(e.target===m) closeModal(); }; $$('[data-close]',m).forEach(b=>b.onclick=closeModal); }
-function closeModal(){ $('#modalRoot').innerHTML=''; }
+function closeModal(){ $('#modalRoot').innerHTML=''; navOverlayClosed(); }
 
 /* ---------- buscador global (mejora 10) ---------- */
 const SEARCH_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>';
@@ -1937,13 +1938,89 @@ function renderNews(){
   renderPacking=function(){ _rp(); addSponsor('valijas'); };
   renderAlerts=function(){ _ra(); addSponsor('alertas'); }; }
 
+/* ---------- navegación por la URL (mejora 11) ----------
+   #/ inicio · #/nuevo/N paso del asistente · #/viaje/<id>/<pestaña> · #/novedades · #/marcas
+   Las ventanas y el buscador suman una entrada (ov) para que «atrás» las cierre.
+   Volver a la pantalla anterior desde la app usa history.back() para no apilar entradas. */
+const NAV={on:false, routing:false, backing:false, after:null, view:'', t:0};
+const TABS=['plan','reservas','valijas','plata','alertas'];
+try{ NAV.on=!!(window.history&&history.pushState&&history.replaceState); }catch(e){}
+function navTry(fn){ if(!NAV.on) return false; try{ fn(); return true; }catch(e){ NAV.on=false; return false; } }
+function hstate(){ try{ return history.state||{}; }catch(e){ return {}; } }
+function hereHash(){ const h=location.hash; return h&&h!=='#'?h:'#/'; }
+function tripOfHash(h){ const m=/^#\/viaje\/([^/]+)(?:\/([a-z]+))?$/.exec(h||''); return m?{id:decodeURIComponent(m[1]), tab:m[2]||'plan'}:null; }
+function navBack(n, after){
+  NAV.backing=true; NAV.after=after||null; clearTimeout(NAV.t);
+  if(!navTry(()=>history.go(-n))){ NAV.backing=false; NAV.after=null; return; }
+  NAV.t=setTimeout(()=>{ if(NAV.backing) navSettle(); },900);   // por si el navegador no avisa
+}
+function navSettle(){
+  clearTimeout(NAV.t); NAV.backing=false; const a=NAV.after; NAV.after=null;
+  if(a&&a.url) syncURL(a.url);
+  if(a&&a.ov&&$('#modalRoot').innerHTML){ if(NAV.backing) NAV.after={...(NAV.after||{}), ov:true}; else navOverlay(); }
+  if(!(a&&a.url) && !NAV.backing && NAV.view && hereHash()!==NAV.view) route();
+}
+function syncURL(h){
+  NAV.view=h;
+  if(!NAV.on||NAV.routing) return;
+  if(NAV.backing){ NAV.after={...(NAV.after||{}), url:h}; return; }
+  const here=hereHash(), st=hstate();
+  if(here===h) return;
+  if(st.ov){ navTry(()=>history.replaceState({tw:1, prev:here}, '', h)); return; }
+  if(st.prev===h) return navBack(1);                                   // es la pantalla de antes: atrás de verdad
+  const a=tripOfHash(here), b=tripOfHash(h);
+  if(a&&b&&a.id===b.id&&a.tab!=='plan'){ navTry(()=>history.replaceState({tw:1, prev:st.prev}, '', h)); return; } // entre pestañas: atrás vuelve al itinerario
+  const inWz=/^#\/nuevo/.test(here), toWz=/^#\/nuevo/.test(h);
+  if(inWz&&!toWz&&st.wz>0) return navBack(st.wz, {url:h});           // al salir del asistente se sacan sus pasos
+  navTry(()=>history.pushState({tw:1, prev:here, wz: toWz?(inWz?(st.wz||0)+1:1):0}, '', h));
+}
+function navOverlay(){
+  if(!NAV.on||NAV.routing) return;
+  if(NAV.backing){ NAV.after={...(NAV.after||{}), ov:true}; return; }
+  const st=hstate(); if(st.ov) return;
+  navTry(()=>history.pushState({tw:1, ov:1, prev:st.prev, wz:st.wz}, '', hereHash()));
+}
+function navOverlayClosed(){
+  if(!NAV.on) return;
+  if(NAV.backing){ if(NAV.after) NAV.after.ov=false; return; }
+  if(hstate().ov) navBack(1);
+}
+function route(){
+  const h=hereHash(); let m; NAV.routing=true;
+  try{
+    if((m=/^#\/nuevo(?:\/(\d+))?$/.exec(h))){ if(wz){ wz.step=Math.max(0,Math.min(WSTEPS.length-1,+(m[1]||0))); renderWizard(); } else startWizard(); }
+    else if((m=tripOfHash(h))){ const t=trips.find(x=>x.id===m.id);
+      if(!t){ cur=null; renderHome(); }
+      else { const chg=!cur||cur.id!==t.id; cur=t; tab=TABS.includes(m.tab)?m.tab:'plan'; renderTrip(); if(chg) scheduleNotifs(cur); } }
+    else if(h==='#/novedades') renderNews();
+    else if(h==='#/marcas') renderBrands();
+    else { cur=null; renderHome(); }
+  }finally{ NAV.routing=false; }
+  if(NAV.view&&hereHash()!==NAV.view){ const st=hstate(); navTry(()=>history.replaceState({tw:1, prev:st.prev}, '', NAV.view)); }
+}
+addEventListener('popstate',()=>{
+  if(!NAV.on) return;
+  if(NAV.backing) return navSettle();
+  if($('#modalRoot').innerHTML){ $('#modalRoot').innerHTML=''; if(hereHash()===NAV.view) return; }   // atrás cierra la ventana
+  if(hstate().ov&&hereHash()===NAV.view) return;
+  route();
+});
+{ const w=(f,h)=>function(){ const r=f.apply(this,arguments); try{ syncURL(h()); }catch(e){} return r; };
+  renderHome=w(renderHome,()=>'#/');
+  renderWizard=w(renderWizard,()=>'#/nuevo/'+(wz?wz.step:0));
+  renderTrip=w(renderTrip,()=>'#/viaje/'+encodeURIComponent(cur.id)+'/'+tab);
+  renderNews=w(renderNews,()=>'#/novedades');
+  renderBrands=w(renderBrands,()=>'#/marcas');
+  const om=openModal, os=openSearch;
+  openModal=function(){ const r=om.apply(this,arguments); navOverlay(); return r; };
+  openSearch=function(){ const r=os.apply(this,arguments); navOverlay(); return r; }; }
+
 /* ---------- inicio ---------- */
 setIcons();
-renderHome();
+{ const st=hstate(); if(st.ov) navTry(()=>history.replaceState({tw:1, prev:st.prev, wz:st.wz}, '', hereHash())); }
+route();
 detectLive();
 initClaude();
 </script>
 </body>
 </html>
-
-</body></html>

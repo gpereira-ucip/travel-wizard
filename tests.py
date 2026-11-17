@@ -135,6 +135,41 @@ with sync_playwright() as p:
     pg.click('[data-idea="2"]'); pg.wait_for_timeout(1500); pg.screenshot(path=f'shots/{mode}_17idea.png')
     print('idea stops', pg.evaluate('wz.stops.map(s=>s.name+":"+s.nights+":"+s.lat)'))
     ow2=pg.evaluate('document.documentElement.scrollWidth'); print('scrollWidth2',ow2)
+    # v0.10: navegación por la URL y botón atrás (mejora 11)
+    H=lambda: pg.evaluate('location.hash')
+    assert H()=='#/nuevo/0', 'hash del asistente'
+    pg.click('#wNext'); pg.wait_for_timeout(150); pg.click('#wNext'); pg.wait_for_timeout(150)
+    assert H()=='#/nuevo/2', H()
+    pg.go_back(); pg.wait_for_timeout(300)
+    assert H()=='#/nuevo/1' and pg.evaluate('wz.step')==1, 'atrás vuelve al paso anterior'
+    pg.click('#wBack'); pg.wait_for_timeout(300)
+    assert H()=='#/nuevo/0' and pg.evaluate('wz.step')==0, 'botón atrás del asistente'
+    pg.go_back(); pg.wait_for_timeout(300)
+    assert H()=='#/' and pg.query_selector('#newTrip'), 'atrás sale del asistente al inicio'
+    pg.click('.tripcard >> nth=0'); pg.wait_for_selector('.thero'); tid=pg.evaluate('cur.id')
+    assert H()==f'#/viaje/{tid}/plan', H()
+    pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(200); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(200)
+    assert H()==f'#/viaje/{tid}/valijas', H()
+    pg.go_back(); pg.wait_for_timeout(300)
+    assert H()==f'#/viaje/{tid}/plan' and pg.query_selector('.tab.on[data-t=plan]'), 'de una pestaña, atrás vuelve al itinerario'
+    pg.click('#searchBtn'); pg.wait_for_selector('#sq'); pg.go_back(); pg.wait_for_timeout(300)
+    assert not pg.query_selector('#sq') and pg.query_selector('.thero'), 'atrás cierra el buscador sin salir del viaje'
+    pg.click('#editTrip'); pg.wait_for_timeout(200); pg.click('.modal [data-close] >> nth=0'); pg.wait_for_timeout(300)
+    assert not pg.query_selector('.modal') and H()==f'#/viaje/{tid}/plan', 'cerrar la ventana no deja entradas de más'
+    pg.click('#searchBtn'); pg.fill('#sq','cargador'); pg.wait_for_timeout(150); pg.keyboard.press('Enter'); pg.wait_for_timeout(500)
+    t1=pg.evaluate('cur.id'); assert H()==f'#/viaje/{t1}/valijas', ('el buscador lleva a la pestaña con su dirección', H())
+    pg.go_back(); pg.wait_for_timeout(300); assert H()==f'#/viaje/{tid}/plan' and pg.evaluate('cur.id')==tid, H()
+    pg.go_back(); pg.wait_for_timeout(300)
+    assert H()=='#/' and pg.query_selector('#newTrip'), 'del viaje, atrás vuelve al inicio'
+    pg.go_forward(); pg.wait_for_timeout(300); assert pg.query_selector('.thero') and pg.evaluate('cur.id')==tid, 'adelante'
+    pg.click('#goHome'); pg.wait_for_timeout(300); pg.click('#goNews'); pg.wait_for_timeout(200); assert H()=='#/novedades'
+    pg.go_back(); pg.wait_for_timeout(300); assert H()=='#/' and pg.query_selector('#newTrip'), 'atrás desde novedades'
+    base=pg.evaluate("location.href.split('#')[0]")
+    pg.goto(base+f'#/viaje/{tid}/plata'); pg.reload(); pg.wait_for_selector('.thero'); pg.wait_for_timeout(300)
+    assert pg.query_selector('.tab.on[data-t=plata]') and pg.evaluate('cur.id')==tid, 'enlace directo a una pestaña'
+    pg.screenshot(path=f'shots/{mode}_17bdeeplink.png')
+    pg.goto(base+'#/viaje/noexiste/plan'); pg.reload(); pg.wait_for_timeout(500)
+    assert H()=='#/' and pg.query_selector('#newTrip'), 'viaje inexistente vuelve al inicio'
     # escritorio
     pg.set_viewport_size({'width':1280,'height':900}); pg.click('#goHome'); pg.wait_for_timeout(500); pg.screenshot(path=f'shots/{mode}_18desk.png')
     print('scrollWidthDesk', pg.evaluate('document.documentElement.scrollWidth'))
