@@ -170,7 +170,23 @@ with sync_playwright() as p:
     pg.screenshot(path=f'shots/{mode}_17bdeeplink.png')
     pg.goto(base+'#/viaje/noexiste/plan'); pg.reload(); pg.wait_for_timeout(500)
     assert H()=='#/' and pg.query_selector('#newTrip'), 'viaje inexistente vuelve al inicio'
-    # escritorio
+    # v0.11 (mejora 12): transiciones entre pestañas y aparición escalonada
+    pg.click(f'.tripcard[data-id="{tid}"]'); pg.wait_for_selector('.thero')
+    assert pg.evaluate("document.querySelectorAll('.stg').length")>0, 'tarjetas escalonadas al entrar al viaje'
+    pg.wait_for_timeout(1400); assert pg.evaluate("document.querySelectorAll('.stg,.tb-in').length")==0, 'las clases de animación se limpian'
+    pg.click('.tab[data-t=valijas]')
+    st=pg.evaluate("(()=>{const b=document.querySelector('#tabBody');return [b.classList.contains('tb-in'), b.style.getPropertyValue('--dir'), document.querySelector('.tind').style.getPropertyValue('--ti')]})()")
+    assert st==[True,'1','2'], ('pestaña hacia la derecha', st)
+    pg.wait_for_timeout(120); pg.screenshot(path=f'shots/{mode}_17cmid.png'); pg.wait_for_timeout(1300)
+    pg.click('.tab[data-t=reservas]'); assert pg.evaluate("document.querySelector('#tabBody').style.getPropertyValue('--dir')")=='-1', 'pestaña hacia la izquierda'
+    pg.wait_for_timeout(1300); pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(1300)
+    pg.click('[data-done="1:0"]'); assert pg.evaluate("document.querySelectorAll('.stg,.tb-in').length")==0, 'redibujar la misma pestaña no anima'
+    pg.click('[data-done="1:0"]')
+    pg.emulate_media(reduced_motion='reduce'); pg.click('.tab[data-t=alertas]')
+    assert pg.evaluate("document.querySelectorAll('.stg,.tb-in').length")==0, 'reducir movimiento: sin animaciones'
+    assert pg.evaluate("document.querySelector('.tind').style.getPropertyValue('--ti')")=='4'
+    pg.emulate_media(reduced_motion='no-preference')
+    pg.click('#goHome'); pg.click('#newTrip'); pg.click('[data-mode=uno]'); pg.wait_for_timeout(600); pg.go_back(); pg.wait_for_timeout(300)
     pg.set_viewport_size({'width':1280,'height':900}); pg.click('#goHome'); pg.wait_for_timeout(500); pg.screenshot(path=f'shots/{mode}_18desk.png')
     print('scrollWidthDesk', pg.evaluate('document.documentElement.scrollWidth'))
     print('ERRORS',errs)

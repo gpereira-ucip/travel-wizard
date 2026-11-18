@@ -188,7 +188,10 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .tab{border:0;background:none;padding:8px 2px 9px;font-size:11px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
 .tab .ic{font-size:20px;line-height:1}
 .tab.on{color:var(--ink)}
-.tab.on::before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.tabs .wrap{position:relative}
+.tind{position:absolute;top:0;left:4px;width:calc((100% - 8px)/5);height:3px;pointer-events:none;transform:translateX(calc(var(--ti,0)*100%));transition:transform .38s cubic-bezier(.3,.8,.25,1)}
+.tind::before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.tab .ic{transition:transform .25s}.tab.on .ic{transform:translateY(-1px) scale(1.08)}
 .tab .badge{position:absolute;top:4px;right:calc(50% - 22px);background:var(--coral);color:#fff;font-size:10px;border-radius:9px;padding:0 5px;min-width:16px}
 .page{padding-bottom:110px}
 .wx{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
@@ -335,6 +338,15 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 @media (min-width:640px){.sbtn{min-width:200px}.sbtn .sbl{display:inline}.sheet.srchs{border-radius:24px;margin-top:8vh}.modal.srchm{align-items:flex-start}}
 @media (min-width:640px){.sheet{border-radius:24px;margin-bottom:5vh}.modal{align-items:center}.hero h1{font-size:58px}}
 @media (max-width:380px){.feat{grid-template-columns:1fr 1fr 1fr}.hero h1{font-size:38px}.it .im{width:60px;height:60px}}
+/* transiciones suaves (mejora 12) */
+@keyframes tbIn{from{opacity:0;transform:translateX(calc(var(--dir,0)*26px))}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes heroIn{from{opacity:0}to{opacity:1}}
+.tb-in{animation:tbIn .34s cubic-bezier(.2,.75,.25,1) both}
+.stg{animation:cardIn .46s cubic-bezier(.2,.75,.25,1) both;animation-delay:calc(var(--i,0)*45ms)}
+.wzs{animation:tbIn .36s cubic-bezier(.2,.75,.25,1) both;animation-delay:calc(var(--i,0)*40ms)}
+.thero.scr-in{animation:heroIn .45s ease both}
+@media (prefers-reduced-motion:reduce){.tb-in,.stg,.wzs,.thero.scr-in{animation:none!important}.tind,.tab .ic,.prog i{transition:none!important}}
 @media print{.top,.tabs,.acts,.toolbar,#map,#maps{display:none!important}.page{padding:0}.day{break-inside:avoid}}
 </style>
 </head>
@@ -359,7 +371,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.10';
+const VERSION = '0.11';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -427,6 +439,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.11','18 nov 2026',['Pasar de una pestaña a otra ahora es suave: el contenido entra deslizándose hacia el lado de la pestaña que tocaste y la rayita dorada de la barra de abajo se corre hasta ella.','Las tarjetas (días, reservas, valijas, ideas, tus viajes) aparecen escalonadas, una detrás de otra. Los pasos del asistente se deslizan hacia adelante o hacia atrás y la barra de progreso avanza.','Si tildás algo o borrás una reserva no se mueve nada: solo anima al cambiar de pantalla. Si tu celular tiene activado «reducir movimiento», la app no anima.']],
   ['0.10','17 nov 2026',['El botón «atrás» del celular ahora funciona como esperás: vuelve de una pestaña al itinerario, de un paso del asistente al anterior, de un viaje al inicio, y cierra las ventanas y el buscador sin salir de la app.','Cada pantalla tiene su dirección propia (por ejemplo …/#/viaje/…/reservas): si recargás la página o la guardás como favorito, se abre justo ahí.']],
   ['0.9','16 nov 2026',['Buscador arriba de todo (la lupa): encontrá al instante un viaje, un día, una actividad, una reserva (también por código o por fecha) o algo de la valija, y te lleva justo ahí, resaltado.']],
   ['0.8','14 nov 2026',['Idioma y costumbres de cada país del viaje: frases útiles para lo básico (saludar, pedir la cuenta, preguntar por el baño, pedir ayuda), con cómo se pronuncian leídas en castellano, la traducción literal y un botón para escucharlas. Más costumbres y datos útiles de cada lugar, como recomendación.']],
@@ -438,7 +451,7 @@ const NEWS = [
   ['0.2','6 nov 2026',['Pegar el mail de confirmación y que la reserva se complete sola.']],
   ['0.1','6 nov 2026',['Primera versión: asistente, itinerario con fotos, clima y mapa, reservas, alertas, valijas y presupuesto.']],
 ];
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1153,7 +1166,7 @@ function renderTrip(){
     <div class="pills"><span class="pill">🌙 ${nights} noches</span><span class="pill">👥 ${t.travelers.map(x=>esc(x.name)).join(', ')}</span><span class="pill">${LEVELS[t.budget.level].e} ${LEVELS[t.budget.level].l}</span>${t.interests.slice(0,4).map(i=>`<span class="pill">${CAT[i].e} ${CAT[i].l}</span>`).join('')}</div>
   </div></section>
   <div class="wrap page" id="tabBody"></div>
-  <nav class="tabs"><div class="wrap">
+  <nav class="tabs"><div class="wrap"><i class="tind" style="--ti:${Math.max(0,TABS.indexOf(tab))}"></i>
     ${[['plan','🗺️','Itinerario'],['reservas','🎫','Reservas'],['valijas','🧳','Valijas'],['plata','💰','Presupuesto'],['alertas','🔔','Alertas']].map(([k,e,l])=>`<button class="tab ${tab===k?'on':''}" data-t="${k}"><span class="ic">${e}</span>${l}${k==='alertas'&&upcoming?`<span class="badge">${upcoming}</span>`:''}</button>`).join('')}
   </div></nav>`;
   $('#editTrip').onclick = editTripModal;
@@ -2014,6 +2027,58 @@ addEventListener('popstate',()=>{
   const om=openModal, os=openSearch;
   openModal=function(){ const r=om.apply(this,arguments); navOverlay(); return r; };
   openSearch=function(){ const r=os.apply(this,arguments); navOverlay(); return r; }; }
+
+/* ---------- transiciones suaves (mejora 12) ----------
+   Solo animan al CAMBIAR de pantalla, de paso o de pestaña: si la misma vista se vuelve a dibujar
+   (tildar «hecho», borrar una reserva…) no se mueve nada. Respeta «reducir movimiento». */
+const MOTION={last:null, prevPct:0};
+const STG_ITEMS='.day,.bk,.kpi,.wxd,.tripcard,.idea,.levels>*,.card.pk,.card.money,.al,.ideas>*';
+function motionOK(){ try{ return !matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return true; } }
+function animOnce(el, cls, i, dir){
+  el.classList.add(cls); if(i!=null) el.style.setProperty('--i', i); if(dir!=null) el.style.setProperty('--dir', dir);
+  const end=e=>{ if(e.target!==el) return; el.classList.remove(cls); el.style.removeProperty('--i'); if(dir!=null) el.style.removeProperty('--dir'); el.removeEventListener('animationend',end); el.removeEventListener('animationcancel',end); };
+  el.addEventListener('animationend',end); el.addEventListener('animationcancel',end);
+}
+function stagger(root, start){
+  let i=start||0; if(!root) return i; const lim=innerHeight*1.4;
+  const tag=el=>{ if(el.getBoundingClientRect().top>lim||!el.getClientRects().length) return; animOnce(el,'stg',Math.min(i++,12)); };
+  for(const ch of [...root.children]){
+    if(ch.matches('input,script,style,.hidden')) continue;
+    const items=ch.matches(STG_ITEMS)?[]:[...ch.querySelectorAll(STG_ITEMS)].filter(x=>!x.parentElement.closest(STG_ITEMS));
+    if(items.length) items.forEach(tag); else tag(ch);
+  }
+  return i;
+}
+function motionAfter(key){
+  const prev=MOTION.last; MOTION.last=key;
+  if(prev===key||!motionOK()) return;
+  try{
+    const pt=tripOfHash(prev||''), nt=tripOfHash(key);
+    if(nt){
+      const body=$('#tabBody'); if(!body) return;
+      if(pt&&pt.id===nt.id){                                   // misma vista de viaje, otra pestaña
+        const a=TABS.indexOf(pt.tab), b=TABS.indexOf(nt.tab), ind=$('.tind');
+        if(ind&&a>=0){ ind.style.setProperty('--ti',a); ind.getBoundingClientRect(); ind.style.setProperty('--ti',b); }
+        animOnce(body,'tb-in',null,Math.sign(b-a)||0); stagger(body,1);
+      } else { const h=$('.thero'); if(h) animOnce(h,'scr-in'); stagger(body,1); }
+      return;
+    }
+    const wzm=/^#\/nuevo\/(\d+)/.exec(key), pwz=/^#\/nuevo\/(\d+)/.exec(prev||'');
+    if(wzm){
+      const w=$('.wz'); if(!w) return; const step=+wzm[1], dir=pwz?Math.sign(step-(+pwz[1])):1;
+      const bar=$('.prog i'); if(bar&&pwz){ const nw=bar.style.width; bar.style.width=MOTION.prevPct+'%'; bar.getBoundingClientRect(); bar.style.width=nw; }
+      let i=0; [...w.children].forEach(ch=>{ if(!ch.matches('.prog,.stepn,.wznav')) animOnce(ch,'wzs',Math.min(i++,8),dir); });
+      return;
+    }
+    const main=$('#app > .wrap'); if(main) stagger(main,0);    // inicio, novedades, para marcas
+  }catch(e){}
+}
+{ const w=(f,h)=>function(){ const r=f.apply(this,arguments); try{ motionAfter(h()); if(wz) MOTION.prevPct=(wz.step+1)/WSTEPS.length*100; }catch(e){} return r; };
+  renderHome=w(renderHome,()=>'#/');
+  renderWizard=w(renderWizard,()=>'#/nuevo/'+(wz?wz.step:0));
+  renderTrip=w(renderTrip,()=>'#/viaje/'+encodeURIComponent(cur.id)+'/'+tab);
+  renderNews=w(renderNews,()=>'#/novedades');
+  renderBrands=w(renderBrands,()=>'#/marcas'); }
 
 /* ---------- inicio ---------- */
 setIcons();

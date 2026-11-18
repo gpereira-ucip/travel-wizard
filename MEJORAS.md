@@ -14,7 +14,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 9. Pantalla de carga «el mago está armando tu viaje» con pasos animados y datos curiosos del destino. (v0.6)
 - [x] 10. Barra superior con buscador global (viajes, días, reservas, lugares). (v0.9)
 - [x] 11. Navegación por la URL (#viaje, #reservas…) para que «atrás» del celular funcione como se espera. (v0.10)
-- [ ] 12. Transiciones suaves entre pestañas y tarjetas con aparición escalonada.
+- [x] 12. Transiciones suaves entre pestañas y tarjetas con aparición escalonada. (v0.11)
 - [ ] 13. Estados vacíos ilustrados (sin reservas, sin viajes, sin clima) con el siguiente paso claro.
 - [ ] 14. Diseño de escritorio de dos columnas (itinerario + mapa fijo) y tablet horizontal.
 - [ ] 15. Tipografía y espaciado revisados para lectura en el sol (contraste AA en todo).
