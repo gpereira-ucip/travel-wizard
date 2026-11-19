@@ -15,7 +15,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 10. Barra superior con buscador global (viajes, días, reservas, lugares). (v0.9)
 - [x] 11. Navegación por la URL (#viaje, #reservas…) para que «atrás» del celular funcione como se espera. (v0.10)
 - [x] 12. Transiciones suaves entre pestañas y tarjetas con aparición escalonada. (v0.11)
-- [ ] 13. Estados vacíos ilustrados (sin reservas, sin viajes, sin clima) con el siguiente paso claro.
+- [x] 13. Estados vacíos ilustrados (sin reservas, sin viajes, sin clima) con el siguiente paso claro. — v0.12
 - [ ] 14. Diseño de escritorio de dos columnas (itinerario + mapa fijo) y tablet horizontal.
 - [ ] 15. Tipografía y espaciado revisados para lectura en el sol (contraste AA en todo).
 - [ ] 16. Selector de color de acento por viaje (cada viaje con su paleta, como las bitácoras).

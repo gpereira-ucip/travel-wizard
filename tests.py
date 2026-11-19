@@ -43,6 +43,12 @@ with sync_playwright() as p:
     assert pg.evaluate("document.querySelector('#favIcon').href.startsWith('data:image/svg+xml')"), 'favicon'
     assert pg.query_selector('.brand svg.twlogo') and pg.query_selector('.hero .hero-logo'), 'logo'
     assert pg.query_selector('#nextFeat') is None
+    # v0.12 (mejora 13): estado vacío ilustrado sin viajes
+    assert pg.query_selector('.tripsempty svg') and pg.query_selector('#esNew') and len(pg.query_selector_all('.tripsempty .es-steps li'))==3, 'inicio sin viajes ilustrado'
+    pg.click('#esIdeas'); pg.wait_for_timeout(500); assert pg.query_selector('.ideas.pulse'), 'ver ideas'
+    pg.query_selector('.tripsempty').scroll_into_view_if_needed(); pg.query_selector('.tripsempty').screenshot(path=f'shots/{mode}_0empty.png')
+    pg.click('#esNew'); assert pg.query_selector('[data-mode=varios]'), 'armar mi primer viaje abre el asistente'
+    pg.go_back(); pg.wait_for_timeout(300)
     pg.click('#newTrip')
     # v0.7: primero se elige uno o varios lugares; con varios hay recorridos sugeridos
     assert pg.query_selector('#orig') is None, 'el destino aparece antes de elegir uno o varios'
@@ -66,6 +72,17 @@ with sync_playwright() as p:
     if mode=='live': print('facts', pg.evaluate("document.querySelector('#gk').textContent"))
     pg.wait_for_selector('.thero', timeout=30000); pg.wait_for_timeout(800)
     pg.screenshot(path=f'shots/{mode}_6plan.png'); pg.screenshot(path=f'shots/{mode}_6planfull.png', full_page=True)
+    # v0.12: viaje sin clima → estado vacío con «Buscar el clima»
+    if mode=='live':
+        assert not pg.query_selector('.wxempty') and pg.query_selector('.wxd'), 'con clima no hay estado vacío'
+        pg.evaluate("cur.weather={}; renderPlan()"); assert pg.query_selector('.wxempty #wxRetry'), 'sin clima'
+        pg.query_selector('.wxempty').screenshot(path=f'shots/{mode}_6wxempty.png')
+        pg.click('#wxRetry'); pg.wait_for_selector('.wxd', timeout=8000); assert not pg.query_selector('.wxempty'), 'el clima se recupera'
+        assert pg.evaluate("Object.keys(JSON.parse(localStorage.getItem('tw.trips'))[0].weather).length")>0, 'clima guardado'
+    else:
+        assert pg.query_selector('.wxempty') and 'sin conexión' in pg.inner_text('.wxempty'), 'sin clima offline'
+        pg.query_selector('.wxempty').screenshot(path=f'shots/{mode}_6wxempty.png')
+        pg.click('#wxRetry'); pg.wait_for_function("document.querySelector('#wxRetry') && document.querySelector('#wxRetry').textContent.includes('Reintentar')", timeout=15000)
     if mode=='live':
         pg.wait_for_timeout(1200)
         assert pg.query_selector('#lm-all') and pg.query_selector('#lm-0') and pg.query_selector('#lm-1'), 'mapa del recorrido y uno por destino'
@@ -82,9 +99,13 @@ with sync_playwright() as p:
     for t in ['reservas','valijas','plata','alertas']:
         pg.click(f'.tab[data-t={t}]'); pg.wait_for_timeout(400)
         if t=='reservas':
-            pg.click('#addBk'); pg.fill('#b_title','Aerolíneas AR1132'); pg.fill('#b_from','EZE'); pg.fill('#b_to','PRG'); pg.fill('#b_time','22:30'); pg.fill('#b_code','abc123')
+            assert pg.query_selector('.bkempty #esMail') and pg.query_selector('.bkempty #esAdd'), 'reservas vacías ilustradas'
+            pg.screenshot(path=f'shots/{mode}_7bkempty.png')
+            pg.click('#esMail'); pg.wait_for_timeout(200); assert pg.query_selector('#mailTxt'), 'subir mail desde el estado vacío'; pg.click('.modal [data-close] >> nth=0'); pg.wait_for_timeout(200)
+            pg.click('#esAdd'); pg.fill('#b_title','Aerolíneas AR1132'); pg.fill('#b_from','EZE'); pg.fill('#b_to','PRG'); pg.fill('#b_time','22:30'); pg.fill('#b_code','abc123')
             pg.screenshot(path=f'shots/{mode}_7bkform.png'); pg.click('#b_save'); pg.wait_for_timeout(300)
             pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(300)
+            assert not pg.query_selector('.bkempty') and pg.query_selector('.card.list .bk'), 'con una reserva ya no está vacío'
             pg.click('#addBk'); pg.click('[data-bt=hotel]'); pg.fill('#b_title','Hotel Golden Well'); pg.fill('#b_endDate', pg.eval_on_selector('#b_date','e=>e.value')); pg.click('#b_save'); pg.wait_for_timeout(300); pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(300)
         pg.screenshot(path=f'shots/{mode}_8{t}.png', full_page=True)
     ow=pg.evaluate('document.documentElement.scrollWidth'); print('scrollWidth',ow)
