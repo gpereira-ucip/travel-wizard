@@ -17,7 +17,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 12. Transiciones suaves entre pestañas y tarjetas con aparición escalonada. (v0.11)
 - [x] 13. Estados vacíos ilustrados (sin reservas, sin viajes, sin clima) con el siguiente paso claro. — v0.12
 - [x] 14. Diseño de escritorio de dos columnas (itinerario + mapa fijo) y tablet horizontal. — v0.13
-- [ ] 15. Tipografía y espaciado revisados para lectura en el sol (contraste AA en todo).
+- [x] 15. Tipografía y espaciado revisados para lectura en el sol (contraste AA en todo). — v0.14
 - [ ] 16. Selector de color de acento por viaje (cada viaje con su paleta, como las bitácoras).
 - [ ] 17. Modo «presentación» del viaje para mostrar a la familia (pantalla completa, día por día, con fotos grandes).
 - [ ] 18. Tutorial de 3 tarjetas la primera vez que se abre la app.

@@ -32,6 +32,27 @@ def handle(route, req):
     if 'upload.wikimedia' in u or 'cartocdn' in u or 'tile.openstreetmap' in u: return route.fulfill(body=PNG, content_type='image/png')
     return route.abort()
 mode=sys.argv[1] if len(sys.argv)>1 else 'live'
+# v0.14 (mejora 15): contraste AA del texto sobre fondos lisos (claro y oscuro); los textos sobre fotos se miran en las capturas
+AAJS=r"""(() => {const P=s=>{const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return null;const a=m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);return [a[0],a[1],a[2],a.length>3?a[3]:1]};
+ const L=c=>{const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2])};
+ const ov=(t,b)=>[0,1,2].map(i=>t[i]*t[3]+b[i]*(1-t[3])).concat(1);const out=[];const seen=new Set();
+ const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+ while(n=w.nextNode()){const t=n.textContent.trim();if(!/[A-Za-zÁÉÍÓÚáéíóúñÑ0-9]/.test(t))continue;const el=n.parentElement;if(!el||seen.has(el))continue;seen.add(el);
+  const r=el.getBoundingClientRect();if(r.width<1||r.height<1||r.bottom<0||r.top>innerHeight)continue;const cs=getComputedStyle(el);if(cs.visibility=='hidden')continue;
+  if(el.closest('svg,[aria-hidden=true],.leaflet-container,:disabled,.toast,.modal-bg,.sheet'))continue;
+  let op=1,img=false,st=[];for(let e=el;e&&e.nodeType==1;e=e.parentElement){const c2=getComputedStyle(e);op*=+c2.opacity;if(c2.backgroundImage!='none')img=true;const c=P(c2.backgroundColor);if(c&&c[3]>0&&!(st.length&&st[st.length-1][3]>=1))st.push(c)}
+  if(img||op==0)continue;let bg=[255,255,255,1];for(let i=st.length-1;i>=0;i--)bg=ov(st[i],bg);let fg=P(cs.color);fg[3]*=op;const f=ov(fg,bg);
+  const a=L(f),b=L(bg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);const fs=parseFloat(cs.fontSize),big=fs>=24||(fs>=18.66&&+cs.fontWeight>=700);
+  if(ratio<(big?3:4.5))out.push(t.slice(0,30)+' · '+ratio.toFixed(2)+' · '+cs.color+' sobre rgb('+bg.slice(0,3).map(Math.round)+')')}
+ return out})()"""
+def aa(pg,name):
+    bad=[]
+    for th in ['light','dark']:
+        pg.evaluate(f"setTheme('{th}')"); pg.wait_for_timeout(350); h=pg.evaluate('document.documentElement.scrollHeight'); y=0
+        while y<h:
+            pg.evaluate(f'window.scrollTo(0,{y})'); pg.wait_for_timeout(60); bad+=[th+' · '+x for x in pg.evaluate(AAJS)]; y+=700
+    pg.evaluate("setTheme('light')"); pg.evaluate('window.scrollTo(0,0)'); pg.wait_for_timeout(200)
+    bad=sorted(set(bad)); assert not bad, ('contraste AA en '+name, bad); return 0
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={'width':390,'height':844})
     errs=[]; pg.on('console', lambda m: errs.append(m.text) if m.type=='error' and 'Failed to load resource' not in m.text else None); pg.on('pageerror', lambda e: errs.append(str(e)))
@@ -109,6 +130,10 @@ with sync_playwright() as p:
             pg.click('#addBk'); pg.click('[data-bt=hotel]'); pg.fill('#b_title','Hotel Golden Well'); pg.fill('#b_endDate', pg.eval_on_selector('#b_date','e=>e.value')); pg.click('#b_save'); pg.wait_for_timeout(300); pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(300)
         pg.screenshot(path=f'shots/{mode}_8{t}.png', full_page=True)
     ow=pg.evaluate('document.documentElement.scrollWidth'); print('scrollWidth',ow)
+    for t in ['plan','reservas','valijas','plata','alertas']:
+        pg.click(f'.tab[data-t={t}]'); pg.wait_for_timeout(500); aa(pg,t)
+    assert pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--teal-ink').trim()")=='#1b7268', 'tokens de texto AA'
+    print('contraste AA ok (5 pestañas, claro y oscuro)')
     # v0.9: buscador global (mejora 10)
     pg.click('#searchBtn'); pg.wait_for_selector('#sq'); pg.wait_for_timeout(150)
     assert len(pg.query_selector_all('[data-sv]'))>=1, 'viajes sugeridos con la búsqueda vacía'
@@ -143,6 +168,9 @@ with sync_playwright() as p:
     nd=pg.evaluate('cur.days.length'); print('days after edit',nd)
     pg.click('#dupTrip'); pg.wait_for_timeout(700); pg.screenshot(path=f'shots/{mode}_13dup.png'); pg.click('[data-close]')
     pg.click('#goHome'); pg.wait_for_timeout(400); pg.screenshot(path=f'shots/{mode}_14home.png', full_page=True)
+    aa(pg,'inicio'); pg.emulate_media(contrast='more'); pg.wait_for_timeout(200)
+    assert pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()")=='#3a4654', 'más contraste si el sistema lo pide'
+    pg.emulate_media(contrast='no-preference')
     pg.click('#goNews'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_15news.png', full_page=True)
     pg.click('#backHome'); pg.click('#goBrands'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_16brands.png', full_page=True)
     # v0.6: logo en Para marcas + descarga
