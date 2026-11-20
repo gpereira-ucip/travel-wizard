@@ -27,7 +27,7 @@ def handle(route, req):
         t=[str(s+timedelta(i)) for i in range(n)]
         return route.fulfill(json={'daily':{'time':t,'weather_code':[(0,2,61,3)[i%4] for i in range(n)],'temperature_2m_max':[16+i%4 for i in range(n)],'temperature_2m_min':[5+i%3 for i in range(n)],'precipitation_sum':[(0,0,8,1)[i%4] for i in range(n)]}})
     if 'leaflet.js' in u:  # Leaflet de prueba: registra qué mapas y teselas se piden
-        return route.fulfill(content_type='application/javascript', body="window.__lf={maps:[],tiles:[]};const _o={addTo(){return this},bindPopup(){return this}};window.L={map:(el)=>{window.__lf.maps.push(el.id);const m={fitBounds(){return m},setView(){return m},invalidateSize(){},remove(){}};return m},tileLayer:(u)=>{window.__lf.tiles.push(u);return {addTo(){return this}}},marker:()=>_o,polyline:()=>_o,divIcon:()=>({})};")
+        return route.fulfill(content_type='application/javascript', body="window.__lf={maps:[],tiles:[]};window.__lf.icons=0;const _o={addTo(){return this},bindPopup(){return this},setIcon(){window.__lf.icons++;return this},setZIndexOffset(){return this}};window.L={map:(el)=>{window.__lf.maps.push(el.id);const m={fitBounds(){window.__lf.fits=(window.__lf.fits||0)+1;return m},setView(){return m},invalidateSize(){},remove(){}};return m},tileLayer:(u)=>{window.__lf.tiles.push(u);return {addTo(){return this}}},marker:()=>_o,polyline:()=>_o,divIcon:()=>({})};")
     if 'leaflet.css' in u: return route.fulfill(content_type='text/css', body='')
     if 'upload.wikimedia' in u or 'cartocdn' in u or 'tile.openstreetmap' in u: return route.fulfill(body=PNG, content_type='image/png')
     return route.abort()
@@ -208,7 +208,37 @@ with sync_playwright() as p:
     assert pg.evaluate("document.querySelector('.tind').style.getPropertyValue('--ti')")=='4'
     pg.emulate_media(reduced_motion='no-preference')
     pg.click('#goHome'); pg.click('#newTrip'); pg.click('[data-mode=uno]'); pg.wait_for_timeout(600); pg.go_back(); pg.wait_for_timeout(300)
-    pg.set_viewport_size({'width':1280,'height':900}); pg.click('#goHome'); pg.wait_for_timeout(500); pg.screenshot(path=f'shots/{mode}_18desk.png')
+    # v0.13 (mejora 14): escritorio / tablet horizontal en dos columnas con el mapa fijo
+    pg.set_viewport_size({'width':1280,'height':900}); pg.click('#goHome'); pg.wait_for_timeout(300)
+    pg.click(f'.tripcard[data-id="{tid}"]'); pg.wait_for_selector('#plan2'); pg.wait_for_timeout(1500)
+    lay=pg.evaluate("(()=>{const d=document.querySelector('#days').getBoundingClientRect(),p=document.querySelector('#pside').getBoundingClientRect();return {cols:getComputedStyle(document.querySelector('#plan2')).gridTemplateColumns.split(' ').length,dr:d.right,pl:p.left,pos:getComputedStyle(document.querySelector('#pside')).position,nomap:document.querySelector('#plan2').classList.contains('nomap')}})()")
+    print('desk layout', lay)
+    if mode=='live':
+        assert lay['cols']==2 and lay['dr']<=lay['pl'] and lay['pos']=='sticky' and not lay['nomap'], ('dos columnas', lay)
+        assert len(pg.query_selector_all('.mapsw [data-msec]'))==3, 'selector de mapas: recorrido + 2 ciudades'
+        pg.screenshot(path=f'shots/{mode}_19desk2col.png')
+        pg.evaluate("window.scrollTo(0, document.querySelector('#days .day[data-di=\"2\"]').getBoundingClientRect().top+scrollY-200)"); pg.wait_for_timeout(500)
+        st=pg.evaluate("[...document.querySelectorAll('#days .day.act')].map(a=>a.dataset.di).join(','), document.querySelector('#pside').getBoundingClientRect().top")
+        st=pg.evaluate("({act:[...document.querySelectorAll('#days .day.act')].map(a=>a.dataset.di).join(','),top:Math.round(document.querySelector('#pside').getBoundingClientRect().top),sec:document.querySelector('.mapc.on').dataset.sec,lab:(document.querySelector('.mapc.on .mapday')||{}).textContent,icons:window.__lf.icons})")
+        print('desk scroll', st)
+        assert st['act']=='2' and st['sec']=='0' and 'Día 3' in st['lab'] and st['icons']>0 and st['top']<120, ('el mapa sigue al día', st)
+        pg.screenshot(path=f'shots/{mode}_20deskscroll.png')
+        last=pg.evaluate("cur.days.length-1"); lastStop=pg.evaluate("String(cur.days[cur.days.length-2].stop)")
+        pg.evaluate(f"document.querySelector('#days .day[data-di=\"{last-1}\"] .dayh').click()"); pg.wait_for_timeout(200)
+        assert pg.evaluate("document.querySelector('.mapc.on').dataset.sec")==lastStop, 'tocar un día cambia el mapa a su ciudad'
+        pg.click('[data-msec=all]'); assert pg.evaluate("document.querySelector('.mapc.on').dataset.sec")=='all', 'chip Recorrido'
+        pg.set_viewport_size({'width':1024,'height':768}); pg.wait_for_timeout(300)
+        assert pg.evaluate("getComputedStyle(document.querySelector('#plan2')).gridTemplateColumns.split(' ').length")==2, 'tablet horizontal en dos columnas'
+        print('scrollWidthTablet', pg.evaluate('document.documentElement.scrollWidth')); pg.screenshot(path=f'shots/{mode}_21tablet.png')
+        pg.set_viewport_size({'width':390,'height':844}); pg.wait_for_timeout(300)
+        mob=pg.evaluate("({cols:getComputedStyle(document.querySelector('#plan2')).display,maps:[...document.querySelectorAll('.mapc')].filter(s=>s.offsetHeight>0).length,chips:document.querySelector('.mapsw').offsetHeight})")
+        assert mob['cols']=='block' and mob['maps']==3 and mob['chips']==0, ('en el celular todo sigue en una columna', mob)
+        pg.set_viewport_size({'width':1280,'height':900}); pg.wait_for_timeout(300)
+    else:
+        pg.screenshot(path=f'shots/{mode}_19desk2col.png')
+    pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(900); pg.screenshot(path=f'shots/{mode}_22deskres.png')
+    print('scrollWidthDesk2', pg.evaluate('document.documentElement.scrollWidth'))
+    pg.click('#goHome'); pg.wait_for_timeout(500); pg.screenshot(path=f'shots/{mode}_18desk.png')
     print('scrollWidthDesk', pg.evaluate('document.documentElement.scrollWidth'))
     print('ERRORS',errs)
     b.close()

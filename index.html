@@ -375,6 +375,33 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .wzs{animation:tbIn .36s cubic-bezier(.2,.75,.25,1) both;animation-delay:calc(var(--i,0)*40ms)}
 .thero.scr-in{animation:heroIn .45s ease both}
 @media (prefers-reduced-motion:reduce){.tb-in,.stg,.wzs,.thero.scr-in{animation:none!important}.tind,.tab .ic,.prog i{transition:none!important}}
+/* v0.13 (mejora 14): escritorio y tablet horizontal en dos columnas (itinerario + mapa fijo) */
+.mapsw,.mapday{display:none}
+@media (min-width:960px){
+ body.intrip .wrap.page,body.intrip .thero .wrap,body.intrip .top .wrap{max-width:1240px;padding:0 28px}
+ body.intrip .thero .wrap{padding-top:34px;padding-bottom:24px}
+ body.intrip .thero{min-height:270px}
+ .plan2{display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,42%);column-gap:30px;align-items:start}
+ .plan2>*{grid-column:1;min-width:0}
+ .plan2>.pside{grid-column:2;grid-row:1/span 60;position:sticky;top:calc(70px + var(--safe-t));height:calc(100vh - 70px - 88px - var(--safe-t) - var(--safe-b));min-height:420px;margin-top:14px;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:var(--r3);padding:12px;box-shadow:0 10px 30px rgba(10,16,35,.08)}
+ .plan2.nomap{grid-template-columns:minmax(0,1fr)}.plan2.nomap>.pside{display:none}
+ .plan2>.pside.lite{height:auto;min-height:0}
+ .pside #maps{flex:1;display:flex;flex-direction:column;min-height:0}
+ .mapsw{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+ .mapsw button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 12px;font:600 12.5px var(--sans);cursor:pointer}
+ .mapsw button.on{background:var(--night);color:var(--gold2);border-color:var(--night)}
+ .pside .mapc{display:none;flex:1;min-height:0;flex-direction:column;margin:0;position:relative}
+ .pside .mapc.on{display:flex}
+ .pside .mapc h4{font-family:var(--serif);font-size:1.25rem;font-weight:600;margin:0 0 8px}
+ .pside .mapc .lmap{flex:1;height:auto;min-height:240px}
+ .pside .legs{max-height:34%;overflow:auto;flex:none}
+ .mapday{display:block;position:absolute;left:10px;bottom:10px;z-index:500;background:var(--night);color:#fff;border-radius:12px;padding:7px 12px;font-size:12.5px;box-shadow:0 6px 18px rgba(0,0,0,.25);pointer-events:none;max-width:80%}
+ .mapday b{color:var(--gold2);font-family:var(--serif);font-size:15px;margin-right:4px}
+ .mapday:empty{display:none}
+ .plan2 .day .dayh{cursor:pointer}
+ .plan2 .day{transition:box-shadow .25s}
+ .plan2 .day.act{box-shadow:0 0 0 2px var(--gold),0 12px 30px rgba(10,16,35,.12)}
+}
 @media print{.top,.tabs,.acts,.toolbar,#map,#maps{display:none!important}.page{padding:0}.day{break-inside:avoid}}
 </style>
 </head>
@@ -399,7 +426,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.12';
+const VERSION = '0.13';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -467,6 +494,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.13','20 nov 2026',['En la computadora y en la tablet acostada, el itinerario se ve en dos columnas: los días a la izquierda y el mapa fijo a la derecha, que te acompaña mientras bajás.','El mapa sigue al día que estás leyendo: cambia solo al destino de ese día, marca sus lugares en coral y se acerca a ellos. Tocá el encabezado de un día para verlo, o elegí arriba del mapa «Recorrido» o cada ciudad.']],
   ['0.12','19 nov 2026',['Las pantallas vacías ahora te dicen qué hacer: sin viajes, una ilustración y los tres pasos para armar el primero (o ver ideas); sin reservas, un botón para subir el mail o el PDF de confirmación y otro para cargarla a mano.','Si armaste el viaje sin internet y no tiene clima, aparece «Todavía sin clima» con un botón para buscarlo cuando vuelvas a tener conexión, sin tocar el resto del itinerario.']],
   ['0.11','18 nov 2026',['Pasar de una pestaña a otra ahora es suave: el contenido entra deslizándose hacia el lado de la pestaña que tocaste y la rayita dorada de la barra de abajo se corre hasta ella.','Las tarjetas (días, reservas, valijas, ideas, tus viajes) aparecen escalonadas, una detrás de otra. Los pasos del asistente se deslizan hacia adelante o hacia atrás y la barra de progreso avanza.','Si tildás algo o borrás una reserva no se mueve nada: solo anima al cambiar de pantalla. Si tu celular tiene activado «reducir movimiento», la app no anima.']],
   ['0.10','17 nov 2026',['El botón «atrás» del celular ahora funciona como esperás: vuelve de una pestaña al itinerario, de un paso del asistente al anterior, de un viaje al inicio, y cierra las ventanas y el buscador sin salir de la app.','Cada pantalla tiene su dirección propia (por ejemplo …/#/viaje/…/reservas): si recargás la página o la guardás como favorito, se abre justo ahí.']],
@@ -480,7 +508,7 @@ const NEWS = [
   ['0.2','6 nov 2026',['Pegar el mail de confirmación y que la reserva se complete sola.']],
   ['0.1','6 nov 2026',['Primera versión: asistente, itinerario con fotos, clima y mapa, reservas, alertas, valijas y presupuesto.']],
 ];
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1253,15 +1281,15 @@ function renderPlan(){
   const srcTxt = {web:'Lugares y fotos: Wikipedia · Clima: Open-Meteo', claude:'Itinerario sugerido por Claude · verificá horarios y precios', basico:'Modo básico sin conexión: abrí la app con internet para sumar lugares, fotos y clima.'}[t.source];
   const wxDays = t.days.map(d=>t.weather&&t.weather[d.date]).filter(Boolean);
   const wxLabel = {pronostico:'Pronóstico', referencia:'Clima de referencia (mismas fechas del año pasado)', tipico:'Clima típico para esas fechas'}[t.weatherKind]||'';
-  B.innerHTML = `
+  B.innerHTML = `<div class="plan2" id="plan2">
     ${summaryCard(t)}
     ${wxDays.length?`<div class="subh">🌤️ ${wxLabel}</div><div class="wx">${t.days.map(d=>{const w=t.weather[d.date]; if(!w) return ''; return `<div class="wxd"><div class="small muted">${D.nice(d.date,{weekday:'short',day:'numeric'})}</div><div class="e">${wxEmoji(w.code)}</div><b>${Math.round(w.tmax)}°</b><span class="muted">${Math.round(w.tmin)}°</span></div>`;}).join('')}</div>${t.weatherKind==='tipico'&&wxDays[0].note?`<div class="srcnote">${esc(wxDays[0].note)}</div>`:''}`:weatherEmpty(t)}
-    <div id="maps"></div>
+    <aside class="pside" id="pside" aria-label="Mapa del viaje"><div id="maps"></div></aside>
     ${langHTML(t)}
     ${t.stops.map((s,si)=>t.intro&&t.intro[si]?`<p class="small muted" style="margin:10px 0"><b>${esc(s.name)}.</b> ${esc(t.intro[si].slice(0,320))}${t.intro[si].length>320?'…':''}</p>`:'').join('')}
     <div class="toolbar"><button class="btn sm dark" id="regen">🔄 Rearmar itinerario</button><button class="btn sm ghost" id="copyTxt">📋 Copiar para WhatsApp</button><button class="btn sm ghost" id="dupTrip">🧬 Duplicar</button><button class="btn sm ghost" id="expJson">💾 Exportar viaje</button><button class="btn sm ghost" id="delTrip" aria-label="Borrar viaje">🗑️</button></div>
     <div id="days"></div>
-    <div class="srcnote">${srcTxt}</div>`;
+    <div class="srcnote">${srcTxt}</div></div>`;
   if($('#wxRetry')) $('#wxRetry').onclick=e=>refreshWeather(e.currentTarget);
   const dd = $('#days');
   dd.innerHTML = t.days.map((d,di)=>{
@@ -1275,7 +1303,7 @@ function renderPlan(){
       <div class="tags">${p.cats.slice(0,2).map(c=>`<span class="tag">${(CAT[c]||CAT.imperdible).e} ${(CAT[c]||CAT.imperdible).l}</span>`).join('')}<span class="tag cost">${COST[p.cost]}</span>${p.indoor?'<span class="tag">☂️ Bajo techo</span>':''}</div>
       <div class="acts"><button data-done="${di}:${xi}">${x.done?'↩︎':'✓ Hecho'}</button><button data-swap="${di}:${xi}">🔀 Cambiar</button><button data-rmi="${di}:${xi}">✕</button>
       ${p.lat!=null&&!p.generic?`<a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">📍 Mapa</a>`:''}${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${p.generic?'🎟️ Buscar':'ℹ️ Más'}</a>`:''}</div></div></div>`; }).join('');
-    return `<article class="card day"><div class="dayh"><div class="dn">${String(di+1).padStart(2,'0')}</div><div><h3>${esc(title)}</h3><div class="small" style="opacity:.85">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}</div></div>
+    return `<article class="card day" data-di="${di}"><div class="dayh"><div class="dn">${String(di+1).padStart(2,'0')}</div><div><h3>${esc(title)}</h3><div class="small" style="opacity:.85">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}</div></div>
       ${w?`<div class="w"><b>${wxEmoji(w.code)} ${Math.round(w.tmax)}°</b><br>${Math.round(w.tmin)}°${isRainy(w)?' · lluvia':''}</div>`:''}</div>
       <div class="items">${travel}${bks}${items||'<p class="small muted" style="padding:8px 4px">Día libre.</p>'}<div class="acts" style="padding:6px 4px 0"><button data-add="${di}">＋ Agregar actividad</button></div></div></article>`;
   }).join('');
@@ -1294,6 +1322,7 @@ function renderPlan(){
   $$('[data-kpi]',B).forEach(k=>k.onclick=()=>{ tab=k.dataset.kpi; renderTrip(); window.scrollTo({top:$('.thero').offsetHeight-10, behavior:'smooth'}); });
   $('#delTrip').onclick=()=>confirmModal('¿Borrar este viaje?','Se borra de este dispositivo.',()=>{ trips=trips.filter(x=>x.id!==cur.id); saveTrips(); cur=null; renderHome(); });
   $$('[data-say]',B).forEach(b=>b.onclick=()=>sayPhrase(b.dataset.say));
+  $$('.day .dayh',dd).forEach(h=>h.onclick=()=>{ if(isDesk()) mapFocusDay(+h.closest('.day').dataset.di, true); });
   drawMap();
 }
 /* Idioma y costumbres por país (14/11/2026, pedido de Gonzalo).
@@ -1378,25 +1407,67 @@ function drawMap(){
   cur.days.forEach((d,di)=>d.items.forEach(x=>{ const p=itemById(d.stop,x.ref); if(p&&p.lat!=null&&!p.generic&&byStop[d.stop]) byStop[d.stop].push({p,di}); }));
   const multi=stops.filter(x=>x.lat!=null).length>1;
   let html='';
-  if(multi) html+=`<section class="mapc"><h4>🗺️ Recorrido completo</h4>${LIVE?'<div class="lmap" id="lm-all"></div>':''}${legsHTML(stops)}</section>`;
-  if(LIVE) stops.forEach((st,si)=>{ if(byStop[si].length||st.lat!=null) html+=`<section class="mapc"><h4>📍 ${esc(st.name)}</h4><div class="lmap" id="lm-${si}"></div></section>`; });
+  const secs=[];
+  if(multi){ secs.push(['all','🗺️ Recorrido']); html+=`<section class="mapc" data-sec="all"><h4>🗺️ Recorrido completo</h4>${LIVE?'<div class="lmap" id="lm-all"></div>':''}${legsHTML(stops)}</section>`; }
+  if(LIVE) stops.forEach((st,si)=>{ if(byStop[si].length||st.lat!=null){ secs.push([String(si),'📍 '+esc(st.name)]); html+=`<section class="mapc" data-sec="${si}"><h4>📍 ${esc(st.name)}</h4><div class="lmap" id="lm-${si}"></div><div class="mapday" aria-live="polite"></div></section>`; } });
+  if(secs.length>1) html=`<div class="mapsw" role="tablist" aria-label="Elegir mapa">${secs.map(([k,l])=>`<button type="button" role="tab" data-msec="${k}">${l}</button>`).join('')}</div>`+html;
   box.innerHTML=html;
+  _mk=[]; _mfit={}; _mfocus=-1; MAPSEC=null;
+  const p2=$('#plan2'); if(p2) p2.classList.toggle('nomap', !html);
+  const ps=$('#pside'); if(ps) ps.classList.toggle('lite', !LIVE);
+  $$('[data-msec]',box).forEach(b=>b.onclick=()=>{ mapShow(b.dataset.msec); const m=_mfit[b.dataset.msec]; if(m) m(); });
+  if(secs.length) mapShow(secs[0][0]);
   if(!LIVE || !html) return;
   const pin=(txt,bg,fg)=>L.divIcon({className:'',html:`<div style="background:${bg};color:${fg};border:2px solid #f4d38f;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font:700 11px Plus Jakarta Sans,sans-serif">${txt}</div>`,iconSize:[26,26],iconAnchor:[13,13]});
   const mk=(id)=>{ const el=document.getElementById(id); if(!el) return null; const m=L.map(el,{scrollWheelZoom:false}); L.tileLayer(TILE_URL,{attribution:TILE_ATTR,maxZoom:19}).addTo(m); _maps.push(m); return m; };
   const go=()=>{ if(!window.L) return;
     if(multi){ const m=mk('lm-all'); if(m){ const ll=stops.filter(x=>x.lat!=null).map(x=>[x.lat,x.lon]);
       stops.forEach((x,i)=>{ if(x.lat!=null) L.marker([x.lat,x.lon],{icon:pin(i+1,'#14213d','#f4d38f')}).addTo(m).bindPopup(`<b>${i+1}. ${esc(x.name)}</b><br>${x.nights} noches`); });
-      L.polyline(ll,{color:'#e76f51',weight:3,dashArray:'6 6'}).addTo(m); m.fitBounds(ll,{padding:[28,28]}); } }
+      L.polyline(ll,{color:'#e76f51',weight:3,dashArray:'6 6'}).addTo(m); _mfit.all=()=>{ m.invalidateSize(); m.fitBounds(ll,{padding:[28,28]}); }; _mfit.all(); } }
     stops.forEach((st,si)=>{ const m=mk('lm-'+si); if(!m) return; const b=[];
-      byStop[si].forEach(({p,di})=>{ b.push([p.lat,p.lon]); L.marker([p.lat,p.lon],{icon:pin(di+1,'#14213d','#f4d38f')}).addTo(m).bindPopup(`<b>Día ${di+1}</b><br>${esc(p.title)}`); });
-      if(b.length>1) m.fitBounds(b,{padding:[24,24],maxZoom:15}); else if(b.length) m.setView(b[0],14); else m.setView([st.lat,st.lon],12); });
-    setTimeout(()=>_maps.forEach(m=>m.invalidateSize()),250); };
+      byStop[si].forEach(({p,di})=>{ b.push([p.lat,p.lon]); const mr=L.marker([p.lat,p.lon],{icon:pin(di+1,'#14213d','#f4d38f')}).addTo(m).bindPopup(`<b>Día ${di+1}</b><br>${esc(p.title)}`); _mk.push({si,di,mr,ll:[p.lat,p.lon],m}); });
+      _mfit[si]=()=>{ m.invalidateSize(); if(b.length>1) m.fitBounds(b,{padding:[24,24],maxZoom:15}); else if(b.length) m.setView(b[0],14); else m.setView([st.lat,st.lon],12); }; _mfit[si](); });
+    _mpin=pin;
+    setTimeout(()=>{ _maps.forEach(m=>m.invalidateSize()); if(isDesk()){ _mfocus=-1; mapSyncDay(); } },250); };
   if(window.L) go(); else {
     if(!document.getElementById('lfcss')){ const c=document.createElement('link'); c.id='lfcss'; c.rel='stylesheet'; c.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(c); }
     const sc=document.createElement('script'); sc.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; sc.onload=go; sc.onerror=()=>{}; document.head.appendChild(sc);
   }
 }
+/* v0.13 (mejora 14): en escritorio el mapa queda fijo a la derecha y sigue al día que estás leyendo. */
+let _mk=[], _mfit={}, _mfocus=-1, _mpin=null, MAPSEC=null;
+const DESK_MQ='(min-width:960px)';
+function isDesk(){ try{ return matchMedia(DESK_MQ).matches; }catch(e){ return false; } }
+function mapShow(k){ const box=$('#maps'); if(!box) return; k=String(k); if(!box.querySelector(`.mapc[data-sec="${k}"]`)) return;
+  const chg=MAPSEC!==k; MAPSEC=k;
+  $$('.mapc',box).forEach(s=>s.classList.toggle('on', s.dataset.sec===k));
+  $$('[data-msec]',box).forEach(b=>{ const on=b.dataset.msec===k; b.classList.toggle('on',on); b.setAttribute('aria-selected',on); });
+  if(chg) _maps.forEach(m=>{ try{ m.invalidateSize(); }catch(e){} }); }
+function mapFocusDay(di, force){
+  if(!cur||!cur.days[di]||(!force&&di===_mfocus)) return; _mfocus=di;
+  $$('#days .day').forEach(a=>a.classList.toggle('act', +a.dataset.di===di));
+  const d=cur.days[di], si=d.stop, box=$('#maps'); if(!box) return;
+  if(box.querySelector(`.mapc[data-sec="${si}"]`)) mapShow(si); else return;
+  const lab=box.querySelector(`.mapc[data-sec="${si}"] .mapday`);
+  const mine=_mk.filter(x=>x.si===si&&x.di===di);
+  if(lab) lab.innerHTML=`<b>Día ${di+1}</b> ${esc(D.nice(d.date,{weekday:'long',day:'numeric',month:'long'}))}${mine.length?` · ${mine.length} ${mine.length===1?'lugar':'lugares'}`:' · sin lugares en el mapa'}`;
+  if(!_mpin) return;
+  _mk.filter(x=>x.si===si).forEach(x=>{ const on=x.di===di; try{ x.mr.setIcon(_mpin(x.di+1, on?'#e76f51':'#14213d', on?'#fff':'#f4d38f')); x.mr.setZIndexOffset(on?1000:0); }catch(e){} });
+  const m=mine[0]&&mine[0].m; try{
+    if(mine.length>1) m.fitBounds(mine.map(x=>x.ll),{padding:[40,40],maxZoom:15});
+    else if(mine.length) m.setView(mine[0].ll,15);
+    else if(_mfit[si]) _mfit[si]();
+  }catch(e){} }
+function mapSyncDay(){
+  if(!isDesk()||!cur||tab!=='plan') return;
+  const ds=$$('#days .day'); if(!ds.length) return;
+  if(ds[0].getBoundingClientRect().top>innerHeight*.62){ if(_mfocus!==-1){ _mfocus=-1; ds.forEach(a=>a.classList.remove('act')); const f=$('#maps [data-msec]'); if(f){ mapShow(f.dataset.msec); const fit=_mfit[f.dataset.msec]; if(fit) fit(); } } return; }
+  const line=Math.min(innerHeight*.38, 320); let best=null;
+  for(const a of ds){ const r=a.getBoundingClientRect(); if(r.bottom>line){ best=a; break; } }
+  if(best) mapFocusDay(+best.dataset.di);
+}
+{ let raf=0; addEventListener('scroll',()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; mapSyncDay(); }); },{passive:true});
+  try{ matchMedia(DESK_MQ).addEventListener('change',()=>{ if(!$('#maps')) return; setTimeout(()=>{ Object.values(_mfit).forEach(f=>{ try{ f(); }catch(e){} }); if(isDesk()){ _mfocus=-1; mapSyncDay(); } else $$('#days .day.act').forEach(a=>a.classList.remove('act')); },60); }); }catch(e){} }
 function tripText(t){
   let s=`🧭 *${t.name}*\n${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(t.end,{day:'numeric',month:'long',year:'numeric'})}\n`;
   t.days.forEach((d,di)=>{ s+=`\n*Día ${di+1} · ${D.nice(d.date,{weekday:'long',day:'numeric',month:'short'})}* — ${t.stops[d.stop].name}\n`;
