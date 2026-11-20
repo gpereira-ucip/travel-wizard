@@ -166,8 +166,23 @@ with sync_playwright() as p:
     pg.click('[data-en="0"][data-d="-1"]'); pg.fill('#e_name','Europa en familia'); pg.click('[data-ei=shopping]'); pg.click('#e_save'); pg.wait_for_timeout(1200)
     assert 'Europa en familia' in pg.inner_text('.thero h1')
     nd=pg.evaluate('cur.days.length'); print('days after edit',nd)
+    # v0.15 (mejora 16): color de acento por viaje
+    NIGHT="getComputedStyle(document.documentElement).getPropertyValue('--night').trim()"
+    assert pg.evaluate(NIGHT)=='#14213d' and not pg.evaluate("document.documentElement.classList.contains('acc')"), 'viaje sin color = noche y dorado'
+    pg.click('#editTrip'); pg.wait_for_timeout(300); assert len(pg.query_selector_all('[data-eacc]'))==6 and pg.query_selector('[data-eacc=clasico].on'), 'selector de 6 colores'
+    pg.click('[data-eacc=lavanda]'); assert pg.evaluate(NIGHT)=='#2a1f4a', 'vista previa al tocar'
+    pg.query_selector('.accs').scroll_into_view_if_needed(); pg.screenshot(path=f'shots/{mode}_12bacc.png')
+    pg.click('.modal [data-close] >> nth=0'); pg.wait_for_timeout(200); assert pg.evaluate(NIGHT)=='#14213d', 'cancelar vuelve al color guardado'
+    pg.click('#editTrip'); pg.wait_for_timeout(300); pg.click('[data-eacc=selva]'); pg.click('#e_save'); pg.wait_for_timeout(600)
+    assert pg.evaluate("cur.accent")=='selva' and pg.evaluate("JSON.parse(localStorage.getItem('tw.trips')).find(t=>t.id===cur.id).accent")=='selva', 'color guardado'
+    assert pg.evaluate(NIGHT)=='#12372a', 'el viaje se tiñe de Selva'
+    pg.evaluate('window.scrollTo(0,0)'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_12cselva.png')
+    aa(pg,'viaje con color Selva'); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400); aa(pg,'valijas Selva'); pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(300)
+    pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_12dselvadark.png'); pg.evaluate("setTheme('light')")
     pg.click('#dupTrip'); pg.wait_for_timeout(700); pg.screenshot(path=f'shots/{mode}_13dup.png'); pg.click('[data-close]')
     pg.click('#goHome'); pg.wait_for_timeout(400); pg.screenshot(path=f'shots/{mode}_14home.png', full_page=True)
+    assert not pg.evaluate("document.documentElement.classList.contains('acc')") and pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--night').trim()")=='#14213d', 'el inicio vuelve a noche y dorado'
+    assert pg.evaluate("[...document.querySelectorAll('.tripcard')].every(e=>getComputedStyle(e).getPropertyValue('--tacc').trim()=='#9fd36b' && getComputedStyle(e).boxShadow.includes('159, 211, 107'))"), 'tarjetas del viaje con su color'
     aa(pg,'inicio'); pg.emulate_media(contrast='more'); pg.wait_for_timeout(200)
     assert pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()")=='#3a4654', 'más contraste si el sistema lo pide'
     pg.emulate_media(contrast='no-preference')

@@ -136,6 +136,13 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .tripcard{display:flex;gap:14px;padding:14px;margin-bottom:12px;align-items:center;cursor:pointer}
 .tripcard .ph{width:64px;height:64px;border-radius:14px;flex:none;background:linear-gradient(135deg,var(--night2),var(--teal));display:grid;place-items:center;font-size:28px;background-size:cover;background-position:center}
 .tripcard h3{margin:0;font-size:16px}
+.tripcard[style*="--tacc"]{box-shadow:inset 4px 0 0 var(--tacc),var(--sh1)}
+.accs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.acc-sw{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px 8px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);font-size:12px;font-weight:700;color:var(--ink)}
+.acc-sw i{width:100%;height:34px;border-radius:9px;position:relative;overflow:hidden}
+.acc-sw i::after{content:"";position:absolute;right:7px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+.acc-sw.on{border-color:var(--ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 35%,transparent)}
+.acc-sw.on span::before{content:"✓ "}
 .empty{padding:26px;text-align:center;color:var(--muted)}
 /* estados vacíos ilustrados (mejora 13) */
 .es{text-align:center;padding:22px 18px 20px;color:var(--muted);position:relative;overflow:hidden}
@@ -439,7 +446,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.14';
+const VERSION = '0.15';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -507,6 +514,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.15','20 nov 2026',['Cada viaje puede tener su propio color, como las bitácoras: en ✏️ Editar → «Color del viaje» elegí Noche y dorado, Mar, Selva, Terracota, Lavanda o Nieve. Se ve al instante, antes de guardar.','El color tiñe la portada, los encabezados de cada día, los botones, las barras y la rayita de la pestaña, y se mantiene legible en modo claro y oscuro.','En el inicio, la tarjeta de cada viaje y la del próximo viaje muestran su color.']],
   ['0.14','20 nov 2026',['Todo se lee mejor a pleno sol: los textos grises son más oscuros y los verdes, dorados y corales que se usan como letra tienen ahora una versión más firme, con contraste AA (al menos 4,5 a 1) en modo claro y en modo oscuro.','Sobre las fotos (portada del viaje, próximo viaje e ideas) hay un velo más parejo, así las fechas, los datos y el botón Editar se leen aunque la foto sea clara.','Las alertas que ya pasaron se ven atenuadas sin perder legibilidad, y la etiqueta «Espacio disponible / Patrocinado» es un poco más grande.','Si en el celular activás «Aumentar contraste», la app lo respeta y refuerza grises y bordes.']],
   ['0.13','20 nov 2026',['En la computadora y en la tablet acostada, el itinerario se ve en dos columnas: los días a la izquierda y el mapa fijo a la derecha, que te acompaña mientras bajás.','El mapa sigue al día que estás leyendo: cambia solo al destino de ese día, marca sus lugares en coral y se acerca a ellos. Tocá el encabezado de un día para verlo, o elegí arriba del mapa «Recorrido» o cada ciudad.']],
   ['0.12','19 nov 2026',['Las pantallas vacías ahora te dicen qué hacer: sin viajes, una ilustración y los tres pasos para armar el primero (o ver ideas); sin reservas, un botón para subir el mail o el PDF de confirmación y otro para cargarla a mano.','Si armaste el viaje sin internet y no tiene clima, aparece «Todavía sin clima» con un botón para buscarlo cuando vuelvas a tener conexión, sin tocar el resto del itinerario.']],
@@ -522,7 +530,24 @@ const NEWS = [
   ['0.2','6 nov 2026',['Pegar el mail de confirmación y que la reserva se complete sola.']],
   ['0.1','6 nov 2026',['Primera versión: asistente, itinerario con fotos, clima y mapa, reservas, alertas, valijas y presupuesto.']],
 ];
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,21,22]};
+/* Acento por viaje (mejora 16): cada viaje con su paleta, como las bitácoras. v = [noche, noche2, acento, acento claro, coral, acento-texto claro, coral-texto claro, acento-texto oscuro, coral-texto oscuro]; los «-texto» cumplen AA (≥4,5:1) */
+const ACCENTS = {
+  clasico:  {n:'Noche y dorado', base:true, v:['#14213d','#1f3160','#e0a84f','#f4d38f','#e76f51','#8a5d0f','#b0422a','#e0a84f','#f08a70']},
+  mar:      {n:'Mar',       v:['#0c3b52','#135e7d','#5cc8d6','#a8e6ee','#f28c6b','#20737e','#b23a14','#5cc8d6','#f28c6b']},
+  selva:    {n:'Selva',     v:['#12372a','#1d5a43','#9fd36b','#d3f0a8','#f2a541','#4b7322','#9a5b0b','#9fd36b','#f2a541']},
+  terracota:{n:'Terracota', v:['#3d1a14','#66291f','#f0a35e','#f9d2a6','#e85d75','#a1540f','#b8325a','#f0a35e','#e85d75']},
+  lavanda:  {n:'Lavanda',   v:['#2a1f4a','#463478','#c3a6ff','#e2d4ff','#ff8fab','#6a4bb5','#b8325a','#c3a6ff','#ff8fab']},
+  nieve:    {n:'Nieve',     v:['#1c2b3a','#34495e','#9cc3e6','#d6e8f7','#e76f51','#2a6ba6','#b0422a','#9cc3e6','#f08a70']}
+};
+function accOf(k){ const a=ACCENTS[k]; return a&&!a.base?a:null; }
+function applyAccent(k){
+  const a=accOf(k); let st=document.getElementById('accStyle');
+  if(!st){ st=document.createElement('style'); st.id='accStyle'; document.head.appendChild(st); }
+  st.textContent = a ? (()=>{ const [n,n2,g,g2,c,gi,ci,gd,cd]=a.v; return `html.acc{--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--coral:${c};--gold-ink:${gi};--coral-ink:${ci}}html.acc[data-theme=dark]{--gold-ink:${gd};--coral-ink:${cd}}`; })() : '';
+  document.documentElement.classList.toggle('acc', !!a); document.documentElement.dataset.acc = a?k:'clasico';
+}
+function accVars(t){ const a=accOf(t&&t.accent); if(!a) return ''; const [n,n2,g,g2]=a.v; return `--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--tacc:${g};`; }
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -967,7 +992,7 @@ function nextTripFeature(){
   if(!act.length) return '';
   const {t,st}=act[0]; const img=(t.stops.find(x=>x.img)||{}).img;
   const big = st.k==='now' ? `<b>${D.diff(t.start,D.today())+1}</b><span>día</span>` : `<b>${st.d}</b><span>${st.d===1?'día':'días'}</span>`;
-  return `<button class="nextfeat" id="nextFeat" data-id="${t.id}" style="${img?`background-image:url('${esc(img)}')`:''}">
+  return `<button class="nextfeat" id="nextFeat" data-id="${t.id}" style="${accVars(t)}${img?`background-image:url('${esc(img)}')`:accOf(t.accent)?'background-image:linear-gradient(135deg,var(--night),var(--night2))':''}">
     <span class="nf-go">Abrir ›</span>
     <div class="nf"><div class="nf-cd">${big}</div><div class="grow"><i>${st.k==='now'?'Estás de viaje':'Tu próximo viaje'}</i><h3>${esc(t.name)}</h3><small>${D.nice(t.start,{day:'numeric',month:'long'})} · ${nightsOf(t)} noches · ${t.travelers.length} ${t.travelers.length===1?'viajero':'viajeros'}</small></div></div></button>`;
 }
@@ -1016,7 +1041,7 @@ function weatherEmpty(t){
 }
 
 function renderHome(){
-  document.body.classList.remove('intrip'); window.scrollTo(0,0);
+  document.body.classList.remove('intrip'); applyAccent(null); window.scrollTo(0,0);
   app.innerHTML = `
   <section class="hero">${starsSVG()}<div class="wrap" style="position:relative">${logoSVG('dark','hero-logo')}
     <div class="eyebrow">Tu viaje, armado en 1 minuto</div>
@@ -1270,7 +1295,7 @@ function genScreen(trip){
 function openTrip(id){ cur = trips.find(t=>t.id===id); if(!cur) return renderHome(); tab='plan'; renderTrip(); scheduleNotifs(cur); }
 function itemById(si, id){ return (cur.pool[si]||[]).find(p=>p.id===id); }
 function renderTrip(){
-  document.body.classList.add('intrip');
+  document.body.classList.add('intrip'); applyAccent(cur.accent);
   const t = cur; const nights = t.stops.reduce((a,s)=>a+s.nights,0);
   const img = (t.stops.find(s=>s.img)||{}).img;
   const upcoming = buildAlerts(t).filter(a=>+a.when>Date.now() && +a.when-Date.now()<7*864e5).length;
@@ -1837,7 +1862,7 @@ function countdown(ms){ const d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5
 
 /* ---------- modales ---------- */
 function openModal(html){ $('#modalRoot').innerHTML=`<div class="modal"><div class="sheet">${html}</div></div>`; const m=$('.modal'); m.onclick=e=>{ if(e.target===m) closeModal(); }; $$('[data-close]',m).forEach(b=>b.onclick=closeModal); }
-function closeModal(){ $('#modalRoot').innerHTML=''; navOverlayClosed(); }
+function closeModal(){ $('#modalRoot').innerHTML=''; if(cur&&document.body.classList.contains('intrip')) applyAccent(cur.accent); navOverlayClosed(); }
 
 /* ---------- buscador global (mejora 10) ---------- */
 const SEARCH_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>';
@@ -1938,7 +1963,7 @@ function tripStatus(t){
 }
 function tripCardHTML(t){
   const st=tripStatus(t); const img=t.stops[0]&&t.stops[0].img;
-  return `<div class="card tripcard" data-id="${t.id}">
+  return `<div class="card tripcard" data-id="${t.id}" style="${accVars(t)}">
     <div class="ph" style="${img?`background-image:url('${esc(img)}')`:''}">${img?'':'🧭'}</div>
     <div class="grow"><h3>${esc(t.name)}</h3><div class="small muted">${D.nice(t.start,{day:'numeric',month:'short',year:'numeric'})} · ${nightsOf(t)} noches · ${t.travelers.length} ${t.travelers.length===1?'viajero':'viajeros'}</div>
     <span class="when-pill ${st.k==='now'?'now':st.k==='past'?'past':''}">${st.label}</span></div>
@@ -1974,10 +1999,12 @@ function summaryCard(t){
 
 /* Editar viaje (mejora 5) */
 function editTripModal(){
-  const t=cur; const e={name:t.name, start:t.start, stops:t.stops.map(s=>({...s})), travelers:t.travelers.map(x=>({...x})), interests:[...t.interests], pace:t.pace, budget:{...t.budget}};
+  const t=cur; const e={accent:t.accent||'clasico', name:t.name, start:t.start, stops:t.stops.map(s=>({...s})), travelers:t.travelers.map(x=>({...x})), interests:[...t.interests], pace:t.pace, budget:{...t.budget}};
   const draw=()=>{ openModal(`<h3>Editar viaje</h3>
     <div class="field"><label>Nombre</label><input class="inp" id="e_name" value="${esc(e.name)}"></div>
     <div class="field"><label>Fecha de salida</label><input type="date" class="inp" id="e_start" value="${e.start}"></div>
+    <div class="ed-sec">Color del viaje</div>
+    <div class="accs" role="radiogroup" aria-label="Color del viaje">${Object.entries(ACCENTS).map(([k,a])=>`<button class="acc-sw ${e.accent===k?'on':''}" data-eacc="${k}" role="radio" aria-checked="${e.accent===k}"><i style="background:linear-gradient(135deg,${a.v[0]},${a.v[1]} 60%,${a.v[2]});--sc:${a.v[4]}"></i><span>${a.n}</span></button>`).join('')}</div>
     <div class="ed-sec">Noches por ciudad</div>
     ${e.stops.map((s,i)=>`<div class="card stop"><div class="num">${i+1}</div><div class="grow"><b>${esc(s.name)}</b></div><div class="stepper"><button data-en="${i}" data-d="-1">−</button><b>${s.nights}</b><button data-en="${i}" data-d="1">+</button></div></div>`).join('')}
     <div class="ed-sec">Viajeros</div>
@@ -1998,6 +2025,7 @@ function editTripModal(){
     $$('[data-etr]').forEach(b=>b.onclick=()=>{ read(); e.travelers.splice(+b.dataset.etr,1); draw(); });
     $('#e_addT').onclick=()=>{ read(); e.travelers.push({name:'Viajero '+(e.travelers.length+1),age:'adulto'}); draw(); };
     $$('[data-ei]').forEach(b=>b.onclick=()=>{ const k=b.dataset.ei; e.interests=e.interests.includes(k)?e.interests.filter(x=>x!==k):[...e.interests,k]; b.classList.toggle('on'); });
+    $$('[data-eacc]').forEach(b=>b.onclick=()=>{ e.accent=b.dataset.eacc; applyAccent(e.accent); $$('[data-eacc]').forEach(x=>{ x.classList.toggle('on',x===b); x.setAttribute('aria-checked',x===b); }); });
     $$('[data-ep]').forEach(b=>b.onclick=()=>{ e.pace=b.dataset.ep; $$('[data-ep]').forEach(x=>x.classList.toggle('on',x===b)); });
     $$('[data-el]').forEach(b=>b.onclick=()=>{ e.budget.level=b.dataset.el; $$('[data-el]').forEach(x=>x.classList.toggle('on',x===b)); });
     $('#e_save').onclick=async()=>{ read(); await applyTripEdit(e); };
@@ -2009,7 +2037,7 @@ async function applyTripEdit(e){
   const datesCh = e.start!==t.start || e.stops.some((s,i)=>s.nights!==t.stops[i].nights);
   const travCh = JSON.stringify(e.travelers)!==JSON.stringify(t.travelers);
   const planCh = datesCh || e.pace!==t.pace || e.budget.level!==t.budget.level || e.interests.join()!==t.interests.join();
-  t.name=e.name; t.start=e.start; t.stops.forEach((s,i)=>s.nights=e.stops[i].nights); t.travelers=e.travelers.map((x,i)=>({name:x.name.trim()||'Viajero '+(i+1),age:x.age}));
+  const accCh = e.accent!==(t.accent||'clasico'); t.accent=e.accent; t.name=e.name; t.start=e.start; t.stops.forEach((s,i)=>s.nights=e.stops[i].nights); t.travelers=e.travelers.map((x,i)=>({name:x.name.trim()||'Viajero '+(i+1),age:x.age}));
   t.interests=e.interests; t.pace=e.pace; t.budget=e.budget; t.end=D.add(t.start,nightsOf(t));
   closeModal();
   if(datesCh && LIVE && t.source==='web'){
@@ -2023,7 +2051,7 @@ async function applyTripEdit(e){
   if(planCh) t.days=schedule(t);
   if(travCh || datesCh){ const old=t.packing||{}; const nu=buildPacking(t); Object.entries(nu).forEach(([who,list])=>{ const prev=old[who]||[]; list.forEach(x=>{ const m=prev.find(y=>y.item===x.item); if(m) x.on=m.on; }); const extra=prev.filter(y=>!list.some(x=>x.item===y.item) && !y.auto && y.custom); list.push(...extra); }); t.packing=nu; }
   saveCur(); renderTrip(); scheduleNotifs(t);
-  toast(planCh?'Viaje actualizado e itinerario rearmado':'Viaje actualizado');
+  toast(planCh?'Viaje actualizado e itinerario rearmado':accCh?`Listo: el viaje ahora es ${ACCENTS[e.accent].n}`:'Viaje actualizado');
 }
 
 /* Duplicar viaje (mejora 6) */
@@ -2054,7 +2082,7 @@ function addSponsor(where){ const B=$('#tabBody'); if(!B||$('.spon',B)) return; 
 
 /* Página «Para marcas» (mejora 22) */
 function renderBrands(){
-  cur=null; document.body.classList.remove('intrip'); window.scrollTo(0,0);
+  cur=null; document.body.classList.remove('intrip'); applyAccent(null); window.scrollTo(0,0);
   app.innerHTML=`<section class="hero">${starsSVG()}<div class="wrap" style="position:relative"><div class="eyebrow">Para marcas y sponsors</div><h1>Aparecé cuando<br><em>planifican el viaje.</em></h1><p>Travel Wizard acompaña a familias y viajeros desde que eligen el destino hasta que vuelven: reservas, valijas, alertas y el itinerario de cada día.</p></div></section>
   <div class="wrap doc">
     <h2>Por qué funciona</h2>
@@ -2091,7 +2119,7 @@ function renderBrands(){
 
 /* Novedades y hoja de ruta (mejora 1) */
 function renderNews(){
-  cur=null; document.body.classList.remove('intrip'); window.scrollTo(0,0);
+  cur=null; document.body.classList.remove('intrip'); applyAccent(null); window.scrollTo(0,0);
   const done=ROADMAP.done.length, pct=Math.round(done/ROADMAP.total*100);
   app.innerHTML=`<div class="wrap doc">
     <h2>Novedades</h2>
@@ -2175,7 +2203,7 @@ function route(){
 addEventListener('popstate',()=>{
   if(!NAV.on) return;
   if(NAV.backing) return navSettle();
-  if($('#modalRoot').innerHTML){ $('#modalRoot').innerHTML=''; if(hereHash()===NAV.view) return; }   // atrás cierra la ventana
+  if($('#modalRoot').innerHTML){ $('#modalRoot').innerHTML=''; if(cur&&document.body.classList.contains('intrip')) applyAccent(cur.accent); if(hereHash()===NAV.view) return; }   // atrás cierra la ventana
   if(hstate().ov&&hereHash()===NAV.view) return;
   route();
 });
