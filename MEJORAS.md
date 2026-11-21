@@ -19,6 +19,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 14. Diseño de escritorio de dos columnas (itinerario + mapa fijo) y tablet horizontal. — v0.13
 - [x] 15. Tipografía y espaciado revisados para lectura en el sol (contraste AA en todo). — v0.14
 - [x] 16. Selector de color de acento por viaje (cada viaje con su paleta, como las bitácoras). — v0.15
+  - Arreglo v0.16 (21 nov 2026): contraste AA del numerito de Alertas y de la píldora «en viaje» (aparecían según la fecha y fallaban AA).
 - [ ] 17. Modo «presentación» del viaje para mostrar a la familia (pantalla completa, día por día, con fotos grandes).
 - [ ] 18. Tutorial de 3 tarjetas la primera vez que se abre la app.
 - [ ] 19. Atajos de teclado en escritorio (N nuevo viaje, 1–5 pestañas, / buscar).

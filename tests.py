@@ -45,6 +45,8 @@ AAJS=r"""(() => {const P=s=>{const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return nu
   const a=L(f),b=L(bg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);const fs=parseFloat(cs.fontSize),big=fs>=24||(fs>=18.66&&+cs.fontWeight>=700);
   if(ratio<(big?3:4.5))out.push(t.slice(0,30)+' · '+ratio.toFixed(2)+' · '+cs.color+' sobre rgb('+bg.slice(0,3).map(Math.round)+')')}
  return out})()"""
+# v0.16: el numerito de Alertas depende de la fecha; se fuerza uno (y una píldora «en viaje») para medir su contraste siempre
+BADGE="(()=>{const t=document.querySelector('.tab[data-t=alertas]');if(t&&!t.querySelector('.badge')){const b=document.createElement('span');b.className='badge';b.textContent='3';t.appendChild(b)}const h=document.querySelector('.tab[data-t=alertas]')||document.body;if(!document.querySelector('.when-pill.now')){const w=document.createElement('span');w.className='when-pill now';w.textContent='En viaje';w.style.cssText='position:fixed;top:120px;left:10px;z-index:99';document.body.appendChild(w)}return !!document.querySelector('.tab .badge')})()"
 def aa(pg,name):
     bad=[]
     for th in ['light','dark']:
@@ -131,7 +133,8 @@ with sync_playwright() as p:
         pg.screenshot(path=f'shots/{mode}_8{t}.png', full_page=True)
     ow=pg.evaluate('document.documentElement.scrollWidth'); print('scrollWidth',ow)
     for t in ['plan','reservas','valijas','plata','alertas']:
-        pg.click(f'.tab[data-t={t}]'); pg.wait_for_timeout(500); aa(pg,t)
+        pg.click(f'.tab[data-t={t}]'); pg.wait_for_timeout(500); assert pg.evaluate(BADGE), 'numerito de alertas'; aa(pg,t)
+    assert pg.evaluate("(()=>{const b=document.querySelector('.tab .badge');return getComputedStyle(b).backgroundColor})()")=='rgb(176, 66, 42)', 'numerito de alertas en coral firme'
     assert pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--teal-ink').trim()")=='#1b7268', 'tokens de texto AA'
     print('contraste AA ok (5 pestañas, claro y oscuro)')
     # v0.9: buscador global (mejora 10)
@@ -177,7 +180,7 @@ with sync_playwright() as p:
     assert pg.evaluate("cur.accent")=='selva' and pg.evaluate("JSON.parse(localStorage.getItem('tw.trips')).find(t=>t.id===cur.id).accent")=='selva', 'color guardado'
     assert pg.evaluate(NIGHT)=='#12372a', 'el viaje se tiñe de Selva'
     pg.evaluate('window.scrollTo(0,0)'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_12cselva.png')
-    aa(pg,'viaje con color Selva'); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400); aa(pg,'valijas Selva'); pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(300)
+    pg.evaluate(BADGE); aa(pg,'viaje con color Selva'); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400); aa(pg,'valijas Selva'); pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(300)
     pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_12dselvadark.png'); pg.evaluate("setTheme('light')")
     pg.click('#dupTrip'); pg.wait_for_timeout(700); pg.screenshot(path=f'shots/{mode}_13dup.png'); pg.click('[data-close]')
     pg.click('#goHome'); pg.wait_for_timeout(400); pg.screenshot(path=f'shots/{mode}_14home.png', full_page=True)
