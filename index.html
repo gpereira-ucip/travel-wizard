@@ -423,6 +423,70 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
  .plan2 .day.act{box-shadow:0 0 0 2px var(--gold),0 12px 30px rgba(10,16,35,.12)}
 }
 @media print{.top,.tabs,.acts,.toolbar,#map,#maps{display:none!important}.page{padding:0}.day{break-inside:avoid}}
+/* Modo presentación (mejora 17) */
+.thero .hacts{position:absolute;top:14px;right:18px;z-index:2;display:flex;gap:8px}
+.thero .hacts .editbtn{position:static}
+.thero .presbtn{background:rgba(10,16,35,.62);border-color:color-mix(in srgb,var(--gold2) 70%,transparent);color:var(--gold2)}
+.pres{position:fixed;inset:0;z-index:120;background:#070b16;color:#fff;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.pres .ps{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .55s ease,visibility 0s .55s;display:flex;flex-direction:column;justify-content:flex-end}
+.pres .ps.on{opacity:1;visibility:visible;transition:opacity .55s ease}
+.pres .pbg{position:absolute;inset:-3%;background:radial-gradient(120% 80% at 80% 0%,var(--night2),var(--night) 60%,#070b16);background-size:cover;background-position:center}
+.pres .pbg.ph{background-color:#0b1224}
+.pres .ps.on .pbg.ph{animation:kb 14s ease-out both}
+.pres .ps:nth-child(even).on .pbg.ph{animation-name:kb2}
+@keyframes kb{from{transform:scale(1.08) translate(1.5%,1%)}to{transform:scale(1) translate(0,0)}}
+@keyframes kb2{from{transform:scale(1) translate(-1%,0)}to{transform:scale(1.08) translate(1%,-1%)}}
+.pres .pveil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,22,.72) 0%,rgba(7,11,22,.15) 22%,rgba(7,11,22,.2) 42%,rgba(7,11,22,.86) 72%,rgba(7,11,22,.96) 100%)}
+.pres .pemo{position:absolute;top:22%;left:0;right:0;text-align:center;font-size:96px;opacity:.9;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
+.pres .pc{position:relative;padding:0 22px calc(34px + env(safe-area-inset-bottom));max-width:880px;width:100%;margin:0 auto}
+.pres .pey{font-size:12px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold2);text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.pres .pdn{font-family:var(--serif);font-size:84px;font-weight:700;line-height:.85;color:var(--gold2);text-shadow:0 4px 24px rgba(0,0,0,.5)}
+.pres h2{font-family:var(--serif);font-size:42px;line-height:1.02;margin:6px 0 6px;font-weight:600;text-shadow:0 2px 18px rgba(0,0,0,.55)}
+.pres .pdt{font-size:15px;color:#e8ecf5}
+.pres .pdt::first-letter{text-transform:uppercase}
+.pres .pwx{display:inline-flex;gap:6px;align-items:center;margin-left:8px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-weight:700;font-size:13px;text-transform:none}
+.pres .pl{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:7px}
+.pres .pl li{display:flex;gap:10px;align-items:center;padding:7px 10px 7px 7px;border-radius:14px;background:rgba(10,16,35,.62);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:14.5px;line-height:1.25}
+.pres .pl .pt{flex:none;width:44px;height:44px;border-radius:10px;background:var(--night2) center/cover;display:grid;place-items:center;font-size:21px}
+.pres .pl b{display:block;font-weight:700}
+.pres .pl small{color:#cfd6e6;font-size:12.5px}
+.pres .pl .ok{color:var(--gold2);font-weight:800}
+.pres .pmore{font-size:13px;color:#cfd6e6;margin-top:8px}
+.pres .pcover h2{font-size:52px}
+.pres .ppills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.pres .ppills span{padding:5px 11px;border-radius:99px;background:rgba(10,16,35,.6);border:1px solid rgba(255,255,255,.2);font-size:13px;font-weight:600}
+.pres .pend{text-align:center}
+.pres .pend .pact{justify-content:center}
+.pres .pact{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.pres .pact button{border:0;border-radius:14px;padding:11px 16px;font-weight:800;font-size:14px;background:var(--gold2);color:#14213d}
+.pres .pact button.gh{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.pres .ptop{position:absolute;top:0;left:0;right:0;z-index:3;padding:calc(10px + env(safe-area-inset-top)) 12px 0;display:grid;gap:9px}
+.pres .pbars{display:flex;gap:4px}
+.pres .pbars button{flex:1;height:14px;border:0;padding:5px 0;background:none;cursor:pointer}
+.pres .pbars i{display:block;height:4px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden}
+.pres .pbars i b{display:block;height:100%;width:0;background:var(--gold2)}
+.pres .pbars .dn i b{width:100%}
+.pres .pbars .cu i b{width:100%}
+.pres.play .pbars .cu i b{width:0;animation:pfill var(--pdur,7s) linear forwards}
+@keyframes pfill{to{width:100%}}
+.pres .prow{display:flex;align-items:center;gap:8px}
+.pres .pcount{flex:1;font-size:13px;font-weight:700;color:#e8ecf5;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.pres .pbtn{border:1px solid rgba(255,255,255,.28);background:rgba(10,16,35,.6);color:#fff;border-radius:12px;min-width:42px;height:40px;padding:0 10px;font-size:15px;font-weight:800;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.pres .pnav{position:absolute;top:50%;z-index:3;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(10,16,35,.55);color:#fff;font-size:22px;display:none}
+.pres .pnav.pv{left:18px}.pres .pnav.nx{right:18px}
+.pres .ptap{position:absolute;top:90px;bottom:0;z-index:1;width:30%;left:0;background:none;border:0}
+.pres .ptap.nx{left:auto;right:0;width:70%}
+.pres .ps{pointer-events:none}.pres .ps.on{z-index:2}
+.pres .pc .pl,.pres .pc .pact,.pres .pc .ppills{pointer-events:auto}
+.pres .ps.on .pc>*{animation:pin .6s ease both}
+.pres .ps.on .pc>*:nth-child(2){animation-delay:.06s}.pres .ps.on .pc>*:nth-child(3){animation-delay:.12s}.pres .ps.on .pc>*:nth-child(4){animation-delay:.18s}.pres .ps.on .pc>*:nth-child(n+5){animation-delay:.24s}
+@keyframes pin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.pres .phint{position:absolute;left:50%;transform:translateX(-50%);top:calc(68px + env(safe-area-inset-top));z-index:3;text-align:center;font-size:12.5px;color:#fff;background:rgba(10,16,35,.75);padding:6px 12px;border-radius:99px;white-space:nowrap;opacity:0;transition:opacity .4s;pointer-events:none}
+.pres .phint.on{opacity:1}
+body.presing{overflow:hidden}
+@media (min-width:760px){.pres .pnav{display:grid;place-items:center}.pres .pc{padding:0 90px 56px}.pres h2{font-size:60px}.pres .pcover h2{font-size:76px}.pres .pdn{font-size:120px}.pres .pl{grid-template-columns:1fr 1fr}.pres .ptop{padding:16px 24px 0}}
+@media (max-height:700px){.pres .pdn{font-size:60px}.pres h2{font-size:34px}.pres .pl li{padding:5px 8px 5px 5px}.pres .pl .pt{width:36px;height:36px}}
+@media (prefers-reduced-motion:reduce){.pres .ps,.pres .ps.on{transition:none}.pres .ps.on .pbg.ph,.pres .ps.on .pc>*{animation:none!important}}
 </style>
 </head>
 <body>
@@ -446,7 +510,7 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.16';
+const VERSION = '0.17';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -514,6 +578,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.17','22 nov 2026',['Modo presentación: tocá ▶ Presentar arriba del viaje y mostrale el plan a la familia en pantalla completa, un día por pantalla, con fotos grandes, el clima y lo que van a hacer.','Pasá de día deslizando, tocando los costados o con las flechas del teclado; ▶ lo pasa solo cada 7 segundos. Las rayitas de arriba muestran dónde estás y tocándolas saltás a cualquier día.']],
   ['0.16','21 nov 2026',['El numerito de la pestaña 🔔 Alertas (cuántos avisos tenés en los próximos días) y la etiqueta «en viaje» de Mis viajes ahora se leen bien a pleno sol: coral más firme, contraste AA en modo claro y oscuro, también con el color de cada viaje.']],
   ['0.15','20 nov 2026',['Cada viaje puede tener su propio color, como las bitácoras: en ✏️ Editar → «Color del viaje» elegí Noche y dorado, Mar, Selva, Terracota, Lavanda o Nieve. Se ve al instante, antes de guardar.','El color tiñe la portada, los encabezados de cada día, los botones, las barras y la rayita de la pestaña, y se mantiene legible en modo claro y oscuro.','En el inicio, la tarjeta de cada viaje y la del próximo viaje muestran su color.']],
   ['0.14','20 nov 2026',['Todo se lee mejor a pleno sol: los textos grises son más oscuros y los verdes, dorados y corales que se usan como letra tienen ahora una versión más firme, con contraste AA (al menos 4,5 a 1) en modo claro y en modo oscuro.','Sobre las fotos (portada del viaje, próximo viaje e ideas) hay un velo más parejo, así las fechas, los datos y el botón Editar se leen aunque la foto sea clara.','Las alertas que ya pasaron se ven atenuadas sin perder legibilidad, y la etiqueta «Espacio disponible / Patrocinado» es un poco más grande.','Si en el celular activás «Aumentar contraste», la app lo respeta y refuerza grises y bordes.']],
@@ -548,7 +613,7 @@ function applyAccent(k){
   document.documentElement.classList.toggle('acc', !!a); document.documentElement.dataset.acc = a?k:'clasico';
 }
 function accVars(t){ const a=accOf(t&&t.accent); if(!a) return ''; const [n,n2,g,g2]=a.v; return `--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--tacc:${g};`; }
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1301,7 +1366,7 @@ function renderTrip(){
   const img = (t.stops.find(s=>s.img)||{}).img;
   const upcoming = buildAlerts(t).filter(a=>+a.when>Date.now() && +a.when-Date.now()<7*864e5).length;
   app.innerHTML = `
-  <section class="thero" style="${img?`background-image:url('${esc(img)}')`:''}"><button class="editbtn" id="editTrip">✏️ Editar</button><div class="wrap">
+  <section class="thero" style="${img?`background-image:url('${esc(img)}')`:''}"><div class="hacts"><button class="editbtn presbtn" id="presTrip" aria-label="Presentar el viaje en pantalla completa">▶ Presentar</button><button class="editbtn" id="editTrip">✏️ Editar</button></div><div class="wrap">
     <div class="eyebrow">${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(t.end||D.add(t.start,nights),{day:'numeric',month:'long',year:'numeric'})}</div>
     <h1>${esc(t.name)}</h1>
     <div class="pills"><span class="pill">🌙 ${nights} noches</span><span class="pill">👥 ${t.travelers.map(x=>esc(x.name)).join(', ')}</span><span class="pill">${LEVELS[t.budget.level].e} ${LEVELS[t.budget.level].l}</span>${t.interests.slice(0,4).map(i=>`<span class="pill">${CAT[i].e} ${CAT[i].l}</span>`).join('')}</div>
@@ -1310,7 +1375,7 @@ function renderTrip(){
   <nav class="tabs"><div class="wrap"><i class="tind" style="--ti:${Math.max(0,TABS.indexOf(tab))}"></i>
     ${[['plan','🗺️','Itinerario'],['reservas','🎫','Reservas'],['valijas','🧳','Valijas'],['plata','💰','Presupuesto'],['alertas','🔔','Alertas']].map(([k,e,l])=>`<button class="tab ${tab===k?'on':''}" data-t="${k}"><span class="ic">${e}</span>${l}${k==='alertas'&&upcoming?`<span class="badge">${upcoming}</span>`:''}</button>`).join('')}
   </div></nav>`;
-  $('#editTrip').onclick = editTripModal;
+  $('#editTrip').onclick = editTripModal; $('#presTrip').onclick = ()=>openPres(0);
   $$('.tab').forEach(b=>b.onclick=()=>{ tab=b.dataset.t; renderTrip(); window.scrollTo({top:$('.thero').offsetHeight-10, behavior:'smooth'}); });
   ({plan:renderPlan, reservas:renderBookings, valijas:renderPacking, plata:renderBudget, alertas:renderAlerts})[tab]();
 }
@@ -1365,6 +1430,87 @@ function renderPlan(){
   $$('.day .dayh',dd).forEach(h=>h.onclick=()=>{ if(isDesk()) mapFocusDay(+h.closest('.day').dataset.di, true); });
   drawMap();
 }
+
+/* Modo presentación (mejora 17): pantalla completa, una diapositiva por día con fotos grandes, para mostrar el viaje a la familia.
+   Vive dentro de #modalRoot (así «atrás» del celular la cierra) y no guarda nada. */
+const PRES = {i:0, n:0, timer:null, dur:7000, play:false};
+function presSlides(t){
+  const nights=t.stops.reduce((a,s)=>a+s.nights,0), end=t.end||D.add(t.start,nights);
+  const cover=(t.stops.find(s=>s.img)||{}).img||'';
+  const sl=[{k:'cover', img:cover}];
+  t.days.forEach((d,di)=>{
+    const s=t.stops[d.stop]||{name:''}, pool=(t.pool&&t.pool[d.stop])||[];
+    const acts=(d.items||[]).map(x=>({x, p:pool.find(p=>p.id===x.ref)})).filter(a=>a.p);
+    const ph=acts.find(a=>a.p.img);
+    sl.push({k:'day', d, di, s, acts, img:(ph&&ph.p.img)||s.img||'', w:t.weather&&t.weather[d.date], bks:(t.bookings||[]).filter(b=>b.date===d.date)});
+  });
+  sl.push({k:'end', img:cover});
+  return {sl, nights, end};
+}
+function presHTML(t){
+  const {sl,nights,end}=presSlides(t);
+  const bg=img=>img?`<div class="pbg ph" data-bg="${esc(img)}"></div>`:`<div class="pbg"></div>`;
+  const body=sl.map((x,i)=>{
+    if(x.k==='cover') return `<section class="ps pcover" data-pi="${i}" aria-roledescription="diapositiva">${bg(x.img)}<div class="pveil"></div>${x.img?'':'<div class="pemo">🧭</div>'}
+      <div class="pc"><div class="pey">${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(end,{day:'numeric',month:'long',year:'numeric'})}</div><h2>${esc(t.name)}</h2>
+      <div class="pdt">${t.days.length} días · ${nights} noches · ${t.stops.map(s=>esc(s.name)).join(' · ')}</div>
+      <div class="ppills">${t.travelers.map(v=>`<span>${esc(v.name)}</span>`).join('')}</div></div></section>`;
+    if(x.k==='end') return `<section class="ps pend" data-pi="${i}" aria-roledescription="diapositiva">${bg(x.img)}<div class="pveil"></div>
+      <div class="pc"><div class="pey">Fin del recorrido</div><h2>¡Buen viaje!</h2><div class="pdt">${esc(t.name)} · ${t.days.length} días para disfrutar juntos</div>
+      <div class="pact"><button data-pgo="0">↺ Ver de nuevo</button><button class="gh" data-pclose>Cerrar</button></div></div></section>`;
+    const {d,di,s,acts,w,bks}=x, title=dayTitleOf(t,d);
+    const rows=[...bks.map(b=>`<li><span class="pt">${BK[b.type].e}</span><span><b>${esc(b.title||BK[b.type].l)}</b><small>${esc([b.time,b.from&&b.to?`${b.from} → ${b.to}`:''].filter(Boolean).join(' · '))}</small></span></li>`),
+      ...acts.map(({x:it,p})=>`<li><span class="pt" ${p.img?`data-bg="${esc(p.img)}"`:''}>${p.img?'':(CAT[p.cats[0]]||CAT.imperdible).e}</span><span><b>${esc(p.title)}${it.done?' <span class="ok">✓</span>':''}</b><small>${esc([it.time,(CAT[p.cats[0]]||CAT.imperdible).l].filter(Boolean).join(' · '))}</small></span></li>`)];
+    const max=window.innerHeight<700?3:5;
+    return `<section class="ps" data-pi="${i}" aria-roledescription="diapositiva">${bg(x.img)}<div class="pveil"></div>${x.img?'':`<div class="pemo">${d.kind==='traslado'?'🧭':d.kind==='llegada'?'🛬':d.kind==='regreso'?'🏡':'✨'}</div>`}
+      <div class="pc"><div class="pdn">${String(di+1).padStart(2,'0')}</div><h2>${esc(title)}</h2>
+      <div class="pdt">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}${w?`<span class="pwx">${wxEmoji(w.code)} ${Math.round(w.tmax)}° / ${Math.round(w.tmin)}°</span>`:''}</div>
+      ${rows.length?`<ul class="pl">${rows.slice(0,max).join('')}</ul>${rows.length>max?`<div class="pmore">y ${rows.length-max} más…</div>`:''}`:`<div class="pmore">Día libre para descansar o improvisar.</div>`}</div></section>`;
+  }).join('');
+  return {n:sl.length, html:`<div class="pres" id="pres" role="dialog" aria-modal="true" aria-label="Presentación de ${esc(t.name)}" tabindex="-1">${body}
+    <button class="ptap pv" data-pstep="-1" aria-label="Anterior"></button><button class="ptap nx" data-pstep="1" aria-label="Siguiente"></button>
+    <button class="pnav pv" data-pstep="-1" aria-label="Anterior">‹</button><button class="pnav nx" data-pstep="1" aria-label="Siguiente">›</button>
+    <div class="ptop"><div class="pbars">${sl.map((x,i)=>`<button data-pgo="${i}" aria-label="${i===0?'Portada':x.k==='end'?'Final':'Día '+(x.di+1)}"><i><b></b></i></button>`).join('')}</div>
+    <div class="prow"><span class="pcount" id="pCount"></span><button class="pbtn" id="pPlay" aria-label="Pasar solo">▶</button>${document.fullscreenEnabled?'<button class="pbtn" id="pFull" aria-label="Pantalla completa">⛶</button>':''}<button class="pbtn" data-pclose aria-label="Cerrar presentación">✕</button></div></div>
+    <div class="phint" id="pHint">Deslizá o tocá los costados para pasar de día</div></div>`};
+}
+function openPres(start){
+  if(!cur) return; const {n,html}=presHTML(cur);
+  $('#modalRoot').innerHTML=html; navOverlay(); document.body.classList.add('presing');
+  const P=$('#pres'); PRES.n=n; PRES.play=false; P.style.setProperty('--pdur',PRES.dur/1000+'s');
+  $$('[data-pstep]',P).forEach(b=>b.onclick=e=>{ e.stopPropagation(); presGo(PRES.i+ +b.dataset.pstep, true); });
+  $$('[data-pgo]',P).forEach(b=>b.onclick=e=>{ e.stopPropagation(); presGo(+b.dataset.pgo, true); });
+  $$('[data-pclose]',P).forEach(b=>b.onclick=closePres);
+  $('#pPlay').onclick=()=>presPlay(!PRES.play);
+  if($('#pFull')) $('#pFull').onclick=()=>{ try{ document.fullscreenElement?document.exitFullscreen():P.requestFullscreen().catch(()=>{}); }catch(e){} };
+  let x0=null,y0=0; P.addEventListener('pointerdown',e=>{ x0=e.clientX; y0=e.clientY; PRES.swiped=0; });
+  P.addEventListener('pointerup',e=>{ if(x0==null) return; const dx=e.clientX-x0, dy=e.clientY-y0; x0=null; if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3){ e.preventDefault(); PRES.swiped=1; presGo(PRES.i+(dx<0?1:-1), true); } });
+  P.addEventListener('click',e=>{ if(PRES.swiped){ PRES.swiped=0; e.stopPropagation(); e.preventDefault(); } }, true);
+  presGo(start||0); P.focus({preventScroll:true});
+  try{ if(!matchMedia('(pointer:fine)').matches && P.requestFullscreen && document.fullscreenEnabled) P.requestFullscreen().catch(()=>{}); }catch(e){}
+  const h=$('#pHint'); h.classList.add('on'); setTimeout(()=>h&&h.classList.remove('on'),2600);
+}
+function presGo(i, user){
+  const P=$('#pres'); if(!P) return; i=Math.max(0,Math.min(PRES.n-1,i)); PRES.i=i;
+  $$('.ps',P).forEach(s=>{ const k=+s.dataset.pi; s.classList.toggle('on',k===i); s.setAttribute('aria-hidden',k===i?'false':'true');
+    if(Math.abs(k-i)<=1) $$('[data-bg]',s).forEach(e=>{ e.style.backgroundImage=`url('${e.dataset.bg}')`; e.removeAttribute('data-bg'); }); });
+  $$('.pbars button',P).forEach((b,k)=>{ b.className=k<i?'dn':k===i?'cu':''; });
+  const cu=$('.pbars .cu b',P); if(cu){ cu.style.animation='none'; void cu.offsetWidth; cu.style.animation=''; }
+  const c=$('#pCount'); if(c) c.textContent = i===0?`${cur.name}`: i===PRES.n-1?'Final':`Día ${i} de ${PRES.n-2}`;
+  if(PRES.play){ clearTimeout(PRES.timer); if(i>=PRES.n-1) presPlay(false); else PRES.timer=setTimeout(()=>presGo(PRES.i+1),PRES.dur); }
+}
+function presPlay(on){
+  const P=$('#pres'); if(!P) return; PRES.play=on; clearTimeout(PRES.timer); P.classList.toggle('play',on);
+  const b=$('#pPlay'); b.textContent=on?'⏸':'▶'; b.setAttribute('aria-label',on?'Pausar':'Pasar solo');
+  if(on){ if(PRES.i>=PRES.n-1) PRES.i=0; presGo(PRES.i); }
+}
+function presCleanup(){ if($('#pres')) return; clearTimeout(PRES.timer); PRES.play=false; document.body.classList.remove('presing'); try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){} }
+function closePres(){ clearTimeout(PRES.timer); closeModal(); presCleanup(); }
+addEventListener('popstate',()=>setTimeout(presCleanup,0));
+addEventListener('keydown',e=>{ const P=$('#pres'); if(!P) return;
+  const k=e.key; if(k==='ArrowRight'||k==='PageDown'||k===' '){ e.preventDefault(); presGo(PRES.i+1,true); } else if(k==='ArrowLeft'||k==='PageUp'){ e.preventDefault(); presGo(PRES.i-1,true); }
+  else if(k==='Home'){ e.preventDefault(); presGo(0,true); } else if(k==='End'){ e.preventDefault(); presGo(PRES.n-1,true); } else if(k==='Escape'){ e.preventDefault(); closePres(); }
+  else if(k==='p'||k==='P'){ presPlay(!PRES.play); } });
 /* Idioma y costumbres por país (14/11/2026, pedido de Gonzalo).
    Cada frase: [español, en el idioma, cómo se pronuncia (leído en castellano), traducción literal si cambia]. Costumbres: orientativas. */
 const LANGS = {

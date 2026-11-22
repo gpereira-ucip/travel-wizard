@@ -182,6 +182,35 @@ with sync_playwright() as p:
     pg.evaluate('window.scrollTo(0,0)'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_12cselva.png')
     pg.evaluate(BADGE); aa(pg,'viaje con color Selva'); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400); aa(pg,'valijas Selva'); pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(300)
     pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_12dselvadark.png'); pg.evaluate("setTheme('light')")
+    # v0.17 (mejora 17): modo presentación
+    pg.evaluate('window.scrollTo(0,0)'); pg.click('#presTrip'); pg.wait_for_timeout(700)
+    nd=pg.evaluate('cur.days.length'); info=pg.evaluate("({n:document.querySelectorAll('#pres .ps').length,on:document.querySelector('#pres .ps.on').dataset.pi,c:document.querySelector('#pCount').textContent,bars:document.querySelectorAll('.pbars button').length,body:document.body.classList.contains('presing')})")
+    print('pres', info); assert info['n']==nd+2 and info['on']=='0' and info['bars']==nd+2 and info['body'], 'presentación abre en la portada'
+    pg.screenshot(path=f'shots/{mode}_23pcover.png')
+    pg.keyboard.press('ArrowRight'); pg.wait_for_timeout(650)
+    d1=pg.evaluate("({on:document.querySelector('#pres .ps.on').dataset.pi,c:document.querySelector('#pCount').textContent,h:document.querySelector('#pres .ps.on h2').textContent,bg:getComputedStyle(document.querySelector('#pres .ps.on .pbg')).backgroundImage,li:document.querySelectorAll('#pres .ps.on .pl li').length})")
+    print('pres day1', d1); assert d1['on']=='1' and d1['c']==f'Día 1 de {nd}' and d1['li']>=1, 'flecha → día 1'
+    if mode=='live': assert 'url(' in d1['bg'], 'foto grande del día'
+    pg.screenshot(path=f'shots/{mode}_23pday.png')
+    assert not pg.evaluate(AAJS), 'contraste de la presentación'
+    pg.click('#pres .ptap.nx'); pg.wait_for_timeout(300); assert pg.evaluate("PRES.i")==2, 'tocar a la derecha avanza'
+    pg.click('#pres .ptap.pv'); pg.wait_for_timeout(300); assert pg.evaluate("PRES.i")==1, 'tocar a la izquierda retrocede'
+    pg.mouse.move(320,500); pg.mouse.down(); pg.mouse.move(200,505); pg.mouse.move(60,510); pg.mouse.up(); pg.wait_for_timeout(300); assert pg.evaluate("PRES.i")==2, 'deslizar avanza'
+    pg.mouse.move(60,500); pg.mouse.down(); pg.mouse.move(320,505); pg.mouse.up(); pg.wait_for_timeout(300); assert pg.evaluate("PRES.i")==1, 'deslizar retrocede'
+    pg.click(f'.pbars [data-pgo="{nd+1}"]'); pg.wait_for_timeout(700); assert pg.evaluate("PRES.i")==nd+1 and pg.is_visible('#pres .ps.on [data-pgo="0"]'), 'saltar al final'
+    pg.screenshot(path=f'shots/{mode}_23pend.png')
+    pg.click('#pres .ps.on [data-pgo="0"]'); pg.wait_for_timeout(300); assert pg.evaluate("PRES.i")==0, 'ver de nuevo'
+    pg.evaluate('PRES.dur=250'); pg.click('#pPlay'); pg.wait_for_timeout(700); pl=pg.evaluate("({i:PRES.i,play:document.querySelector('#pres').classList.contains('play'),b:document.querySelector('#pPlay').textContent})")
+    print('pres play', pl); assert pl['i']>=2 and pl['play'] and pl['b']=='⏸', 'pasa solo'
+    pg.click('#pPlay'); i0=pg.evaluate('PRES.i'); pg.wait_for_timeout(600); assert pg.evaluate('PRES.i')==i0, 'pausa'
+    pg.evaluate('PRES.dur=7000'); pg.keyboard.press('End'); pg.wait_for_timeout(200); assert pg.evaluate('PRES.i')==nd+1; pg.keyboard.press('Home'); pg.wait_for_timeout(200); assert pg.evaluate('PRES.i')==0
+    assert pg.evaluate('document.documentElement.scrollWidth')==390, 'presentación sin desborde'
+    pg.evaluate("setTheme('dark')"); pg.keyboard.press('ArrowRight'); pg.wait_for_timeout(650); pg.screenshot(path=f'shots/{mode}_23pdaydark.png'); pg.evaluate("setTheme('light')")
+    h0=pg.evaluate('location.hash'); pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
+    assert not pg.query_selector('#pres') and not pg.evaluate("document.body.classList.contains('presing')") and pg.evaluate('location.hash')==h0, 'Escape cierra la presentación'
+    pg.click('#presTrip'); pg.wait_for_timeout(400); pg.go_back(); pg.wait_for_timeout(500)
+    assert not pg.query_selector('#pres') and pg.query_selector('.thero') and pg.evaluate('location.hash')==h0, 'atrás cierra la presentación y queda en el viaje'
+    pg.click('#presTrip'); pg.wait_for_timeout(400); pg.click('#pres [data-pclose] >> nth=-1'); pg.wait_for_timeout(400); assert not pg.query_selector('#pres') and pg.evaluate('location.hash')==h0, 'botón cerrar'
     pg.click('#dupTrip'); pg.wait_for_timeout(700); pg.screenshot(path=f'shots/{mode}_13dup.png'); pg.click('[data-close]')
     pg.click('#goHome'); pg.wait_for_timeout(400); pg.screenshot(path=f'shots/{mode}_14home.png', full_page=True)
     assert not pg.evaluate("document.documentElement.classList.contains('acc')") and pg.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--night').trim()")=='#14213d', 'el inicio vuelve a noche y dorado'
