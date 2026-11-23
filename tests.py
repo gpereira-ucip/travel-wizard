@@ -61,6 +61,35 @@ with sync_playwright() as p:
     if mode=='live': pg.route('**/*', lambda r,req: r.continue_() if req.url.startswith('file:') else handle(r,req))
     else: pg.route('**/*', lambda r,req: r.continue_() if req.url.startswith('file:') else r.abort())
     pg.goto('file://'+HTML); pg.wait_for_timeout(600)
+    # v0.18 (mejora 18): tutorial de 3 tarjetas la primera vez
+    assert pg.query_selector('#tour') and len(pg.query_selector_all('.tour-sl'))==3, 'tutorial la primera vez'
+    assert pg.evaluate("localStorage.getItem('tw.tour')")=='1' and pg.evaluate("document.body.classList.contains('touring')")
+    assert pg.inner_text('#tourNext').startswith('Siguiente') and pg.evaluate("document.querySelector('#tourAlt').hidden")
+    print('scrollWidthTour', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
+    pg.wait_for_timeout(1700); pg.screenshot(path=f'shots/{mode}_t1.png')
+    # el fondo es un degradé: se mide contra su tono más claro (#3b5998), el peor caso
+    pg.evaluate("document.querySelector('#tour').style.background='#3b5998'"); aa_tour=pg.evaluate(AAJS); pg.evaluate("document.querySelector('#tour').style.background=''")
+    assert not aa_tour, ('contraste AA tutorial', aa_tour)
+    pg.click('#tourNext'); pg.wait_for_timeout(900)
+    assert pg.evaluate("TOUR.i")==1 and pg.evaluate("Math.round(document.querySelector('#tourTrk').scrollLeft)")==390, 'Siguiente pasa a la 2'
+    assert pg.evaluate("document.querySelector('[data-tdot=\"1\"]').getAttribute('aria-current')")=='step'
+    pg.wait_for_timeout(900); pg.screenshot(path=f'shots/{mode}_t2.png')
+    pg.evaluate("document.querySelector('#tourTrk').scrollTo({left:780})"); pg.wait_for_timeout(500)
+    assert pg.evaluate("TOUR.i")==2 and 'primer viaje' in pg.inner_text('#tourNext') and not pg.evaluate("document.querySelector('#tourAlt').hidden"), 'deslizar a la 3'
+    pg.wait_for_timeout(1300); pg.screenshot(path=f'shots/{mode}_t3.png')
+    pg.keyboard.press('ArrowLeft'); pg.wait_for_timeout(700); assert pg.evaluate("TOUR.i")==1, 'flecha izquierda'
+    pg.click('[data-tdot="0"]'); pg.wait_for_timeout(700); assert pg.evaluate("TOUR.i")==0, 'puntito'
+    pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(200); pg.evaluate("document.querySelector('#tour').style.background='#3b5998'")
+    assert not pg.evaluate(AAJS); pg.evaluate("document.querySelector('#tour').style.background=''"); pg.evaluate("setTheme('light')")
+    pg.go_back(); pg.wait_for_timeout(400)
+    assert not pg.query_selector('#tour') and not pg.evaluate("document.body.classList.contains('touring')") and pg.query_selector('.hero'), 'atrás cierra el tutorial'
+    pg.reload(); pg.wait_for_timeout(600); assert not pg.query_selector('#tour'), 'la segunda vez no aparece'
+    pg.click('#goTour'); pg.wait_for_selector('#tour'); pg.click('#tourSkip'); pg.wait_for_timeout(300)
+    assert not pg.query_selector('#tour'), 'Saltar cierra'
+    pg.click('#goTour'); pg.wait_for_selector('#tour'); pg.keyboard.press('Escape'); pg.wait_for_timeout(300); assert not pg.query_selector('#tour'), 'Escape cierra'
+    pg.click('#goTour'); pg.wait_for_selector('#tour'); pg.click('[data-tdot="2"]'); pg.wait_for_timeout(700); pg.click('#tourNext'); pg.wait_for_timeout(600)
+    assert pg.query_selector('[data-mode=varios]') and not pg.query_selector('#tour'), 'Armar mi primer viaje abre el asistente'
+    pg.go_back(); pg.wait_for_timeout(400); assert pg.query_selector('.hero') and not pg.query_selector('#tour'), 'del asistente vuelve al inicio'
     pg.screenshot(path=f'shots/{mode}_0home.png')
     # v0.6: logo, favicon e ícono
     assert pg.evaluate("document.querySelector('#favIcon').href.startsWith('data:image/svg+xml')"), 'favicon'

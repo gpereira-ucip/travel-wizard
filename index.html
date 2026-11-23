@@ -484,6 +484,49 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .pres .phint{position:absolute;left:50%;transform:translateX(-50%);top:calc(68px + env(safe-area-inset-top));z-index:3;text-align:center;font-size:12.5px;color:#fff;background:rgba(10,16,35,.75);padding:6px 12px;border-radius:99px;white-space:nowrap;opacity:0;transition:opacity .4s;pointer-events:none}
 .pres .phint.on{opacity:1}
 body.presing{overflow:hidden}
+/* v0.18 (mejora 18): tutorial de 3 tarjetas la primera vez */
+body.touring{overflow:hidden}
+.tour{position:fixed;inset:0;z-index:110;color:#fff;display:flex;flex-direction:column;background:radial-gradient(900px 420px at 85% -8%,#3b5998 0%,transparent 60%),radial-gradient(600px 380px at -10% 110%,rgba(231,111,81,.28),transparent 65%),linear-gradient(165deg,var(--night) 0%,#0b1430 100%);overflow:hidden;animation:heroIn .35s ease both}
+.tour .stars{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:radial-gradient(70% 34% at 50% 58%,transparent 55%,#000 100%);mask-image:radial-gradient(70% 34% at 50% 58%,transparent 55%,#000 100%)}
+.tour .shoot{display:none}
+.tour-top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:calc(14px + var(--safe-t)) 18px 0;max-width:520px;width:100%;margin:0 auto}
+.tour-top .twlogo{width:30px;height:30px}
+.tour-brand{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:20px;font-weight:600}
+.tour-brand em{color:var(--gold2);font-style:italic}
+.tour-skip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:20px;padding:7px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.tour-trk{position:relative;flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;min-height:0}
+.tour-trk::-webkit-scrollbar{display:none}
+.tour-sl{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 26px 0;overflow-y:auto;min-height:0}
+.tour-in{max-width:420px;width:100%}
+.tour-art{width:min(250px,62vw);aspect-ratio:220/170;margin:0 auto 14px;position:relative}
+.tour-art::before{content:"";position:absolute;inset:6% 12%;border-radius:50%;background:radial-gradient(circle,rgba(244,211,143,.22),transparent 68%)}
+.tour-art svg{position:relative;width:100%;height:100%;display:block;overflow:visible}
+.tour-ey{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);margin-bottom:8px}
+.tour h2{font-family:var(--serif);font-weight:600;font-size:clamp(30px,8.4vw,40px);line-height:1.04;margin:0 0 10px;letter-spacing:-.01em}
+.tour h2 em{color:var(--gold2);font-style:italic}
+.tour p{margin:0 auto;max-width:36ch;font-size:15px;line-height:1.55;color:#dde3ee}
+.tour-ch{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:14px 0 4px;padding:0;list-style:none}
+.tour-ch li{font-size:12.5px;font-weight:600;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:5px 11px;color:#fff}
+.tour-bot{position:relative;padding:14px 22px calc(22px + var(--safe-b));max-width:460px;width:100%;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:12px}
+.tour-dots{display:flex;gap:4px}
+.tour-dots button{width:30px;height:24px;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tour-dots button i{display:block;width:8px;height:8px;border-radius:8px;background:rgba(255,255,255,.35);transition:width .3s,background .3s}
+.tour-dots button[aria-current=step] i{width:24px;background:var(--gold)}
+.tour-bot .btn{width:100%;font-size:16px}
+.tour-alt{background:none;border:0;color:#dde3ee;font-weight:700;font-size:13.5px;text-decoration:underline;cursor:pointer;padding:4px;min-height:24px}
+.tour-alt[hidden]{display:block;visibility:hidden}
+.tour .ln{fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.tour .dash{fill:none;stroke:var(--gold2);stroke-width:2.6;stroke-dasharray:3 7;stroke-linecap:round}
+.tour .gd{fill:var(--gold)} .tour .gd2{fill:var(--gold2)} .tour .cr{fill:var(--coral)} .tour .tl{fill:var(--teal)} .tour .pp{fill:#f6f1e7} .tour .nv{fill:var(--night2)} .tour .sf{fill:rgba(255,255,255,.12)}
+.tour .fl{animation:esFl 4s ease-in-out infinite}
+.tour .tw{transform-box:fill-box;transform-origin:center;animation:esTw 2.6s ease-in-out infinite}
+.tour-sl.on .drw{stroke-dasharray:240;animation:tourDraw 1.6s .2s ease-out both}
+.tour-sl.on .pop{transform-box:fill-box;transform-origin:50% 100%;animation:tourPop .5s cubic-bezier(.3,1.5,.6,1) both}
+@keyframes tourDraw{from{stroke-dashoffset:240}to{stroke-dashoffset:0}}
+@keyframes tourPop{from{transform:scale(0);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:700px){.tour-sl{padding-top:20px}.tour-art{width:280px}}
+@media (max-height:640px){.tour-art{width:min(180px,46vw);margin-bottom:6px}.tour h2{font-size:28px}.tour p{font-size:14px}}
+@media (prefers-reduced-motion:reduce){.tour,.tour .fl,.tour .tw,.tour-sl.on .drw,.tour-sl.on .pop{animation:none!important}.tour-dots button i{transition:none}}
 @media (min-width:760px){.pres .pnav{display:grid;place-items:center}.pres .pc{padding:0 90px 56px}.pres h2{font-size:60px}.pres .pcover h2{font-size:76px}.pres .pdn{font-size:120px}.pres .pl{grid-template-columns:1fr 1fr}.pres .ptop{padding:16px 24px 0}}
 @media (max-height:700px){.pres .pdn{font-size:60px}.pres h2{font-size:34px}.pres .pl li{padding:5px 8px 5px 5px}.pres .pl .pt{width:36px;height:36px}}
 @media (prefers-reduced-motion:reduce){.pres .ps,.pres .ps.on{transition:none}.pres .ps.on .pbg.ph,.pres .ps.on .pc>*{animation:none!important}}
@@ -510,7 +553,7 @@ body.presing{overflow:hidden}
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.17';
+const VERSION = '0.18';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -578,6 +621,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.18','23 nov 2026',['La primera vez que abrís la app, tres tarjetas te cuentan cómo funciona: armá el viaje en un minuto, cargá las reservas desde el mail o el PDF, y tené la valija de cada uno y el presupuesto a mano.','Se pasan deslizando o con «Siguiente», y podés saltarlas cuando quieras. Para verlas de nuevo, tocá «¿Cómo funciona?» al pie del inicio.']],
   ['0.17','22 nov 2026',['Modo presentación: tocá ▶ Presentar arriba del viaje y mostrale el plan a la familia en pantalla completa, un día por pantalla, con fotos grandes, el clima y lo que van a hacer.','Pasá de día deslizando, tocando los costados o con las flechas del teclado; ▶ lo pasa solo cada 7 segundos. Las rayitas de arriba muestran dónde estás y tocándolas saltás a cualquier día.']],
   ['0.16','21 nov 2026',['El numerito de la pestaña 🔔 Alertas (cuántos avisos tenés en los próximos días) y la etiqueta «en viaje» de Mis viajes ahora se leen bien a pleno sol: coral más firme, contraste AA en modo claro y oscuro, también con el color de cada viaje.']],
   ['0.15','20 nov 2026',['Cada viaje puede tener su propio color, como las bitácoras: en ✏️ Editar → «Color del viaje» elegí Noche y dorado, Mar, Selva, Terracota, Lavanda o Nieve. Se ve al instante, antes de guardar.','El color tiñe la portada, los encabezados de cada día, los botones, las barras y la rayita de la pestaña, y se mantiene legible en modo claro y oscuro.','En el inicio, la tarjeta de cada viaje y la del próximo viaje muestran su color.']],
@@ -613,7 +657,7 @@ function applyAccent(k){
   document.documentElement.classList.toggle('acc', !!a); document.documentElement.dataset.acc = a?k:'clasico';
 }
 function accVars(t){ const a=accOf(t&&t.accent); if(!a) return ''; const [n,n2,g,g2]=a.v; return `--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--tacc:${g};`; }
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1063,6 +1107,89 @@ function nextTripFeature(){
     <div class="nf"><div class="nf-cd">${big}</div><div class="grow"><i>${st.k==='now'?'Estás de viaje':'Tu próximo viaje'}</i><h3>${esc(t.name)}</h3><small>${D.nice(t.start,{day:'numeric',month:'long'})} · ${nightsOf(t)} noches · ${t.travelers.length} ${t.travelers.length===1?'viajero':'viajeros'}</small></div></div></button>`;
 }
 
+/* ---------- tutorial de 3 tarjetas (mejora 18) ----------
+   Aparece solo la primera vez (tw.tour). Quien ya tenía viajes guardados no lo ve de golpe: se marca como visto
+   y queda «¿Cómo funciona?» al pie del inicio para verlo cuando quiera. Vive en #modalRoot («atrás» lo cierra). */
+const TOUR={i:0, n:3};
+const TOUR_SL=[
+  {ey:'1 · Armá', t:'Decime a dónde vas, <em>yo armo el resto</em>', p:'Elegí uno o varios destinos, las fechas, quiénes viajan y qué les gusta. En un minuto tenés el itinerario día por día, con fotos, clima y mapa.', ch:['🗺️ Mapa por destino','☀️ Clima','📸 Fotos'],
+   art:`<svg viewBox="0 0 220 170" aria-hidden="true"><ellipse class="sf" cx="110" cy="156" rx="80" ry="8"/>
+    <g class="fl"><path class="pp" d="M30 44l50-16 60 16 50-16v100l-50 16-60-16-50 16z"/><path d="M80 28v100M140 44v100" stroke="#d9cfbd" stroke-width="2"/>
+    <path d="M30 44l50-16 60 16 50-16v100l-50 16-60-16-50 16z" fill="none" stroke="#d9cfbd" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M44 70c14 8 18 30 40 30" fill="none" stroke="#bfd8d2" stroke-width="7" stroke-linecap="round"/>
+    <path class="drw" d="M54 112C70 96 74 74 100 76s30 30 54 22 22-30 24-44" fill="none" stroke="var(--coral)" stroke-width="3" stroke-dasharray="4 7" stroke-linecap="round"/>
+    <g class="pop" style="animation-delay:.25s"><path class="tl" d="M54 112c-8-9-12-15-12-21a12 12 0 0 1 24 0c0 6-4 12-12 21z"/><circle cx="54" cy="91" r="4.5" fill="#fff"/></g>
+    <g class="pop" style="animation-delay:.6s"><path class="gd" d="M104 80c-8-9-12-15-12-21a12 12 0 0 1 24 0c0 6-4 12-12 21z"/><circle cx="104" cy="59" r="4.5" fill="#fff"/></g>
+    <g class="pop" style="animation-delay:.95s"><path class="cr" d="M178 56c-8-9-12-15-12-21a12 12 0 0 1 24 0c0 6-4 12-12 21z"/><circle cx="178" cy="35" r="4.5" fill="#fff"/></g></g>
+    <path class="gd tw" style="animation-delay:1.2s" d="M200 128l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z"/>
+    <path class="gd2 tw" d="M22 18l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>`},
+  {ey:'2 · Reservá', t:'Tus reservas en orden, <em>sin tipear</em>', p:'Pegá el mail de confirmación o subí el PDF y la reserva se carga sola en el día que corresponde. Las alertas van a tu calendario: check-in, salida al aeropuerto, devolución del auto.', ch:['📩 Mail o PDF','🔔 Alertas','📅 Calendario'],
+   art:`<svg viewBox="0 0 220 170" aria-hidden="true"><ellipse class="sf" cx="110" cy="156" rx="80" ry="8"/>
+    <g transform="rotate(-7 100 92)"><path class="pp" d="M26 58h148v20a12 12 0 0 0 0 24v20H26v-20a12 12 0 0 0 0-24z"/>
+    <path d="M136 62v56" stroke="#c9bda8" stroke-width="2" stroke-dasharray="3 5"/>
+    <rect class="gd" x="40" y="70" width="70" height="10" rx="5"/><rect fill="#e6ddcd" x="40" y="88" width="50" height="8" rx="4"/><rect fill="#e6ddcd" x="40" y="102" width="34" height="7" rx="3.5"/>
+    <path class="cr" d="M147 84l15 8-15 8 3-8z"/></g>
+    <g class="fl" style="animation-delay:.6s"><rect class="nv" x="122" y="16" width="64" height="44" rx="8"/><rect x="122" y="16" width="64" height="44" rx="8" fill="none" stroke="#fff" stroke-width="2.4"/><path class="ln" d="M124 20l30 22 30-22"/>
+    <g class="pop" style="animation-delay:.5s"><circle class="tl" cx="186" cy="18" r="11"/><path d="M181 18l4 4 7-8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+    <g class="pop" style="animation-delay:.9s"><path class="gd" d="M36 22a14 14 0 0 1 14 14v10l5 6H17l5-6V36a14 14 0 0 1 14-14z" transform="translate(-4 4)"/><circle class="gd" cx="32" cy="60" r="4"/><circle class="cr" cx="46" cy="24" r="7"/></g>
+    <path class="gd2 tw" d="M200 120l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z"/></svg>`},
+  {ey:'3 · Disfrutá', t:'La valija de cada uno <em>y la plata clara</em>', p:'Una lista para cada viajero según el clima y la edad, el presupuesto estimado y frases útiles del idioma. Todo queda guardado en tu celular.', ch:['🧳 Valijas','💰 Presupuesto','💬 Frases'],
+   art:`<svg viewBox="0 0 220 170" aria-hidden="true"><ellipse class="sf" cx="110" cy="156" rx="80" ry="8"/>
+    <g class="fl"><path class="ln" d="M64 52v-12a8 8 0 0 1 8-8h22a8 8 0 0 1 8 8v12"/><rect class="cr" x="40" y="52" width="86" height="96" rx="14"/>
+    <path d="M62 60v80M104 60v80" stroke="rgba(0,0,0,.18)" stroke-width="4" stroke-linecap="round"/>
+    <circle class="gd2" cx="83" cy="88" r="11"/><path class="nv" d="M83 79l3 9h-6z"/><circle class="tl" cx="68" cy="128" r="6"/><rect class="gd" x="90" y="120" width="22" height="12" rx="3"/></g>
+    <g transform="rotate(5 160 92)"><rect class="pp" x="126" y="44" width="72" height="96" rx="9"/>
+    <g class="pop" style="animation-delay:.3s"><rect class="tl" x="136" y="58" width="12" height="12" rx="3"/><path d="M139 64l2.5 2.5 4.5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g><rect fill="#e6ddcd" x="154" y="60" width="34" height="7" rx="3.5"/>
+    <g class="pop" style="animation-delay:.6s"><rect class="tl" x="136" y="80" width="12" height="12" rx="3"/><path d="M139 86l2.5 2.5 4.5-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g><rect fill="#e6ddcd" x="154" y="82" width="28" height="7" rx="3.5"/>
+    <rect x="136" y="102" width="12" height="12" rx="3" fill="none" stroke="#c9bda8" stroke-width="2"/><rect fill="#e6ddcd" x="154" y="104" width="32" height="7" rx="3.5"/>
+    <rect class="gd" x="136" y="124" width="52" height="6" rx="3"/></g>
+    <g class="pop" style="animation-delay:.95s"><circle class="gd" cx="186" cy="34" r="15"/><circle cx="186" cy="34" r="10" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.6"/><text x="186" y="39" text-anchor="middle" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#5b3c06">$</text></g>
+    <path class="gd2 tw" d="M24 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg>`}
+];
+function tourHTML(){
+  return `<div class="tour" id="tour" role="dialog" aria-modal="true" aria-label="Cómo funciona Travel Wizard" tabindex="-1">${starsSVG()}
+    <div class="tour-top"><span class="tour-brand">${logoSVG('dark')}<span>Travel <em>Wizard</em></span></span><button class="tour-skip" id="tourSkip">Saltar</button></div>
+    <div class="tour-trk" id="tourTrk">${TOUR_SL.map((x,i)=>`<section class="tour-sl" data-ti="${i}" role="group" aria-roledescription="tarjeta" aria-label="${i+1} de ${TOUR_SL.length}"><div class="tour-in">
+      <div class="tour-art">${x.art}</div><span class="tour-ey">${x.ey}</span><h2>${x.t}</h2><p>${x.p}</p><ul class="tour-ch">${x.ch.map(c=>`<li>${c}</li>`).join('')}</ul></div></section>`).join('')}</div>
+    <div class="tour-bot"><div class="tour-dots" role="tablist" aria-label="Tarjetas">${TOUR_SL.map((x,i)=>`<button data-tdot="${i}" aria-label="Tarjeta ${i+1} de ${TOUR_SL.length}"><i></i></button>`).join('')}</div>
+      <button class="btn" id="tourNext">Siguiente ›</button><button class="tour-alt" id="tourAlt" hidden>Ver la app primero</button></div></div>`;
+}
+function openTour(){
+  store.set('tour', 1); TOUR.i=0; TOUR.n=TOUR_SL.length;
+  $('#modalRoot').innerHTML=tourHTML(); navOverlay(); document.body.classList.add('touring');
+  const T=$('#tour'), trk=$('#tourTrk');
+  $$('[data-tdot]',T).forEach(b=>b.onclick=()=>tourGo(+b.dataset.tdot));
+  $('#tourSkip').onclick=()=>closeTour();
+  $('#tourNext').onclick=()=>{ if(TOUR.i<TOUR.n-1) tourGo(TOUR.i+1); else closeTour(!trips.length); };
+  $('#tourAlt').onclick=()=>closeTour();
+  let raf=0; trk.addEventListener('scroll',()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const w=trk.clientWidth||1, i=Math.round(trk.scrollLeft/w); if(i!==TOUR.i) tourMark(i); }); },{passive:true});
+  tourMark(0); T.focus({preventScroll:true});
+}
+function tourGo(i){
+  const trk=$('#tourTrk'); if(!trk) return; i=Math.max(0,Math.min(TOUR.n-1,i));
+  trk.scrollTo({left:i*trk.clientWidth, behavior:motionOK()?'smooth':'auto'}); tourMark(i);
+}
+function tourMark(i){
+  const T=$('#tour'); if(!T) return; TOUR.i=i; const last=i===TOUR.n-1;
+  $$('.tour-sl',T).forEach(s=>{ const on=+s.dataset.ti===i; s.classList.toggle('on',on); s.setAttribute('aria-hidden',on?'false':'true'); s.inert=!on; });
+  $$('[data-tdot]',T).forEach(b=>{ if(+b.dataset.tdot===i) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); });
+  $('#tourNext').textContent = last ? (trips.length?'¡Listo, a viajar!':'✨ Armar mi primer viaje') : 'Siguiente ›';
+  $('#tourAlt').hidden = !(last && !trips.length);
+}
+function tourCleanup(){ if($('#tour')) return; document.body.classList.remove('touring'); }
+function closeTour(wizard){ closeModal(); tourCleanup(); if(wizard) startWizard(); }
+addEventListener('popstate',()=>setTimeout(tourCleanup,0));
+addEventListener('resize',()=>{ const trk=$('#tourTrk'); if(trk) trk.scrollTo({left:TOUR.i*trk.clientWidth}); });
+addEventListener('keydown',e=>{ if(!$('#tour')) return; const k=e.key;
+  if(k==='ArrowRight'){ e.preventDefault(); tourGo(TOUR.i+1); } else if(k==='ArrowLeft'){ e.preventDefault(); tourGo(TOUR.i-1); }
+  else if(k==='Escape'){ e.preventDefault(); closeTour(); } });
+function tourAtStart(){
+  if(store.get('tour',0)) return;
+  if(trips.length){ store.set('tour',1); return; }          // ya usaba la app: no lo interrumpimos
+  if(!/^#?\/?$/.test(location.hash||'')) return;            // entró por un enlace directo: lo ve la próxima vez
+  openTour();
+}
+
 /* ---------- estados vacíos ilustrados (mejora 13) ---------- */
 const ES_ART={
   trips:`<svg viewBox="0 0 132 104" aria-hidden="true"><ellipse class="bg2" cx="66" cy="92" rx="50" ry="7"/>
@@ -1123,9 +1250,10 @@ function renderHome(){
     <div class="ideas">${IDEAS.map((x,i)=>`<button class="idea" data-idea="${i}" style="background:${x.bg}"><span class="ie">${x.e}</span><i>${esc(x.tag)}</i><b>${esc(x.t)}</b><span>${esc(x.sub)}</span></button>`).join('')}</div>
     ${sponsorSlot('home')}
     <div class="toolbar"><button class="btn ghost sm" id="impBtn">⬆️ Importar viaje (.json)</button><input type="file" id="impFile" accept=".json,application/json" class="hidden"></div>
-    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
+    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goTour">¿Cómo funciona?</button> · <button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
   </div>`;
   $('#newTrip').onclick = ()=>startWizard();
+  $('#goTour').onclick = ()=>openTour();
   if($('#esNew')){ $('#esNew').onclick = ()=>startWizard(); $('#esIdeas').onclick = ()=>{ const el=$('.ideas'); el.scrollIntoView({behavior:motionOK()?'smooth':'auto', block:'center'}); el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }; }
   if($('#nextFeat')) $('#nextFeat').onclick = ()=>openTrip($('#nextFeat').dataset.id);
   $$('[data-idea]').forEach(b=>b.onclick=()=>startWizard(IDEAS[+b.dataset.idea]));
@@ -2420,6 +2548,7 @@ function motionAfter(key){
 setIcons();
 { const st=hstate(); if(st.ov) navTry(()=>history.replaceState({tw:1, prev:st.prev, wz:st.wz}, '', hereHash())); }
 route();
+try{ tourAtStart(); }catch(e){}
 detectLive();
 initClaude();
 </script>

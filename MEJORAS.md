@@ -21,7 +21,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 16. Selector de color de acento por viaje (cada viaje con su paleta, como las bitácoras). — v0.15
   - Arreglo v0.16 (21 nov 2026): contraste AA del numerito de Alertas y de la píldora «en viaje» (aparecían según la fecha y fallaban AA).
 - [x] 17. Modo «presentación» del viaje para mostrar a la familia (pantalla completa, día por día, con fotos grandes). — v0.17
-- [ ] 18. Tutorial de 3 tarjetas la primera vez que se abre la app.
+- [x] 18. Tutorial de 3 tarjetas la primera vez que se abre la app. — v0.18
 - [ ] 19. Atajos de teclado en escritorio (N nuevo viaje, 1–5 pestañas, / buscar).
 - [ ] 20. Ajustes: tema, moneda por defecto, unidades (°C/°F, km/mi), formato 24 h, borrar todos los datos.
 
