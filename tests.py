@@ -344,5 +344,44 @@ with sync_playwright() as p:
     print('scrollWidthDesk2', pg.evaluate('document.documentElement.scrollWidth'))
     pg.click('#goHome'); pg.wait_for_timeout(500); pg.screenshot(path=f'shots/{mode}_18desk.png')
     print('scrollWidthDesk', pg.evaluate('document.documentElement.scrollWidth'))
+    # v0.19 (mejora 19): atajos de teclado en escritorio
+    kb=pg.keyboard; pg.evaluate('document.activeElement&&document.activeElement.blur()')
+    assert pg.is_visible('#goKeys'), 'enlace Atajos de teclado al pie (mouse)'
+    h0=pg.evaluate('location.hash'); kb.press('Shift+Slash'); pg.wait_for_timeout(300)
+    assert pg.query_selector('.keysm') and len(pg.query_selector_all('.keysm .kbg'))==3 and len(pg.query_selector_all('.keysm .kbr.off'))==7, '? abre la ayuda (pestañas apagadas en el inicio)'
+    pg.screenshot(path=f'shots/{mode}_24keys.png')
+    pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(200); pg.screenshot(path=f'shots/{mode}_24keysdark.png'); pg.evaluate("setTheme('light')")
+    kb.press('Escape'); pg.wait_for_timeout(400); assert not pg.evaluate("document.querySelector('#modalRoot').innerHTML.trim()") and pg.evaluate('location.hash')==h0, 'Esc cierra la ayuda'
+    pg.click('#goKeys'); pg.wait_for_timeout(300); assert pg.query_selector('.keysm'); pg.click('.keysm [data-close]'); pg.wait_for_timeout(300)
+    kb.press('/'); pg.wait_for_timeout(300)
+    assert pg.evaluate("document.activeElement&&document.activeElement.id")=='sq', '/ abre el buscador con el cursor en el campo'
+    kb.type('nh'); pg.wait_for_timeout(200); assert pg.input_value('#sq')=='nh' and pg.query_selector('#sq'), 'escribiendo no se disparan atajos'
+    kb.press('Escape'); pg.wait_for_timeout(300); assert not pg.query_selector('#sq')
+    kb.press('Control+k'); pg.wait_for_timeout(300); assert pg.query_selector('#sq'), 'Ctrl+K abre el buscador'
+    kb.press('Escape'); pg.wait_for_timeout(300)
+    th=pg.evaluate('document.documentElement.dataset.theme'); kb.press('t'); pg.wait_for_timeout(150)
+    assert pg.evaluate('document.documentElement.dataset.theme')!=th, 'T cambia el tema'; kb.press('t'); pg.wait_for_timeout(150)
+    kb.press('2'); pg.wait_for_timeout(200); assert pg.query_selector('.toast') and pg.query_selector('.hero'), '1–5 en el inicio avisa'
+    pg.click('.tripcard'); pg.wait_for_selector('.thero'); pg.evaluate('document.activeElement&&document.activeElement.blur()')
+    for n,t in [('3','valijas'),('5','alertas'),('2','reservas'),('4','plata'),('1','plan')]:
+        kb.press(n); pg.wait_for_timeout(350)
+        assert pg.evaluate("document.querySelector('.tab.on').dataset.t")==t, ('tecla',n,t)
+        if t!='plan': assert pg.evaluate('location.hash').endswith('/'+t), ('URL con la pestaña',n)
+    assert pg.get_attribute('.tab[data-t=valijas]','title')=='Valijas (tecla 3)'
+    kb.press('3'); pg.wait_for_timeout(300); pg.screenshot(path=f'shots/{mode}_24tabkey.png')
+    kb.press('Shift+Slash'); pg.wait_for_timeout(300); assert not pg.query_selector_all('.keysm .kbr.off'), 'en un viaje las pestañas se ven activas'
+    kb.press('Escape'); pg.wait_for_timeout(300)
+    kb.press('e'); pg.wait_for_timeout(300); assert pg.query_selector('.accs'), 'E abre Editar'
+    kb.press('3'); pg.wait_for_timeout(200); assert pg.query_selector('.accs') and pg.evaluate("document.querySelector('.tab.on').dataset.t")=='valijas', 'con una ventana abierta no cambia de pestaña'
+    kb.press('Escape'); pg.wait_for_timeout(400); assert not pg.query_selector('.accs') and pg.evaluate("document.documentElement.classList.contains('acc')"), 'Esc cierra Editar y el color sigue'
+    kb.press('p'); pg.wait_for_timeout(400); assert pg.query_selector('#pres'), 'P presenta'
+    kb.press('h'); pg.wait_for_timeout(200); assert pg.query_selector('#pres'), 'H no actúa dentro de la presentación'
+    kb.press('Escape'); pg.wait_for_timeout(400); assert not pg.query_selector('#pres')
+    kb.press('n'); pg.wait_for_timeout(500); assert pg.evaluate('location.hash').startswith('#/nuevo'), 'N abre el asistente'
+    kb.press('n'); pg.wait_for_timeout(300); assert pg.evaluate('wz.step')==0
+    inp=pg.query_selector('#sec input, .wz input, main input')
+    if inp: inp.focus(); kb.type('h'); pg.wait_for_timeout(200); assert pg.evaluate('location.hash').startswith('#/nuevo'), 'escribir h en el asistente no sale'; pg.evaluate('document.activeElement.blur()')
+    kb.press('h'); pg.wait_for_timeout(500); assert pg.query_selector('.hero'), 'H vuelve al inicio'
+    kb.press('Escape'); pg.wait_for_timeout(200); assert pg.query_selector('.hero'), 'Esc sin ventana no hace nada'
     print('ERRORS',errs)
     b.close()

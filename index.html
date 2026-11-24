@@ -309,6 +309,16 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--night);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:200;box-shadow:var(--sh2);max-width:90vw}
 .foot{text-align:center;font-size:12px;color:var(--muted);padding:26px 0 40px}
+kbd{display:inline-block;font-family:var(--sans);font-size:12px;font-weight:800;line-height:1;min-width:26px;text-align:center;padding:5px 7px 4px;border-radius:7px;border:1px solid var(--line);border-bottom-width:3px;background:var(--card);color:var(--ink)}
+.kbl{display:grid;gap:6px;margin:6px 0 14px}
+@media (min-width:640px){.kbl{grid-template-columns:1fr 1fr}.kbr.wide{grid-column:1/-1}}
+.kbg{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink);margin:12px 0 4px}
+.kbr{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.kbr>span:first-child{font-size:14px;font-weight:600}
+.kbr>span:last-child{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:12px;color:var(--muted)}
+.kbr.off>span:first-child{color:var(--muted)}
+.kbonly{display:none}
+@media (hover:hover) and (pointer:fine){.kbonly{display:inline}}
 .foot a,.linkbtn{color:var(--muted);font-weight:700;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;font-size:12px}
 .ideas{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;margin:0 -2px;scroll-snap-type:x mandatory;scrollbar-width:none}
 .ideas::-webkit-scrollbar{display:none}
@@ -534,13 +544,13 @@ body.touring{overflow:hidden}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <button class="brand" id="goHome" aria-label="Inicio">
+  <button class="brand" id="goHome" aria-label="Inicio" title="Inicio (tecla H)" aria-keyshortcuts="H">
     <span id="brandLogo" style="display:contents"></span>
     <span>Travel<b>Wizard</b></span>
   </button>
   <div class="grow"></div>
-  <button class="sbtn" id="searchBtn" aria-label="Buscar en tus viajes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span class="sbl">Buscar viajes, días, reservas…</span></button>
-  <button class="switch" id="themeBtn" aria-label="Cambiar tema claro/oscuro"><i>☀️</i></button>
+  <button class="sbtn" id="searchBtn" aria-label="Buscar en tus viajes" title="Buscar (tecla /)" aria-keyshortcuts="/ Control+K Meta+K"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span class="sbl">Buscar viajes, días, reservas…</span></button>
+  <button class="switch" id="themeBtn" aria-label="Cambiar tema claro/oscuro" title="Tema claro / oscuro (tecla T)" aria-keyshortcuts="T"><i>☀️</i></button>
 </div></header>
 
 <main id="app"></main>
@@ -553,7 +563,7 @@ body.touring{overflow:hidden}
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.18';
+const VERSION = '0.19';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -621,6 +631,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.19','24 nov 2026',['Atajos de teclado en la compu: / (o Ctrl+K) para buscar, N para un viaje nuevo, H para volver al inicio y T para cambiar el tema.','Dentro de un viaje, las teclas 1 a 5 saltan entre Itinerario, Reservas, Valijas, Presupuesto y Alertas; E edita y P presenta. Esc cierra cualquier ventana.','Tocá ? (o «Atajos de teclado» al pie del inicio) para verlos todos. Al pasar el mouse por los botones también te dice su tecla.']],
   ['0.18','23 nov 2026',['La primera vez que abrís la app, tres tarjetas te cuentan cómo funciona: armá el viaje en un minuto, cargá las reservas desde el mail o el PDF, y tené la valija de cada uno y el presupuesto a mano.','Se pasan deslizando o con «Siguiente», y podés saltarlas cuando quieras. Para verlas de nuevo, tocá «¿Cómo funciona?» al pie del inicio.']],
   ['0.17','22 nov 2026',['Modo presentación: tocá ▶ Presentar arriba del viaje y mostrale el plan a la familia en pantalla completa, un día por pantalla, con fotos grandes, el clima y lo que van a hacer.','Pasá de día deslizando, tocando los costados o con las flechas del teclado; ▶ lo pasa solo cada 7 segundos. Las rayitas de arriba muestran dónde estás y tocándolas saltás a cualquier día.']],
   ['0.16','21 nov 2026',['El numerito de la pestaña 🔔 Alertas (cuántos avisos tenés en los próximos días) y la etiqueta «en viaje» de Mis viajes ahora se leen bien a pleno sol: coral más firme, contraste AA en modo claro y oscuro, también con el color de cada viaje.']],
@@ -657,7 +668,7 @@ function applyAccent(k){
   document.documentElement.classList.toggle('acc', !!a); document.documentElement.dataset.acc = a?k:'clasico';
 }
 function accVars(t){ const a=accOf(t&&t.accent); if(!a) return ''; const [n,n2,g,g2]=a.v; return `--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--tacc:${g};`; }
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1240,7 +1251,7 @@ function renderHome(){
     <div class="eyebrow">Tu viaje, armado en 1 minuto</div>
     <h1>Decime a dónde vas.<br><em>Yo armo el resto.</em></h1>
     <p>Itinerario día por día con fotos, clima y actividades a tu medida. Reservas, alertas, valijas y presupuesto en un solo lugar.</p>
-    <button class="btn" id="newTrip">✨ Armar un viaje nuevo</button>
+    <button class="btn" id="newTrip" title="Nuevo viaje (tecla N)" aria-keyshortcuts="N">✨ Armar un viaje nuevo</button>
     ${nextTripFeature() || `<div class="feat"><div><b>🗺️</b>Itinerario con mapa</div><div><b>🎫</b>Reservas y alertas</div><div><b>🧳</b>Valija por persona</div></div>`}
   </div></section>
   <div class="wrap">
@@ -1250,10 +1261,11 @@ function renderHome(){
     <div class="ideas">${IDEAS.map((x,i)=>`<button class="idea" data-idea="${i}" style="background:${x.bg}"><span class="ie">${x.e}</span><i>${esc(x.tag)}</i><b>${esc(x.t)}</b><span>${esc(x.sub)}</span></button>`).join('')}</div>
     ${sponsorSlot('home')}
     <div class="toolbar"><button class="btn ghost sm" id="impBtn">⬆️ Importar viaje (.json)</button><input type="file" id="impFile" accept=".json,application/json" class="hidden"></div>
-    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goTour">¿Cómo funciona?</button> · <button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
+    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goTour">¿Cómo funciona?</button> · <span class="kbonly"><button class="linkbtn" id="goKeys">Atajos de teclado</button> · </span><button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
   </div>`;
   $('#newTrip').onclick = ()=>startWizard();
   $('#goTour').onclick = ()=>openTour();
+  $('#goKeys').onclick = ()=>openKeys();
   if($('#esNew')){ $('#esNew').onclick = ()=>startWizard(); $('#esIdeas').onclick = ()=>{ const el=$('.ideas'); el.scrollIntoView({behavior:motionOK()?'smooth':'auto', block:'center'}); el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }; }
   if($('#nextFeat')) $('#nextFeat').onclick = ()=>openTrip($('#nextFeat').dataset.id);
   $$('[data-idea]').forEach(b=>b.onclick=()=>startWizard(IDEAS[+b.dataset.idea]));
@@ -1494,14 +1506,14 @@ function renderTrip(){
   const img = (t.stops.find(s=>s.img)||{}).img;
   const upcoming = buildAlerts(t).filter(a=>+a.when>Date.now() && +a.when-Date.now()<7*864e5).length;
   app.innerHTML = `
-  <section class="thero" style="${img?`background-image:url('${esc(img)}')`:''}"><div class="hacts"><button class="editbtn presbtn" id="presTrip" aria-label="Presentar el viaje en pantalla completa">▶ Presentar</button><button class="editbtn" id="editTrip">✏️ Editar</button></div><div class="wrap">
+  <section class="thero" style="${img?`background-image:url('${esc(img)}')`:''}"><div class="hacts"><button class="editbtn presbtn" id="presTrip" aria-label="Presentar el viaje en pantalla completa" title="Presentar (tecla P)" aria-keyshortcuts="P">▶ Presentar</button><button class="editbtn" id="editTrip" title="Editar viaje (tecla E)" aria-keyshortcuts="E">✏️ Editar</button></div><div class="wrap">
     <div class="eyebrow">${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(t.end||D.add(t.start,nights),{day:'numeric',month:'long',year:'numeric'})}</div>
     <h1>${esc(t.name)}</h1>
     <div class="pills"><span class="pill">🌙 ${nights} noches</span><span class="pill">👥 ${t.travelers.map(x=>esc(x.name)).join(', ')}</span><span class="pill">${LEVELS[t.budget.level].e} ${LEVELS[t.budget.level].l}</span>${t.interests.slice(0,4).map(i=>`<span class="pill">${CAT[i].e} ${CAT[i].l}</span>`).join('')}</div>
   </div></section>
   <div class="wrap page" id="tabBody"></div>
   <nav class="tabs"><div class="wrap"><i class="tind" style="--ti:${Math.max(0,TABS.indexOf(tab))}"></i>
-    ${[['plan','🗺️','Itinerario'],['reservas','🎫','Reservas'],['valijas','🧳','Valijas'],['plata','💰','Presupuesto'],['alertas','🔔','Alertas']].map(([k,e,l])=>`<button class="tab ${tab===k?'on':''}" data-t="${k}"><span class="ic">${e}</span>${l}${k==='alertas'&&upcoming?`<span class="badge">${upcoming}</span>`:''}</button>`).join('')}
+    ${[['plan','🗺️','Itinerario'],['reservas','🎫','Reservas'],['valijas','🧳','Valijas'],['plata','💰','Presupuesto'],['alertas','🔔','Alertas']].map(([k,e,l])=>`<button class="tab ${tab===k?'on':''}" data-t="${k}" title="${l} (tecla ${TABS.indexOf(k)+1})" aria-keyshortcuts="${TABS.indexOf(k)+1}"><span class="ic">${e}</span>${l}${k==='alertas'&&upcoming?`<span class="badge">${upcoming}</span>`:''}</button>`).join('')}
   </div></nav>`;
   $('#editTrip').onclick = editTripModal; $('#presTrip').onclick = ()=>openPres(0);
   $$('.tab').forEach(b=>b.onclick=()=>{ tab=b.dataset.t; renderTrip(); window.scrollTo({top:$('.thero').offsetHeight-10, behavior:'smooth'}); });
@@ -2161,7 +2173,8 @@ function searchIndex(){
   [['🗞️','Novedades y hoja de ruta','Qué cambió y cuántas de las 200 mejoras van','novedades version cambios',()=>renderNews()],
    ['✨','Nuevo viaje','Armá un viaje con el asistente','crear armar planificar',()=>startWizard()],
    ['🤝','Para marcas','Sponsors y publicidad en Travel Wizard','sponsor publicidad anunciar contacto',()=>renderBrands()],
-   ['🌓','Cambiar tema claro / oscuro','Modo noche o modo día','oscuro claro noche dia tema',()=>$('#themeBtn').click()]]
+   ['🌓','Cambiar tema claro / oscuro','Modo noche o modo día','oscuro claro noche dia tema',()=>$('#themeBtn').click()],
+   ['⌨️','Atajos de teclado','Teclas para usar la app más rápido desde la compu','teclado teclas atajos shortcuts',()=>openKeys()]]
    .forEach(([ic,title,sub,extra,fn])=>E.push({g:'En la app', ic, title, sub, extra, fn}));
   return E;
 }
@@ -2414,6 +2427,47 @@ function renderNews(){
   renderBookings=function(){ _rb(); addSponsor('reservas'); };
   renderPacking=function(){ _rp(); addSponsor('valijas'); };
   renderAlerts=function(){ _ra(); addSponsor('alertas'); }; }
+
+/* ---------- atajos de teclado (mejora 19) ----------
+   / o Ctrl/⌘+K buscar · N nuevo viaje · H inicio · 1–5 pestañas del viaje · E editar · P presentar · T tema · ? ayuda · Esc cerrar.
+   No actúan mientras se escribe en un campo, con Alt/Ctrl/⌘ (salvo Ctrl/⌘+K) ni con una ventana abierta (ahí solo Esc la cierra).
+   El tutorial y la presentación tienen sus propias teclas. Nada se guarda. */
+const KEY_MAC = /Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');
+const KEYS = [
+  ['General',[['Buscar en tus viajes',['/'],[KEY_MAC?'⌘':'Ctrl','K']],['Nuevo viaje',['N']],['Ir al inicio',['H']],['Tema claro / oscuro',['T']],['Ver estos atajos',['?']],['Cerrar una ventana',['Esc']]]],
+  ['Dentro de un viaje',[['Itinerario',['1']],['Reservas',['2']],['Valijas',['3']],['Presupuesto',['4']],['Alertas',['5']],['Editar el viaje',['E']],['Presentar en pantalla completa',['P']]]],
+  ['En la presentación',[['Día anterior / siguiente',['←'],['→']],['Pasar solo',['P']],['Primero / último',['Inicio'],['Fin']]]]
+];
+function keyView(){ const h=NAV.view||hereHash(); if(/^#\/nuevo/.test(h)) return 'wizard'; if(cur&&document.body.classList.contains('intrip')) return 'trip'; return 'home'; }
+function openKeys(){
+  const inTrip=keyView()==='trip';
+  openModal(`<h3>⌨️ Atajos de teclado</h3><p class="muted small" style="margin:-4px 0 6px">Para moverte más rápido desde la compu. No funcionan mientras escribís en un campo.</p>
+    ${KEYS.map(([g,rows])=>`<div class="kbg">${g}</div><div class="kbl">${rows.map(([l,...alts])=>`<div class="kbr${g==='Dentro de un viaje'&&!inTrip?' off':''}${alts.some(a=>a.length>1)?' wide':''}"><span>${l}</span><span>${alts.map(a=>a.map(k=>`<kbd>${k}</kbd>`).join('+')).join(' o ')}</span></div>`).join('')}</div>`).join('')}
+    ${inTrip?'':'<p class="muted small" style="margin:-6px 0 12px">Los de «Dentro de un viaje» se activan cuando abrís un viaje.</p>'}
+    <button class="btn block" data-close>Listo</button>`);
+  const m=$('.modal'); if(m) m.classList.add('keysm');
+}
+function keyTyping(el){ if(!el||el===document.body) return false; const t=(el.tagName||'').toLowerCase();
+  return t==='input'||t==='textarea'||t==='select'||el.isContentEditable; }
+addEventListener('keydown',e=>{
+  if(e.defaultPrevented||e.isComposing) return;
+  const k=e.key||''; const open=!!$('#modalRoot').innerHTML.trim();
+  if(k==='Escape'){ if(open&&!$('#tour')&&!$('#pres')){ e.preventDefault(); closeModal(); } return; }
+  const cmdK=(e.ctrlKey||e.metaKey)&&!e.altKey&&k.toLowerCase()==='k';
+  if(cmdK){ if($('#tour')||$('#pres')) return; e.preventDefault(); if(!$('#sq')){ if(open) closeModal(); openSearch(); } else $('#sq').focus(); return; }
+  if(e.ctrlKey||e.metaKey||e.altKey||open||keyTyping(e.target)||keyTyping(document.activeElement)) return;
+  const v=keyView(), l=k.length===1?k.toLowerCase():k;
+  if(l==='/'){ e.preventDefault(); openSearch(); }
+  else if(l==='?'){ e.preventDefault(); openKeys(); }
+  else if(l==='n'){ if(v!=='wizard'){ e.preventDefault(); startWizard(); } }
+  else if(l==='h'){ e.preventDefault(); $('#goHome').click(); }
+  else if(l==='t'){ e.preventDefault(); $('#themeBtn').click(); }
+  else if(/^[1-5]$/.test(l)){ if(e.repeat) return;
+    if(v==='trip'){ const b=$(`.tab[data-t="${TABS[+l-1]}"]`); if(b){ e.preventDefault(); b.click(); b.focus({preventScroll:true}); } }
+    else if(v==='home'&&!e.repeat) toast('Abrí un viaje para saltar entre sus pestañas con 1–5'); }
+  else if(l==='e'&&v==='trip'&&$('#editTrip')){ e.preventDefault(); $('#editTrip').click(); }
+  else if(l==='p'&&v==='trip'&&$('#presTrip')){ e.preventDefault(); $('#presTrip').click(); }
+});
 
 /* ---------- navegación por la URL (mejora 11) ----------
    #/ inicio · #/nuevo/N paso del asistente · #/viaje/<id>/<pestaña> · #/novedades · #/marcas
