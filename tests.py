@@ -383,5 +383,65 @@ with sync_playwright() as p:
     if inp: inp.focus(); kb.type('h'); pg.wait_for_timeout(200); assert pg.evaluate('location.hash').startswith('#/nuevo'), 'escribir h en el asistente no sale'; pg.evaluate('document.activeElement.blur()')
     kb.press('h'); pg.wait_for_timeout(500); assert pg.query_selector('.hero'), 'H vuelve al inicio'
     kb.press('Escape'); pg.wait_for_timeout(200); assert pg.query_selector('.hero'), 'Esc sin ventana no hace nada'
+    # v0.20 (mejora 20): ajustes
+    pg.set_viewport_size({'width':390,'height':844}); pg.wait_for_timeout(300)
+    assert pg.is_visible('#setBtn') and pg.evaluate('document.documentElement.scrollWidth')==390, 'engranaje en la barra sin desborde'
+    kb.press('a'); pg.wait_for_timeout(300); assert pg.query_selector('.setm'), 'A abre Ajustes'
+    kb.press('Escape'); pg.wait_for_timeout(300); assert not pg.query_selector('.setm')
+    pg.click('#goSet'); pg.wait_for_timeout(300); assert pg.query_selector('.setm'), 'Ajustes desde el pie'
+    pg.click('.modal [data-close]'); pg.wait_for_timeout(300)
+    pg.click('#setBtn'); pg.wait_for_timeout(300)
+    assert len(pg.query_selector_all('.setm .seg'))==4 and pg.query_selector('.setm #setCur')
+    pg.screenshot(path=f'shots/{mode}_25ajustes.png')
+    pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(200); pg.screenshot(path=f'shots/{mode}_25ajustesdark.png'); pg.evaluate("setTheme('light')"); pg.wait_for_timeout(100)
+    # tema automático sigue al sistema
+    pg.click('[data-pref=theme] [data-v=auto]'); pg.wait_for_timeout(100)
+    assert pg.evaluate('PREFS.theme')=='auto'
+    pg.emulate_media(color_scheme='dark'); pg.wait_for_timeout(200); assert pg.evaluate('document.documentElement.dataset.theme')=='dark', 'automático → oscuro'
+    pg.emulate_media(color_scheme='light'); pg.wait_for_timeout(200); assert pg.evaluate('document.documentElement.dataset.theme')=='light', 'automático → claro'
+    pg.click('[data-pref=theme] [data-v=light]'); assert pg.evaluate('PREFS.theme')=='light'
+    # unidades y hora
+    pg.click('[data-pref=temp] [data-v=F]'); pg.click('[data-pref=dist] [data-v=mi]'); pg.click('[data-pref=clock] [data-v="12"]'); pg.wait_for_timeout(200)
+    assert pg.get_attribute('[data-pref=clock] [data-v="12"]','aria-pressed')=='true'
+    assert pg.evaluate("[deg(20),dist(100),hm('15:30'),hm('00:05'),hm('12:00'),hm('')]")==['68°F','62 mi','3:30 p. m.','12:05 a. m.','12:00 p. m.',''], 'formatos'
+    pg.select_option('#setCur','EUR'); pg.wait_for_timeout(100); assert pg.evaluate('PREFS.cur')=='EUR'
+    pg.click('.modal [data-close]'); pg.wait_for_timeout(300)
+    pg.reload(); pg.wait_for_selector('.hero'); pg.wait_for_timeout(300)
+    assert pg.evaluate('[PREFS.temp,PREFS.dist,PREFS.clock,PREFS.cur,PREFS.theme]')==['F','mi','12','EUR','light'], 'los ajustes quedan guardados'
+    pg.click('.tripcard'); pg.wait_for_selector('.thero'); pg.wait_for_timeout(500)
+    if pg.evaluate("Object.keys(cur.weather||{}).length"):
+        txt=pg.inner_text('#tabBody'); assert '°F' in txt and not re.search(r'\d°(?!F)',txt), 'temperaturas en °F'
+    if pg.query_selector('#days .it .tm'): assert pg.query_selector('#days .it .tm .ap'), 'horas en 12 h en el itinerario'
+    pg.screenshot(path=f'shots/{mode}_25plan12h.png')
+    if pg.query_selector('#days .day'): pg.query_selector('#days .day').screenshot(path=f'shots/{mode}_25dia12h.png')
+    pg.click('.tab[data-t=alertas]'); pg.wait_for_timeout(400)
+    if pg.query_selector('.al .when'): assert 'm.' in pg.inner_text('.al .when'), 'alertas en 12 h'
+    pg.click('#goHome'); pg.wait_for_timeout(400)
+    kb.press('n'); pg.wait_for_timeout(400); assert pg.evaluate('wz.budget.cur')=='EUR', 'moneda por defecto en el asistente'
+    kb.press('h'); pg.wait_for_timeout(400)
+    # migración: quien tenía solo tw.theme conserva su tema
+    pg.evaluate("localStorage.removeItem('tw.prefs'); localStorage.setItem('tw.theme','\"dark\"')"); pg.reload(); pg.wait_for_selector('.hero'); pg.wait_for_timeout(300)
+    assert pg.evaluate('[PREFS.theme,document.documentElement.dataset.theme,PREFS.temp,PREFS.cur]')==['dark','dark','C','USD'], 'migración del tema viejo'
+    pg.evaluate("setTheme('light')")
+    # copia de todo, borrar todo y recuperar
+    n=pg.evaluate('trips.length'); assert n>=1
+    pg.click('#setBtn'); pg.wait_for_timeout(300)
+    with pg.expect_download() as dl: pg.click('#setBak')
+    bak=dl.value.path(); j=json.load(open(bak)); assert j['app']=='travelwizard' and len(j['trips'])==n and dl.value.suggested_filename.startswith('travel-wizard-copia-'), 'copia completa'
+    pg.click('#dzGo'); pg.wait_for_timeout(200); assert pg.is_disabled('#dzOk'), 'borrar pide confirmar'
+    pg.fill('#dzIn','borra'); assert pg.is_disabled('#dzOk'); pg.fill('#dzIn','BORRAR'); assert not pg.is_disabled('#dzOk')
+    pg.screenshot(path=f'shots/{mode}_25borrar.png')
+    pg.click('#dzNo'); pg.wait_for_timeout(200); assert pg.query_selector('#dzGo') and pg.evaluate('trips.length')==n, 'cancelar no borra'
+    pg.click('#dzGo'); pg.fill('#dzIn','borrar'); kb.press('Enter'); pg.wait_for_timeout(800)
+    assert pg.evaluate('trips.length')==0 and pg.query_selector('.tripsempty') and not pg.query_selector('#tour') and not pg.query_selector('.setm'), 'borrado total'
+    assert pg.evaluate("localStorage.getItem('tw.trips')") is None and pg.evaluate("PREFS.temp")=='C'
+    assert 'travelwizard' not in pg.evaluate("indexedDB.databases().then(d=>d.map(x=>x.name))"), 'adjuntos borrados'
+    pg.screenshot(path=f'shots/{mode}_25vacio.png')
+    pg.set_input_files('#impFile', bak); pg.wait_for_timeout(600)
+    assert pg.evaluate('trips.length')==n and len(pg.query_selector_all('.tripcard'))>=1, 'la copia se recupera'
+    pg.reload(); pg.wait_for_selector('.hero'); assert pg.evaluate('trips.length')==n and not pg.query_selector('#tour')
+    pg.click('#searchBtn'); pg.fill('#sq','ajustes'); pg.wait_for_timeout(300); assert 'Ajustes' in pg.inner_text('.sheet'), 'Ajustes en el buscador'
+    kb.press('Escape'); pg.wait_for_timeout(200)
+    print('scrollWidthAjustes', pg.evaluate('document.documentElement.scrollWidth'))
     print('ERRORS',errs)
     b.close()

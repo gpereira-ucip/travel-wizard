@@ -371,6 +371,20 @@ kbd{display:inline-block;font-family:var(--sans);font-size:12px;font-weight:800;
 .sbtn{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:30px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .sbtn svg{width:16px;height:16px;flex:none}
 .sbtn .sbl{display:none}
+.sbtn.ibtn{padding:0 9px}
+/* ajustes (mejora 20) */
+.setr{margin:0 0 16px}
+.setr .sh{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.setr .hint{font-size:12.5px;color:var(--muted);margin:6px 2px 0}
+.seg{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:3px}
+.seg button{flex:1;min-width:0;border:0;background:none;border-radius:11px;padding:10px 4px;font:inherit;font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;transition:background .15s,color .15s}
+.seg button[aria-pressed=true]{background:var(--night);color:#fff;box-shadow:var(--sh1)}
+[data-theme=dark] .seg button[aria-pressed=true]{background:var(--gold);color:#1b1b1b}
+.setsep{border:0;border-top:1px solid var(--line);margin:6px 0 16px}
+.dz{border:1.5px dashed var(--coral-ink);border-radius:16px;padding:14px;margin-top:12px}
+.dz p{margin:0 0 10px;font-size:14px}
+.btn.danger{background:var(--coral-ink);color:var(--card)}
+.it .tm .ap{display:block;font-size:10.5px;font-weight:700;letter-spacing:.2px}
 .modal.srchm{align-items:flex-start}
 .sheet.srchs{border-radius:0 0 24px 24px;padding-top:calc(14px + var(--safe-t));max-height:88vh;animation:srIn .18s ease-out}
 @keyframes srIn{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
@@ -550,6 +564,7 @@ body.touring{overflow:hidden}
   </button>
   <div class="grow"></div>
   <button class="sbtn" id="searchBtn" aria-label="Buscar en tus viajes" title="Buscar (tecla /)" aria-keyshortcuts="/ Control+K Meta+K"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg><span class="sbl">Buscar viajes, días, reservas…</span></button>
+  <button class="sbtn ibtn" id="setBtn" aria-label="Ajustes" title="Ajustes (tecla A)" aria-keyshortcuts="A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   <button class="switch" id="themeBtn" aria-label="Cambiar tema claro/oscuro" title="Tema claro / oscuro (tecla T)" aria-keyshortcuts="T"><i>☀️</i></button>
 </div></header>
 
@@ -563,7 +578,7 @@ body.touring{overflow:hidden}
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.19';
+const VERSION = '0.20';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -631,6 +646,7 @@ const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.20','25 nov 2026',['Nueva ventana ⚙️ Ajustes (el engranaje de arriba, o la tecla A en la compu): tema automático, claro u oscuro; moneda para los viajes nuevos; temperaturas en °C o °F; distancias en kilómetros o millas; y horas en formato de 24 h o de 12 h (3:30 p. m.).','Todo se aplica al instante en el itinerario, la presentación, las alertas, las valijas y el texto para WhatsApp.','En «Tus datos» podés descargar una copia de todos tus viajes y recuperarla después con «Importar viaje o copia». También podés borrar todo para dejar la app como nueva: pide escribir BORRAR para que no pase sin querer.']],
   ['0.19','24 nov 2026',['Atajos de teclado en la compu: / (o Ctrl+K) para buscar, N para un viaje nuevo, H para volver al inicio y T para cambiar el tema.','Dentro de un viaje, las teclas 1 a 5 saltan entre Itinerario, Reservas, Valijas, Presupuesto y Alertas; E edita y P presenta. Esc cierra cualquier ventana.','Tocá ? (o «Atajos de teclado» al pie del inicio) para verlos todos. Al pasar el mouse por los botones también te dice su tecla.']],
   ['0.18','23 nov 2026',['La primera vez que abrís la app, tres tarjetas te cuentan cómo funciona: armá el viaje en un minuto, cargá las reservas desde el mail o el PDF, y tené la valija de cada uno y el presupuesto a mano.','Se pasan deslizando o con «Siguiente», y podés saltarlas cuando quieras. Para verlas de nuevo, tocá «¿Cómo funciona?» al pie del inicio.']],
   ['0.17','22 nov 2026',['Modo presentación: tocá ▶ Presentar arriba del viaje y mostrale el plan a la familia en pantalla completa, un día por pantalla, con fotos grandes, el clima y lo que van a hacer.','Pasá de día deslizando, tocando los costados o con las flechas del teclado; ▶ lo pasa solo cada 7 segundos. Las rayitas de arriba muestran dónde estás y tocándolas saltás a cualquier día.']],
@@ -668,7 +684,7 @@ function applyAccent(k){
   document.documentElement.classList.toggle('acc', !!a); document.documentElement.dataset.acc = a?k:'clasico';
 }
 function accVars(t){ const a=accOf(t&&t.accent); if(!a) return ''; const [n,n2,g,g2]=a.v; return `--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--tacc:${g};`; }
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,21,22]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -689,9 +705,26 @@ const saveTrips = () => store.set('trips', trips);
 const saveCur = () => { if(!cur) return; const i = trips.findIndex(t=>t.id===cur.id); if(i>=0) trips[i]=cur; else trips.unshift(cur); saveTrips(); };
 
 /* ---------- tema ---------- */
-function setTheme(t){ document.documentElement.dataset.theme=t; $('#themeBtn i').textContent = t==='dark'?'🌙':'☀️'; store.set('theme',t); }
-setTheme(store.get('theme', matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'));
+/* ---------- ajustes (mejora 20) ----------
+   tw.prefs = {theme:'auto'|'light'|'dark', cur, temp:'C'|'F', dist:'km'|'mi', clock:'24'|'12'}.
+   Migración: quien ya tenía tw.theme guardado conserva ese tema (no pasa a «automático»). */
+const CURS=['USD','EUR','ARS','BRL','CLP','UYU','MXN'];
+const PREFS_DEF={theme:'auto', cur:'USD', temp:'C', dist:'km', clock:'24'};
+const PREFS=(()=>{ const p=store.get('prefs',null); if(p&&typeof p==='object') return {...PREFS_DEF, ...p};
+  const old=store.get('theme',null); const n={...PREFS_DEF, theme:old==='dark'||old==='light'?old:'auto'}; store.set('prefs',n); return n; })();
+const savePrefs=()=>store.set('prefs',PREFS);
+const sysDark=()=>{ try{ return matchMedia('(prefers-color-scheme: dark)').matches; }catch(e){ return false; } };
+function applyTheme(t){ document.documentElement.dataset.theme=t; $('#themeBtn i').textContent = t==='dark'?'🌙':'☀️'; store.set('theme',t); }
+function setTheme(t){ PREFS.theme=t; savePrefs(); applyTheme(t==='auto'?(sysDark()?'dark':'light'):t); $$('[data-pref=theme] button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.v===t))); }
+setTheme(PREFS.theme);
+try{ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(PREFS.theme==='auto') applyTheme(sysDark()?'dark':'light'); }); }catch(e){}
+const deg=c=>c==null||isNaN(c)?'':PREFS.temp==='F'?`${Math.round(c*9/5+32)}°F`:`${Math.round(c)}°`;
+const dist=k=>PREFS.dist==='mi'?`${Math.round(k*0.621371).toLocaleString('es-AR')} mi`:`${Math.round(k).toLocaleString('es-AR')} km`;
+function hm(s){ s=String(s||''); const m=s.match(/^(\d{1,2}):(\d{2})$/); if(!m||PREFS.clock!=='12') return s; const h=+m[1]; return `${h%12||12}:${m[2]} ${h<12?'a. m.':'p. m.'}`; }
+function hmH(s){ const t=hm(s); const m=t.match(/^(.+) ([ap]\. m\.)$/); return m?`${esc(m[1])}<span class="ap">${m[2]}</span>`:esc(t); }
+const hmD=d=>hm(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
 $('#searchBtn').onclick = () => openSearch();
+$('#setBtn').onclick = () => openSettings();
 $('#themeBtn').onclick = () => setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 $('#goHome').onclick = () => { cur=null; renderHome(); };
 
@@ -976,9 +1009,9 @@ function buildPacking(trip){
       add(who,'Cepillo de dientes y neceser');
     }
     if(cl){
-      if(cl.tmin<10){ add(who,'Campera de abrigo', `mínimas de ${Math.round(cl.tmin)}°`); add(who,'Gorro, guantes y bufanda'); if(cl.tmin<3) add(who,'Primera capa térmica'); }
-      else if(cl.tmin<18) add(who,'Buzo o campera liviana', `mínimas de ${Math.round(cl.tmin)}°`);
-      if(cl.tmax>26){ add(who,'Shorts / ropa fresca', `máximas de ${Math.round(cl.tmax)}°`); add(who,'Gorra y anteojos de sol'); }
+      if(cl.tmin<10){ add(who,'Campera de abrigo', `mínimas de ${deg(cl.tmin)}`); add(who,'Gorro, guantes y bufanda'); if(cl.tmin<3) add(who,'Primera capa térmica'); }
+      else if(cl.tmin<18) add(who,'Buzo o campera liviana', `mínimas de ${deg(cl.tmin)}`);
+      if(cl.tmax>26){ add(who,'Shorts / ropa fresca', `máximas de ${deg(cl.tmax)}`); add(who,'Gorra y anteojos de sol'); }
       if(cl.rain) add(who,'Piloto o campera impermeable','hay días con lluvia');
     }
     if(I('playa')){ add(who,'Malla'); add(who,'Ojotas'); }
@@ -1260,11 +1293,11 @@ function renderHome(){
     <h2 class="sec">Ideas para tu próximo viaje</h2>
     <div class="ideas">${IDEAS.map((x,i)=>`<button class="idea" data-idea="${i}" style="background:${x.bg}"><span class="ie">${x.e}</span><i>${esc(x.tag)}</i><b>${esc(x.t)}</b><span>${esc(x.sub)}</span></button>`).join('')}</div>
     ${sponsorSlot('home')}
-    <div class="toolbar"><button class="btn ghost sm" id="impBtn">⬆️ Importar viaje (.json)</button><input type="file" id="impFile" accept=".json,application/json" class="hidden"></div>
-    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goTour">¿Cómo funciona?</button> · <span class="kbonly"><button class="linkbtn" id="goKeys">Atajos de teclado</button> · </span><button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
+    <div class="toolbar"><button class="btn ghost sm" id="impBtn">⬆️ Importar viaje o copia (.json)</button><input type="file" id="impFile" accept=".json,application/json" class="hidden"></div>
+    <div class="foot">Travel Wizard · versión de prueba ${VERSION}<br>Creado por Gonzalo Gabriel Pereira<br><br><button class="linkbtn" id="goTour">¿Cómo funciona?</button> · <button class="linkbtn" id="goSet">Ajustes</button> · <span class="kbonly"><button class="linkbtn" id="goKeys">Atajos de teclado</button> · </span><button class="linkbtn" id="goNews">Novedades y hoja de ruta</button> · <button class="linkbtn" id="goBrands">Para marcas</button></div>
   </div>`;
   $('#newTrip').onclick = ()=>startWizard();
-  $('#goTour').onclick = ()=>openTour();
+  $('#goTour').onclick = ()=>openTour(); $('#goSet').onclick = ()=>openSettings();
   $('#goKeys').onclick = ()=>openKeys();
   if($('#esNew')){ $('#esNew').onclick = ()=>startWizard(); $('#esIdeas').onclick = ()=>{ const el=$('.ideas'); el.scrollIntoView({behavior:motionOK()?'smooth':'auto', block:'center'}); el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }; }
   if($('#nextFeat')) $('#nextFeat').onclick = ()=>openTrip($('#nextFeat').dataset.id);
@@ -1273,12 +1306,14 @@ function renderHome(){
   wireSponsors();
   $$('.tripcard').forEach(c=>c.onclick=()=>openTrip(c.dataset.id));
   $('#impBtn').onclick=()=>$('#impFile').click();
-  $('#impFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const t=JSON.parse(await f.text()); if(!t.stops||!t.days) throw 0; t.id=uid(); trips.unshift(t); saveTrips(); toast('Viaje importado'); renderHome(); }catch(err){ toast('El archivo no es un viaje válido'); } };
+  $('#impFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const j=JSON.parse(await f.text());
+    if(j&&Array.isArray(j.trips)){ const ok=j.trips.filter(t=>t&&t.stops&&t.days); if(!ok.length) throw 0; const ids=new Set(trips.map(t=>t.id)); ok.forEach(t=>{ if(!t.id||ids.has(t.id)) t.id=uid(); }); trips.push(...ok); saveTrips(); toast(ok.length===1?'Se recuperó 1 viaje de la copia':`Se recuperaron ${ok.length} viajes de la copia`); renderHome(); return; }
+    const t=j; if(!t.stops||!t.days) throw 0; t.id=uid(); trips.unshift(t); saveTrips(); toast('Viaje importado'); renderHome(); }catch(err){ toast('El archivo no es un viaje válido'); } };
 }
 
 /* ---------- asistente ---------- */
 function startWizard(idea){
-  wz = {step:0, mode:null, region:null, origin:null, originText:'', stops:[], start:D.add(D.today(),30), travelers:[{name:'',age:'adulto'}], group:null, interests:[], pace:'moderado', budget:{level:'moderado', amount:'', cur:'USD'}};
+  wz = {step:0, mode:null, region:null, origin:null, originText:'', stops:[], start:D.add(D.today(),30), travelers:[{name:'',age:'adulto'}], group:null, interests:[], pace:'moderado', budget:{level:'moderado', amount:'', cur:PREFS.cur}};
   if(idea){
     wz.stops = idea.stops.map(([name,nights])=>({name, country:'', cc:'', admin:'', lat:null, lon:null, manual:true, nights}));
     wz.mode = wz.stops.length>1?'varios':'uno';
@@ -1405,7 +1440,7 @@ function wireStep(st){
       detectLive().then(async live=>{ if(!live) return; for(const st of wz.stops){ try{ const g=(await geocode(st.name))[0]; if(g) Object.assign(st,{name:g.name,country:g.country,cc:g.cc,admin:g.admin,lat:g.lat,lon:g.lon,manual:false}); }catch(e){} } if(WSTEPS[wz.step]==='destino'&&$('#stops')) renderWizard(); }); });
     $$('#stops [data-up]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.up; if(i>0){ [wz.stops[i-1],wz.stops[i]]=[wz.stops[i],wz.stops[i-1]]; renderWizard(); } });
     if($('#optRoute')) $('#optRoute').onclick=()=>{ const before=routeKm(wz.stops); wz.stops=orderRoute(wz.stops, wz.origin); const after=routeKm(wz.stops); renderWizard();
-      toast(after<before-1?`Listo: ${Math.round(before-after).toLocaleString('es-AR')} km menos de viaje`:'El orden que tenías ya era el más corto'); };
+      toast(after<before-1?`Listo: ${dist(before-after)} menos de viaje`:'El orden que tenías ya era el más corto'); };
     wireSuggest($('#orig'), $('#origS'), r=>{ wz.origin=r; wz.originText=r.name; $('#orig').value=r.name; });
     $('#orig').addEventListener('change', e=>{ wz.originText=e.target.value; if(!wz.origin||wz.origin.name!==e.target.value) wz.origin={name:e.target.value,cc:''}; });
     wireSuggest($('#dest'), $('#destS'), r=>{ if(wz.mode==='uno') wz.stops=[{...r, nights: wz.stops[0]?wz.stops[0].nights:4}]; else wz.stops.push({...r, nights: wz.stops.length? 3 : 4}); renderWizard(); setTimeout(()=>$('#dest')&&$('#dest').focus(),50); });
@@ -1528,7 +1563,7 @@ function renderPlan(){
   const wxLabel = {pronostico:'Pronóstico', referencia:'Clima de referencia (mismas fechas del año pasado)', tipico:'Clima típico para esas fechas'}[t.weatherKind]||'';
   B.innerHTML = `<div class="plan2" id="plan2">
     ${summaryCard(t)}
-    ${wxDays.length?`<div class="subh">🌤️ ${wxLabel}</div><div class="wx">${t.days.map(d=>{const w=t.weather[d.date]; if(!w) return ''; return `<div class="wxd"><div class="small muted">${D.nice(d.date,{weekday:'short',day:'numeric'})}</div><div class="e">${wxEmoji(w.code)}</div><b>${Math.round(w.tmax)}°</b><span class="muted">${Math.round(w.tmin)}°</span></div>`;}).join('')}</div>${t.weatherKind==='tipico'&&wxDays[0].note?`<div class="srcnote">${esc(wxDays[0].note)}</div>`:''}`:weatherEmpty(t)}
+    ${wxDays.length?`<div class="subh">🌤️ ${wxLabel}</div><div class="wx">${t.days.map(d=>{const w=t.weather[d.date]; if(!w) return ''; return `<div class="wxd"><div class="small muted">${D.nice(d.date,{weekday:'short',day:'numeric'})}</div><div class="e">${wxEmoji(w.code)}</div><b>${deg(w.tmax)}</b><span class="muted">${deg(w.tmin)}</span></div>`;}).join('')}</div>${t.weatherKind==='tipico'&&wxDays[0].note?`<div class="srcnote">${esc(wxDays[0].note)}</div>`:''}`:weatherEmpty(t)}
     <aside class="pside" id="pside" aria-label="Mapa del viaje"><div id="maps"></div></aside>
     ${langHTML(t)}
     ${t.stops.map((s,si)=>t.intro&&t.intro[si]?`<p class="small muted" style="margin:10px 0"><b>${esc(s.name)}.</b> ${esc(t.intro[si].slice(0,320))}${t.intro[si].length>320?'…':''}</p>`:'').join('')}
@@ -1540,16 +1575,16 @@ function renderPlan(){
   dd.innerHTML = t.days.map((d,di)=>{
     const s=t.stops[d.stop]; const w=t.weather&&t.weather[d.date];
     const title = d.kind==='llegada'?`Llegada a ${s.name}`: d.kind==='traslado'?`${t.stops[d.stop-1].name} → ${s.name}`: d.kind==='regreso'?(t.origin?`Regreso a ${t.origin.name}`:'Día de regreso'):s.name;
-    const bks = bookingsOn(d.date).map(b=>{ const isEnd = b.date!==d.date; return `<div class="it bkit"><div class="tm">${esc(isEnd?(b.endTime||''):(b.time||''))}</div><div class="im" style="font-size:26px">${BK[b.type].e}</div><div class="grow"><h4>${isEnd?(b.type==='auto'?'Devolver: ':'Check-out: '):''}${esc(b.title||BK[b.type].l)}</h4><p>${esc([b.from&&b.to?`${b.from} → ${b.to}`:(b.from||b.to||''), b.address, b.code?'Código '+b.code:''].filter(Boolean).join(' · '))}</p><div class="tags"><span class="tag rsv">Reserva</span></div></div></div>`; }).join('');
+    const bks = bookingsOn(d.date).map(b=>{ const isEnd = b.date!==d.date; return `<div class="it bkit"><div class="tm">${hmH(isEnd?(b.endTime||''):(b.time||''))}</div><div class="im" style="font-size:26px">${BK[b.type].e}</div><div class="grow"><h4>${isEnd?(b.type==='auto'?'Devolver: ':'Check-out: '):''}${esc(b.title||BK[b.type].l)}</h4><p>${esc([b.from&&b.to?`${b.from} → ${b.to}`:(b.from||b.to||''), b.address, b.code?'Código '+b.code:''].filter(Boolean).join(' · '))}</p><div class="tags"><span class="tag rsv">Reserva</span></div></div></div>`; }).join('');
     const travel = d.kind==='traslado' ? `<div class="it travel"><div class="tm"></div><div class="im" style="font-size:26px">🧭</div><div class="grow"><h4>Traslado ${esc(t.stops[d.stop-1].name)} → ${esc(s.name)}</h4><p>Compará tren, micro, avión o auto.</p><div class="acts"><a href="https://www.rome2rio.com/map/${encodeURIComponent(t.stops[d.stop-1].name)}/${encodeURIComponent(s.name)}" target="_blank" rel="noopener">Ver opciones ↗</a></div></div></div>`:'';
     const items = d.items.map((x,xi)=>{ const p=itemById(d.stop,x.ref); if(!p) return ''; const c=p.cats[0];
-      return `<div class="it ${x.done?'done':''}"><div class="tm">${esc(x.time)}</div><div class="im" style="${p.img?`background-image:url('${esc(p.img)}')`:''}">${p.img?'':(CAT[c]||CAT.imperdible).e}</div>
+      return `<div class="it ${x.done?'done':''}"><div class="tm">${hmH(x.time)}</div><div class="im" style="${p.img?`background-image:url('${esc(p.img)}')`:''}">${p.img?'':(CAT[c]||CAT.imperdible).e}</div>
       <div class="grow"><h4>${esc(p.title)}</h4><p>${esc(p.text||p.desc||'')}</p>
       <div class="tags">${p.cats.slice(0,2).map(c=>`<span class="tag">${(CAT[c]||CAT.imperdible).e} ${(CAT[c]||CAT.imperdible).l}</span>`).join('')}<span class="tag cost">${COST[p.cost]}</span>${p.indoor?'<span class="tag">☂️ Bajo techo</span>':''}</div>
       <div class="acts"><button data-done="${di}:${xi}">${x.done?'↩︎':'✓ Hecho'}</button><button data-swap="${di}:${xi}">🔀 Cambiar</button><button data-rmi="${di}:${xi}">✕</button>
       ${p.lat!=null&&!p.generic?`<a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">📍 Mapa</a>`:''}${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${p.generic?'🎟️ Buscar':'ℹ️ Más'}</a>`:''}</div></div></div>`; }).join('');
     return `<article class="card day" data-di="${di}"><div class="dayh"><div class="dn">${String(di+1).padStart(2,'0')}</div><div><h3>${esc(title)}</h3><div class="small" style="opacity:.85">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}</div></div>
-      ${w?`<div class="w"><b>${wxEmoji(w.code)} ${Math.round(w.tmax)}°</b><br>${Math.round(w.tmin)}°${isRainy(w)?' · lluvia':''}</div>`:''}</div>
+      ${w?`<div class="w"><b>${wxEmoji(w.code)} ${deg(w.tmax)}</b><br>${deg(w.tmin)}${isRainy(w)?' · lluvia':''}</div>`:''}</div>
       <div class="items">${travel}${bks}${items||'<p class="small muted" style="padding:8px 4px">Día libre.</p>'}<div class="acts" style="padding:6px 4px 0"><button data-add="${di}">＋ Agregar actividad</button></div></div></article>`;
   }).join('');
   const act=(sel,fn)=>$$(sel,dd).forEach(b=>b.onclick=()=>{ const [di,xi]=(b.dataset[Object.keys(b.dataset)[0]]).split(':').map(Number); fn(di,xi); saveCur(); renderPlan(); });
@@ -1599,12 +1634,12 @@ function presHTML(t){
       <div class="pc"><div class="pey">Fin del recorrido</div><h2>¡Buen viaje!</h2><div class="pdt">${esc(t.name)} · ${t.days.length} días para disfrutar juntos</div>
       <div class="pact"><button data-pgo="0">↺ Ver de nuevo</button><button class="gh" data-pclose>Cerrar</button></div></div></section>`;
     const {d,di,s,acts,w,bks}=x, title=dayTitleOf(t,d);
-    const rows=[...bks.map(b=>`<li><span class="pt">${BK[b.type].e}</span><span><b>${esc(b.title||BK[b.type].l)}</b><small>${esc([b.time,b.from&&b.to?`${b.from} → ${b.to}`:''].filter(Boolean).join(' · '))}</small></span></li>`),
-      ...acts.map(({x:it,p})=>`<li><span class="pt" ${p.img?`data-bg="${esc(p.img)}"`:''}>${p.img?'':(CAT[p.cats[0]]||CAT.imperdible).e}</span><span><b>${esc(p.title)}${it.done?' <span class="ok">✓</span>':''}</b><small>${esc([it.time,(CAT[p.cats[0]]||CAT.imperdible).l].filter(Boolean).join(' · '))}</small></span></li>`)];
+    const rows=[...bks.map(b=>`<li><span class="pt">${BK[b.type].e}</span><span><b>${esc(b.title||BK[b.type].l)}</b><small>${esc([hm(b.time),b.from&&b.to?`${b.from} → ${b.to}`:''].filter(Boolean).join(' · '))}</small></span></li>`),
+      ...acts.map(({x:it,p})=>`<li><span class="pt" ${p.img?`data-bg="${esc(p.img)}"`:''}>${p.img?'':(CAT[p.cats[0]]||CAT.imperdible).e}</span><span><b>${esc(p.title)}${it.done?' <span class="ok">✓</span>':''}</b><small>${esc([hm(it.time),(CAT[p.cats[0]]||CAT.imperdible).l].filter(Boolean).join(' · '))}</small></span></li>`)];
     const max=window.innerHeight<700?3:5;
     return `<section class="ps" data-pi="${i}" aria-roledescription="diapositiva">${bg(x.img)}<div class="pveil"></div>${x.img?'':`<div class="pemo">${d.kind==='traslado'?'🧭':d.kind==='llegada'?'🛬':d.kind==='regreso'?'🏡':'✨'}</div>`}
       <div class="pc"><div class="pdn">${String(di+1).padStart(2,'0')}</div><h2>${esc(title)}</h2>
-      <div class="pdt">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}${w?`<span class="pwx">${wxEmoji(w.code)} ${Math.round(w.tmax)}° / ${Math.round(w.tmin)}°</span>`:''}</div>
+      <div class="pdt">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}${w?`<span class="pwx">${wxEmoji(w.code)} ${deg(w.tmax)} / ${deg(w.tmin)}</span>`:''}</div>
       ${rows.length?`<ul class="pl">${rows.slice(0,max).join('')}</ul>${rows.length>max?`<div class="pmore">y ${rows.length-max} más…</div>`:''}`:`<div class="pmore">Día libre para descansar o improvisar.</div>`}</div></section>`;
   }).join('');
   return {n:sl.length, html:`<div class="pres" id="pres" role="dialog" aria-modal="true" aria-label="Presentación de ${esc(t.name)}" tabindex="-1">${body}
@@ -1723,7 +1758,7 @@ const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png', TILE_ATTR='© <
 let _maps=[];
 function legMode(k){ return k<40?['🚶','A pie o transporte local']:k<700?['🚆','Tren, bus o auto']:['✈️','Avión (o tren nocturno)']; }
 function legsHTML(stops){ let h=''; for(let i=1;i<stops.length;i++){ const a=stops[i-1],b=stops[i]; if(a.lat==null||b.lat==null) continue; const k=km(a,b),[e,l]=legMode(k);
-  h+=`<li><span>${e}</span><span class="grow"><b>${esc(a.name)} → ${esc(b.name)}</b> · ${Math.round(k).toLocaleString('es-AR')} km</span><span class="small muted">${l}</span></li>`; }
+  h+=`<li><span>${e}</span><span class="grow"><b>${esc(a.name)} → ${esc(b.name)}</b> · ${dist(k)}</span><span class="small muted">${l}</span></li>`; }
   return h?`<ul class="legs">${h}</ul><p class="small muted" style="margin:4px 0 0">Distancias en línea recta. El medio de transporte es una sugerencia: verificá horarios y precios.</p>`:''; }
 function drawMap(){
   const box=$('#maps'); if(!box) return;
@@ -1797,8 +1832,8 @@ function mapSyncDay(){
 function tripText(t){
   let s=`🧭 *${t.name}*\n${D.nice(t.start,{day:'numeric',month:'long'})} → ${D.nice(t.end,{day:'numeric',month:'long',year:'numeric'})}\n`;
   t.days.forEach((d,di)=>{ s+=`\n*Día ${di+1} · ${D.nice(d.date,{weekday:'long',day:'numeric',month:'short'})}* — ${t.stops[d.stop].name}\n`;
-    bookingsOn(d.date).forEach(b=>s+=`${BK[b.type].e} ${b.time||''} ${b.title||BK[b.type].l}${b.code?' ('+b.code+')':''}\n`);
-    d.items.forEach(x=>{ const p=(t.pool[d.stop]||[]).find(q=>q.id===x.ref); if(p) s+=`• ${x.time} ${p.title}\n`; }); });
+    bookingsOn(d.date).forEach(b=>s+=`${BK[b.type].e} ${hm(b.time)} ${b.title||BK[b.type].l}${b.code?' ('+b.code+')':''}\n`);
+    d.items.forEach(x=>{ const p=(t.pool[d.stop]||[]).find(q=>q.id===x.ref); if(p) s+=`• ${hm(x.time)} ${p.title}\n`; }); });
   return s+'\nArmado con Travel Wizard';
 }
 
@@ -1815,7 +1850,7 @@ function renderBookings(){
     ${bs.length?'':emptyState({art:'bookings', cls:'bkempty', title:'Todavía no cargaste reservas', text:'Vuelos, trenes, hoteles, Airbnb, autos o entradas: aparecen en el día que corresponde y te avisan a tiempo. ¿Tenés el mail o el PDF de confirmación? Lo leo yo.', actions:`<button class="btn" id="esMail">📩 Subir mail o PDF</button><button class="btn ghost" id="esAdd">＋ Cargar a mano</button>`})}
     <div class="card list" ${bs.length?'':'hidden'}>${bs.length?bs.map(b=>`<div class="bk"><div class="ico">${BK[b.type].e}</div><div class="grow">
       <h4>${esc(b.title||BK[b.type].l)}</h4>
-      <div class="small muted">${b.date?D.nice(b.date):'Sin fecha'}${b.time?' · '+esc(b.time):''}${b.endDate?` → ${D.nice(b.endDate)}${b.endTime?' '+esc(b.endTime):''}`:''}</div>
+      <div class="small muted">${b.date?D.nice(b.date):'Sin fecha'}${b.time?' · '+esc(hm(b.time)):''}${b.endDate?` → ${D.nice(b.endDate)}${b.endTime?' '+esc(hm(b.endTime)):''}`:''}</div>
       <div class="small">${esc([b.from&&b.to?`${b.from} → ${b.to}`:(b.from||b.to||''), b.address].filter(Boolean).join(' · '))}</div>
       <div class="tags" style="margin-top:4px">${b.code?`<span class="tag rsv">Código ${esc(b.code)}</span>`:''}${b.price?`<span class="tag cost">${esc(b.cur||'')} ${esc(b.price)}</span>`:''}${b.fileId?`<span class="tag">📎 ${esc(b.fileName||'Adjunto')}</span>`:''}</div>
       ${b.notes?`<div class="small muted" style="margin-top:4px">${esc(b.notes)}</div>`:''}
@@ -2109,7 +2144,7 @@ function addActivityModal(di){
 function renderPacking(){
   const P=cur.packing, B=$('#tabBody');
   const cl=tripClimate(cur);
-  B.innerHTML = `${cl?`<div class="note">🌡️ Armada para ${Math.round(cl.tmin)}° a ${Math.round(cl.tmax)}°${cl.rain?' con días de lluvia':''}, ${cur.stops.reduce((a,s)=>a+s.nights,0)} noches y lo que les gusta hacer.</div>`:`<div class="note">Sin datos de clima: revisá abrigo según el destino.</div>`}
+  B.innerHTML = `${cl?`<div class="note">🌡️ Armada para ${deg(cl.tmin)} a ${deg(cl.tmax)}${cl.rain?' con días de lluvia':''}, ${cur.stops.reduce((a,s)=>a+s.nights,0)} noches y lo que les gusta hacer.</div>`:`<div class="note">Sin datos de clima: revisá abrigo según el destino.</div>`}
   <div class="toolbar"><button class="btn sm ghost" id="pkRe">🔄 Regenerar listas</button></div>
   ${Object.entries(P).map(([who,list])=>{ const on=list.filter(x=>x.on).length; return `<div class="card pk"><h3>${who==='Para todo el grupo'?'🎒':'🧳'} ${esc(who)} <span class="small muted" style="margin-left:auto">${on}/${list.length}</span></h3><div class="bar"><i style="width:${list.length?on/list.length*100:0}%"></i></div>
     ${list.map(x=>`<label class="ck ${x.on?'on':''}"><input type="checkbox" data-pk="${esc(who)}|${x.id}" ${x.on?'checked':''}><span>${esc(x.item)}</span>${x.why?`<span class="why">${esc(x.why)}</span>`:''}</label>`).join('')}
@@ -2141,7 +2176,7 @@ function renderAlerts(){
   const canNotif = 'Notification' in window;
   B.innerHTML = `<div class="toolbar"><button class="btn dark sm" id="ics">📅 Agregar alertas a mi calendario</button>${canNotif?`<button class="btn ghost sm" id="notif">🔔 ${Notification.permission==='granted'?'Avisos activados':'Activar avisos'}</button>`:''}</div>
   <div class="note">El calendario del celular te avisa aunque la app esté cerrada (15 min antes de cada alerta). Cada reserva que cargues suma sus propias alertas.</div>
-  <div class="card">${A.map(a=>{ const ms=+a.when-now; const soon=ms>0&&ms<48*36e5; return `<div class="al ${ms<0?'past':''} ${soon?'soon':''}"><div class="when"><b>${a.when.getDate()}</b>${a.when.toLocaleDateString('es-AR',{month:'short'})}<br>${a.when.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</div><div class="grow"><b>${a.icon} ${esc(a.title)}</b><div class="small muted">${esc(a.detail)}</div>${ms>0?`<div class="small" style="color:${soon?'var(--coral-ink)':'var(--teal-ink)'};font-weight:700">${countdown(ms)}</div>`:''}</div></div>`; }).join('')}</div>`;
+  <div class="card">${A.map(a=>{ const ms=+a.when-now; const soon=ms>0&&ms<48*36e5; return `<div class="al ${ms<0?'past':''} ${soon?'soon':''}"><div class="when"><b>${a.when.getDate()}</b>${a.when.toLocaleDateString('es-AR',{month:'short'})}<br>${hmD(a.when)}</div><div class="grow"><b>${a.icon} ${esc(a.title)}</b><div class="small muted">${esc(a.detail)}</div>${ms>0?`<div class="small" style="color:${soon?'var(--coral-ink)':'var(--teal-ink)'};font-weight:700">${countdown(ms)}</div>`:''}</div></div>`; }).join('')}</div>`;
   $('#ics').onclick=()=>saveFile(`alertas-${norm(cur.name).replace(/[^a-z0-9]+/g,'-')}.ics`, buildICS(cur), 'text/calendar');
   if(canNotif) $('#notif').onclick=async()=>{ try{ const p=await Notification.requestPermission(); if(p==='granted'){ scheduleNotifs(cur); toast('Listo: te aviso mientras la app esté abierta'); } else toast('El navegador no dio permiso'); renderAlerts(); }catch(e){ toast('Este visor no permite avisos: usá el calendario'); } };
 }
@@ -2164,7 +2199,7 @@ function searchIndex(){
     (t.days||[]).forEach((d,di)=>{ const acts=(d.items||[]).map(x=>((t.pool&&t.pool[d.stop])||[]).find(p=>p.id===x.ref)).filter(Boolean);
       E.push({g:'Días', ic:String(di+1).padStart(2,'0'), num:true, title:`Día ${di+1} · ${dayTitleOf(t,d)}`, sub:`${fmt(d.date)} · ${t.name}`, extra:[d.date, fmt(d.date), acts.map(p=>p.title).join(' ')].join(' '), go:{trip:t.id, tab:'plan', day:di}});
       (d.items||[]).forEach((x,xi)=>{ const p=((t.pool&&t.pool[d.stop])||[]).find(q=>q.id===x.ref); if(!p) return;
-        E.push({g:'Actividades', ic:(CAT[(p.cats||[])[0]]||CAT.imperdible).e, img:p.img, title:p.title, sub:`Día ${di+1} · ${D.nice(d.date)}${x.time?' · '+x.time:''} · ${t.name}`, extra:[p.desc||'', (p.cats||[]).map(c=>(CAT[c]||{}).l||'').join(' ')].join(' '), go:{trip:t.id, tab:'plan', day:di, item:`${di}:${xi}`}}); }); });
+        E.push({g:'Actividades', ic:(CAT[(p.cats||[])[0]]||CAT.imperdible).e, img:p.img, title:p.title, sub:`Día ${di+1} · ${D.nice(d.date)}${x.time?' · '+hm(x.time):''} · ${t.name}`, extra:[p.desc||'', (p.cats||[]).map(c=>(CAT[c]||{}).l||'').join(' ')].join(' '), go:{trip:t.id, tab:'plan', day:di, item:`${di}:${xi}`}}); }); });
     (t.bookings||[]).forEach(b=>{ const k=BK[b.type]||BK.otro;
       E.push({g:'Reservas', ic:k.e, title:b.title||k.l, sub:[b.date?D.nice(b.date):'Sin fecha', b.code?'Código '+b.code:'', t.name].filter(Boolean).join(' · '), extra:[k.l, b.code, b.from, b.to, b.address, b.notes, b.date, b.date?fmt(b.date):'', b.fileName].join(' '), go:{trip:t.id, tab:'reservas', bk:b.id}}); });
     Object.entries(t.packing||{}).forEach(([who,list])=>(list||[]).forEach(x=>
@@ -2174,6 +2209,7 @@ function searchIndex(){
    ['✨','Nuevo viaje','Armá un viaje con el asistente','crear armar planificar',()=>startWizard()],
    ['🤝','Para marcas','Sponsors y publicidad en Travel Wizard','sponsor publicidad anunciar contacto',()=>renderBrands()],
    ['🌓','Cambiar tema claro / oscuro','Modo noche o modo día','oscuro claro noche dia tema',()=>$('#themeBtn').click()],
+   ['⚙️','Ajustes','Tema, moneda, °C/°F, km/millas, hora 24 h, borrar datos','ajustes configuracion preferencias moneda temperatura fahrenheit celsius millas kilometros hora 12 24 borrar datos copia',()=>openSettings()],
    ['⌨️','Atajos de teclado','Teclas para usar la app más rápido desde la compu','teclado teclas atajos shortcuts',()=>openKeys()]]
    .forEach(([ic,title,sub,extra,fn])=>E.push({g:'En la app', ic, title, sub, extra, fn}));
   return E;
@@ -2277,7 +2313,7 @@ function summaryCard(t){
   return `<div class="card sum">
     <div class="cd">${cdBig}</div>
     <div class="nx"><span class="muted small">${st.k==='next'?'Para salir':st.k==='now'?'Día del viaje':'Viaje terminado'}</span>
-      ${nextA?`<b>${nextA.icon} ${esc(nextA.title)}</b><span class="muted">${nextA.when.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})} · ${nextA.when.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</span>`:`<b>${st.k==='past'?'¡Esperamos que lo hayan disfrutado!':'Sin eventos pendientes'}</b>`}</div>
+      ${nextA?`<b>${nextA.icon} ${esc(nextA.title)}</b><span class="muted">${nextA.when.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'})} · ${hmD(nextA.when)}</span>`:`<b>${st.k==='past'?'¡Esperamos que lo hayan disfrutado!':'Sin eventos pendientes'}</b>`}</div>
     <div class="kpis">
       <button class="kpi" data-kpi="valijas"><b>${pkPct}%</b><span>Valijas listas</span><div class="mini"><i style="width:${pkPct}%"></i></div></button>
       <button class="kpi" data-kpi="reservas"><b>${nb}</b><span>${nb===1?'Reserva':'Reservas'} · ${covered}/${nights} noches</span><div class="mini"><i style="width:${nights?covered/nights*100:0}%;background:var(--coral)"></i></div></button>
@@ -2434,7 +2470,7 @@ function renderNews(){
    El tutorial y la presentación tienen sus propias teclas. Nada se guarda. */
 const KEY_MAC = /Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent||'');
 const KEYS = [
-  ['General',[['Buscar en tus viajes',['/'],[KEY_MAC?'⌘':'Ctrl','K']],['Nuevo viaje',['N']],['Ir al inicio',['H']],['Tema claro / oscuro',['T']],['Ver estos atajos',['?']],['Cerrar una ventana',['Esc']]]],
+  ['General',[['Buscar en tus viajes',['/'],[KEY_MAC?'⌘':'Ctrl','K']],['Nuevo viaje',['N']],['Ir al inicio',['H']],['Tema claro / oscuro',['T']],['Ajustes',['A']],['Ver estos atajos',['?']],['Cerrar una ventana',['Esc']]]],
   ['Dentro de un viaje',[['Itinerario',['1']],['Reservas',['2']],['Valijas',['3']],['Presupuesto',['4']],['Alertas',['5']],['Editar el viaje',['E']],['Presentar en pantalla completa',['P']]]],
   ['En la presentación',[['Día anterior / siguiente',['←'],['→']],['Pasar solo',['P']],['Primero / último',['Inicio'],['Fin']]]]
 ];
@@ -2446,6 +2482,48 @@ function openKeys(){
     ${inTrip?'':'<p class="muted small" style="margin:-6px 0 12px">Los de «Dentro de un viaje» se activan cuando abrís un viaje.</p>'}
     <button class="btn block" data-close>Listo</button>`);
   const m=$('.modal'); if(m) m.classList.add('keysm');
+}
+/* ---------- ajustes (mejora 20) ---------- */
+function segH(k, opts){ return `<div class="seg" role="group" data-pref="${k}">${opts.map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${PREFS[k]===v}">${l}</button>`).join('')}</div>`; }
+function prefsRefresh(){ const v=keyView(); if(v==='trip'&&cur) renderTrip(); else if(v==='home'&&$('#tripList')) renderHome(); }
+function openSettings(){
+  const n=trips.length;
+  openModal(`<h3>⚙️ Ajustes</h3><p class="muted small" style="margin:-6px 0 14px">Se guardan en este dispositivo y se aplican al instante.</p>
+    <div class="setr"><span class="sh">Tema</span>${segH('theme',[['auto','Automático'],['light','☀️ Claro'],['dark','🌙 Oscuro']])}<div class="hint">«Automático» sigue al modo claro u oscuro del teléfono.</div></div>
+    <div class="setr"><label class="sh" for="setCur">Moneda para viajes nuevos</label><select class="inp" id="setCur">${CURS.map(c=>`<option ${PREFS.cur===c?'selected':''}>${c}</option>`).join('')}</select><div class="hint">Los viajes que ya armaste siguen con su moneda (se cambia en ✏️ Editar).</div></div>
+    <div class="setr"><span class="sh">Temperatura</span>${segH('temp',[['C','°C'],['F','°F']])}</div>
+    <div class="setr"><span class="sh">Distancias</span>${segH('dist',[['km','Kilómetros'],['mi','Millas']])}</div>
+    <div class="setr"><span class="sh">Formato de hora</span>${segH('clock',[['24','24 h · 15:30'],['12','12 h · 3:30 p. m.']])}</div>
+    <hr class="setsep">
+    <div class="setr"><span class="sh">Tus datos</span>
+      <button class="btn ghost block" id="setBak">💾 Descargar una copia de todo (.json)</button>
+      <div class="hint">Con ${n===1?'tu viaje':`tus ${n} viajes`}, reservas y valijas. Se recupera con «Importar viaje o copia» al pie del inicio. Los PDF y fotos adjuntos no van en la copia.</div>
+      <div class="dz" id="dz"><p><b>Borrar todos los datos</b><br><span class="muted small">Deja la app como recién instalada en este dispositivo.</span></p><button class="btn sm danger" id="dzGo">🗑️ Borrar todos los datos</button></div>
+    </div>
+    <button class="btn block" data-close>Listo</button>`);
+  const m=$('.modal'); if(m) m.classList.add('setm');
+  $$('.seg[data-pref]').forEach(g=>$$('button',g).forEach(b=>b.onclick=()=>{ const k=g.dataset.pref, v=b.dataset.v; if(PREFS[k]===v) return;
+    $$('button',g).forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+    if(k==='theme'){ setTheme(v); return; }
+    PREFS[k]=v; savePrefs(); prefsRefresh();
+    toast(k==='temp'?`Temperaturas en ${v==='F'?'°F':'°C'}`:k==='dist'?`Distancias en ${v==='mi'?'millas':'kilómetros'}`:`Horas en formato de ${v} h`); }));
+  $('#setCur').onchange=e=>{ PREFS.cur=e.target.value; savePrefs(); toast(`Los viajes nuevos arrancan en ${PREFS.cur}`); };
+  $('#setBak').onclick=()=>saveFile(`travel-wizard-copia-${D.today()}.json`, JSON.stringify({app:'travelwizard', version:VERSION, saved:new Date().toISOString(), trips}), 'application/json');
+  $('#dzGo').onclick=()=>{ const dz=$('#dz');
+    dz.innerHTML=`<p><b>¿Seguro?</b> Se borran ${n===1?'tu viaje':`tus ${n} viajes`} con sus reservas, adjuntos, valijas y estos ajustes. <b>No se puede deshacer.</b> Si querés, antes descargá la copia de arriba.</p>
+      <div class="field" style="margin-bottom:10px"><label for="dzIn">Para confirmar, escribí BORRAR</label><input class="inp" id="dzIn" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>
+      <div class="toolbar" style="margin:0"><button class="btn sm danger" id="dzOk" disabled>Borrar todo</button><button class="btn sm ghost" id="dzNo">Cancelar</button></div>`;
+    const inp=$('#dzIn'); inp.focus();
+    inp.oninput=()=>{ $('#dzOk').disabled = norm(inp.value.trim())!=='borrar'; };
+    inp.onkeydown=e=>{ if(e.key==='Enter'&&!$('#dzOk').disabled) $('#dzOk').click(); };
+    $('#dzNo').onclick=()=>openSettings();
+    $('#dzOk').onclick=()=>wipeAll(); };
+}
+async function wipeAll(){
+  try{ Object.keys(localStorage).filter(k=>k.startsWith('tw.')).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  try{ if(idb.db){ idb.db.close(); idb.db=null; } await new Promise(r=>{ const q=indexedDB.deleteDatabase('travelwizard'); q.onsuccess=q.onerror=q.onblocked=()=>r(); }); }catch(e){}
+  trips.length=0; Object.assign(PREFS, PREFS_DEF); savePrefs(); store.set('tour',1); setTheme(PREFS.theme);
+  closeModal(); cur=null; $('#goHome').click(); toast('Listo: la app quedó como nueva');
 }
 function keyTyping(el){ if(!el||el===document.body) return false; const t=(el.tagName||'').toLowerCase();
   return t==='input'||t==='textarea'||t==='select'||el.isContentEditable; }
@@ -2462,6 +2540,7 @@ addEventListener('keydown',e=>{
   else if(l==='n'){ if(v!=='wizard'){ e.preventDefault(); startWizard(); } }
   else if(l==='h'){ e.preventDefault(); $('#goHome').click(); }
   else if(l==='t'){ e.preventDefault(); $('#themeBtn').click(); }
+  else if(l==='a'){ e.preventDefault(); openSettings(); }
   else if(/^[1-5]$/.test(l)){ if(e.repeat) return;
     if(v==='trip'){ const b=$(`.tab[data-t="${TABS[+l-1]}"]`); if(b){ e.preventDefault(); b.click(); b.focus({preventScroll:true}); } }
     else if(v==='home'&&!e.repeat) toast('Abrí un viaje para saltar entre sus pestañas con 1–5'); }

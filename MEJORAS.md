@@ -23,7 +23,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 17. Modo «presentación» del viaje para mostrar a la familia (pantalla completa, día por día, con fotos grandes). — v0.17
 - [x] 18. Tutorial de 3 tarjetas la primera vez que se abre la app. — v0.18
 - [x] 19. Atajos de teclado en escritorio (N nuevo viaje, 1–5 pestañas, / buscar). — v0.19
-- [ ] 20. Ajustes: tema, moneda por defecto, unidades (°C/°F, km/mi), formato 24 h, borrar todos los datos.
+- [x] 20. Ajustes: tema, moneda por defecto, unidades (°C/°F, km/mi), formato 24 h, borrar todos los datos. — v0.20
 
 ## B. Sponsors, publicidad y negocio (21–40)
 - [x] 21. Espacios para sponsors nativos y elegantes («Patrocinado») en Inicio, Reservas, Valijas y Alertas, configurables desde un catálogo; mientras no haya sponsors, «Tu marca acá». (v0.5)
