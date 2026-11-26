@@ -443,5 +443,45 @@ with sync_playwright() as p:
     pg.click('#searchBtn'); pg.fill('#sq','ajustes'); pg.wait_for_timeout(300); assert 'Ajustes' in pg.inner_text('.sheet'), 'Ajustes en el buscador'
     kb.press('Escape'); pg.wait_for_timeout(200)
     print('scrollWidthAjustes', pg.evaluate('document.documentElement.scrollWidth'))
+    # v0.21 (mejora 23): sponsors segmentados por contexto (viaje de prueba: Praga + Viena, familia con un niño, historia/cultura/ninos/gastronomia/naturaleza, moderado)
+    seg=pg.evaluate("(()=>{const t=trips[0];const g=tripSeg(t);return [g.kind,g.kids,g.level,g.month>0,g.places.length]})()")
+    assert seg[:4]==['familia',True,'moderado',True] and seg[4]==2, ('contexto del viaje', seg)
+    assert pg.evaluate("[travelKind({travelers:[{age:'adulto'}]}),travelKind({travelers:[{age:'adulto'},{age:'mayor'}]}),travelKind({travelers:[{age:'adulto'},{age:'adulto'},{age:'adolescente'}]})]")==['solo','pareja','amigos']
+    # aviso propio con texto según el próximo viaje + «¿Por qué veo esto?»
+    home=pg.inner_text('.sponbox'); assert 'familias con chicos que viajan a' in home and ('Chequia' in home or 'Praga' in home), ('aviso propio contextual', home)
+    assert pg.evaluate("document.querySelector('.sponbox .sponwhyt').hidden")
+    pg.click('.sponbox .sponwhy'); assert not pg.evaluate("document.querySelector('.sponbox .sponwhyt').hidden") and pg.get_attribute('.sponbox .sponwhy','aria-expanded')=='true'
+    assert 'no usamos tu nombre' in pg.inner_text('.sponwhyt'), 'aclara que no usa datos personales'
+    pg.query_selector('.sponbox').scroll_into_view_if_needed(); pg.query_selector('.sponbox').screenshot(path=f'shots/{mode}_26house.png')
+    assert 'Gonzalo' not in pg.inner_text('.sponbox') and 'Joaquín' not in pg.inner_text('.sponbox'), 'sin nombres'
+    # catálogo de prueba: uno coincide en mucho, otro no corresponde, otro general
+    pg.evaluate('''SPONSORS.push(
+      {id:'fam',title:'Seguro familiar',text:'Cobertura para toda la familia.',url:'https://example.com/a',emoji:'🛡️',where:['home','reservas'],dest:['CZ','Austria','Praga'],kind:['familia'],ints:['historia','playa'],level:['moderado','confort']},
+      {id:'lujo',title:'Spa 5 estrellas',text:'Solo para lujo.',url:'https://example.com/b',level:['lujo']},
+      {id:'solo',title:'Hostel',text:'Para viajar solo.',url:'https://example.com/c',kind:['solo']},
+      {id:'mar',title:'Playa',text:'Solo Brasil.',url:'https://example.com/d',dest:['BR']},
+      {id:'gen',title:'eSIM',text:'Para cualquier viaje.',url:'https://example.com/e',where:['reservas']})''')
+    pg.click('.tripcard'); pg.wait_for_selector('.thero'); pg.wait_for_timeout(400)
+    ids=pg.evaluate("activeSponsors('reservas').map(x=>x.s.id)"); assert ids==['fam','gen'], ('filtra y ordena por relevancia', ids)
+    w=pg.evaluate("activeSponsors('reservas')[0].why"); assert w[0] in ('destino: Chequia','destino: Praga') and 'viaje en familia' in w and 'interés: historia' in w and 'presupuesto moderado' in w, w
+    assert pg.evaluate("activeSponsors('valijas').length")==0, 'where respeta el lugar de la app'
+    assert pg.evaluate("(()=>{const t=JSON.parse(JSON.stringify(trips[0]));t.travelers=[{name:'',age:'adulto'}];const g=tripSeg(t);return SPONSORS.filter(s=>sponsorMatch(s,g,'reservas',D.today())).map(s=>s.id)})()")==['solo','gen'], 'cambia con quiénes viajan'
+    pg.evaluate("SPONSORS.push({id:'old',title:'Vencido',text:'x',url:'https://example.com/f',to:'2020-01-01'},{id:'mes',title:'Mes',text:'x',url:'https://example.com/g',months:[((+trips[0].start.slice(5,7))%12)+1]})")
+    assert pg.evaluate("activeSponsors('alertas').map(x=>x.s.id)")==[], 'fechas de campaña y mes del viaje'
+    cnt=pg.evaluate("(()=>{const c={};for(let i=0;i<400;i++){const k=pickSponsor(activeSponsors('reservas')).s.id;c[k]=(c[k]||0)+1}return c})()")
+    assert cnt.get('fam',0)>cnt.get('gen',0)*5, ('el más relevante sale más', cnt)
+    pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(500)
+    box=pg.query_selector('#tabBody .sponbox'); assert box and 'Patrocinado' in box.text_content(), 'aviso marcado como Patrocinado'
+    assert pg.get_attribute('#tabBody .sponbox a.spon','rel')=='noopener sponsored'
+    pg.click('#tabBody .sponwhy'); t=pg.inner_text('#tabBody .sponwhyt')
+    assert t.startswith('Lo ves por:') or 'aviso general' in t, t
+    box.scroll_into_view_if_needed(); pg.wait_for_timeout(200); box.screenshot(path=f'shots/{mode}_26reservas.png')
+    aa(pg,'sponsor con ¿por qué veo esto?')
+    assert pg.evaluate('document.documentElement.scrollWidth')==390
+    pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400); assert 'Tu marca acá' in pg.inner_text('#tabBody .sponbox'), 'sin coincidencias queda el aviso propio'
+    pg.click('#goHome'); pg.wait_for_timeout(400); pg.click('#goBrands'); pg.wait_for_timeout(400)
+    assert len(pg.query_selector_all('.segs .seg1'))==6, 'segmentación explicada en Para marcas'
+    pg.screenshot(path=f'shots/{mode}_26marcas.png', full_page=True)
+    print('scrollWidthSponsors', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
     print('ERRORS',errs)
     b.close()
