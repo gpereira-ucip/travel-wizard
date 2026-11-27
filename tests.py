@@ -581,5 +581,56 @@ with sync_playwright() as p:
     pg.click('#goHome'); pg.wait_for_timeout(400); pg.click('#goBrands'); pg.wait_for_timeout(400)
     assert 'Sugerido en la valija' in pg.inner_text('.fmts'), 'formato en Para marcas'
     print('scrollWidthPack', pg.evaluate('document.documentElement.scrollWidth'))
+    # v0.24 (mejora 26): medición propia y anónima de vistas y clics por aviso
+    assert pg.query_selector('#adRep'), 'sección Medición en Para marcas'
+    pg.evaluate("localStorage.removeItem('tw.adstats'); AD_SEEN.clear()")
+    assert pg.evaluate("SPONSORS.length")==0  # se recargó: catálogo de prueba de nuevo
+    pg.evaluate("""SPONSORS.push({id:'m1',brand:'Carga',title:'Power bank 20.000 mAh',text:'Carga dos celulares.',url:'https://example.com/m1',where:['valijas'],pack:'powerbank'},
+      {id:'m2',brand:'Trattoria Moldava',title:'Cena bohemia',text:'Cocina checa.',url:'https://example.com/m2',cat:'restaurante',where:['itinerario'],dest:['CZ']}); cur&&(cur.recHide=[],cur.packHide=[])""")
+    pg.click('#backHome'); pg.wait_for_timeout(500); pg.click('.tripcard'); pg.wait_for_selector('.thero'); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400)
+    el=pg.query_selector('#tabBody .pkspon'); sid=el.get_attribute('data-adid'); assert el.get_attribute('data-adplace')=='valija'
+    el.scroll_into_view_if_needed(); pg.wait_for_timeout(400)
+    assert not pg.evaluate(f"(adLoad().s['{sid}']||{{p:{{}}}}).p.valija"), 'menos de 1 segundo a la vista: no cuenta'
+    pg.wait_for_timeout(1000)
+    assert pg.evaluate(f"adLoad().s['{sid}'].p.valija.imp")==1, 'vista contada después de 1 s'
+    assert pg.evaluate(f"adLoad().s['{sid}'].d[D.today()].imp")==1 and pg.evaluate(f"adLoad().s['{sid}'].brand")
+    pg.evaluate("renderPacking()"); pg.wait_for_timeout(300); pg.query_selector(f'#tabBody .pkspon[data-adid={sid}]').scroll_into_view_if_needed(); pg.wait_for_timeout(1300)
+    assert pg.evaluate(f"adLoad().s['{sid}'].p.valija.imp")==1, 'una vez cada 30 minutos'
+    pg.evaluate("window.scrollTo(0,0)"); pg.wait_for_timeout(1300)
+    bx=pg.query_selector('#tabBody .sponbox'); top=bx.evaluate("e=>e.getBoundingClientRect().top")
+    if top>900: assert not pg.evaluate("Object.values(adLoad().s).some(r=>r.p.valijas)"), 'fuera de pantalla no cuenta'
+    pg.evaluate(f"(()=>{{const a=document.querySelector('#tabBody .pkspon[data-adid={sid}] a[data-spon]');a.addEventListener('click',e=>e.preventDefault());a.click()}})()")
+    assert pg.evaluate(f"adLoad().s['{sid}'].p.valija.clk")==1, 'clic contado'
+    pg.click(f'#tabBody .pkspon[data-adid={sid}] [data-pkhide]'); pg.wait_for_timeout(300)
+    assert pg.evaluate(f"adLoad().s['{sid}'].p.valija.hide")==1, 'ocultado contado'
+    assert pg.evaluate("document.cookie")=='' and pg.evaluate("AD_ENDPOINT===''&&AD_PEND.length===0"), 'sin cookies y nada sale del teléfono'
+    raw=pg.evaluate("localStorage.getItem('tw.adstats')"); assert 'Gonzalo' not in raw and 'Joaqu' not in raw and pg.evaluate("cur.id") not in raw, 'sin nombres ni ids del viaje'
+    # itinerario: sumar al día cuenta
+    pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(500)
+    rec=pg.query_selector('#days .it.rec[data-adid]:not([data-adid=house])')
+    if rec:
+        rid=rec.get_attribute('data-adid'); pg.click(f'#days .it.rec[data-adid={rid}] [data-recadd]'); pg.wait_for_timeout(300)
+        assert pg.evaluate(f"adLoad().s['{rid}'].p.itinerario.add")==1, 'sumado contado'
+    # reporte en Para marcas
+    pg.click('#goHome'); pg.wait_for_timeout(500); pg.click('#goBrands'); pg.wait_for_timeout(400)
+    pg.query_selector('#adRep').scroll_into_view_if_needed(); pg.wait_for_timeout(200)
+    row=pg.query_selector(f'#adRep tr[data-adrow={sid}]'); assert row, 'fila del aviso en el reporte'
+    tds=[x.inner_text() for x in row.query_selector_all('td')]; assert tds[1:]==['1','1','100 %'], tds
+    assert 'Valija (al lado del ítem) 1/1' in tds[0] and 'ocultado 1' in tds[0], tds[0]
+    pg.query_selector('#adRep').screenshot(path=f'shots/{mode}_29report.png')
+    aa(pg,'reporte de medición')
+    with pg.expect_download() as dl: pg.click('#adCsv')
+    csv=open(dl.value.path(),encoding='utf-8-sig').read(); assert csv.startswith('tipo,aviso_id,marca') and sid in csv and dl.value.suggested_filename.startswith('travel-wizard-medicion-todos-'), csv[:200]
+    pg.select_option('#adWho', sid); pg.wait_for_timeout(200)
+    assert len(pg.query_selector_all('#adRep tbody tr'))==1, 'reporte de un solo anunciante'
+    with pg.expect_download() as dl: pg.click('#adCsv')
+    csv=open(dl.value.path(),encoding='utf-8-sig').read(); ids={l.split(',')[1] for l in csv.strip().split('\n')[1:]}
+    assert ids=={sid} and f'lugar,{sid}' in csv and f'dia,{sid}' in csv, ('CSV solo de ese anunciante', ids)
+    with pg.expect_download() as dl: pg.click('#adJson')
+    j=json.load(open(dl.value.path())); assert [x['id'] for x in j['avisos']]==[sid] and j['avisos'][0]['total']['imp']==1 and 'criterio_vista' in j
+    pg.evaluate("document.documentElement.setAttribute('data-theme','dark')"); pg.wait_for_timeout(200); pg.query_selector('#adRep').screenshot(path=f'shots/{mode}_29reportDark.png'); aa(pg,'reporte de medición oscuro'); pg.evaluate("setTheme('light')")
+    pg.click('#adReset'); pg.wait_for_timeout(200); pg.click('#cfOk'); pg.wait_for_timeout(300)
+    assert pg.query_selector('#adEmpty') and pg.evaluate("localStorage.getItem('tw.adstats')") is None, 'reiniciar contadores'
+    print('scrollWidthMedicion', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
     print('ERRORS',errs)
     b.close()
