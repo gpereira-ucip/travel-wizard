@@ -4,7 +4,7 @@ Autor y dueño: Gonzalo Gabriel Pereira. Objetivo: convertir sus bitácoras de v
 Este documento ES la memoria del proyecto: cada sesión (incluida la tarea diaria) lo lee primero y lo actualiza al terminar.
 
 ## Versión actual
-**0.21 — versión de prueba** (26 nov 2026) · Plan de 200 mejoras: 23 hechas (ver MEJORAS.md), más los pedidos de Gonzalo de v0.7 y v0.8
+**0.22 — versión de prueba** (27 nov 2026) · Plan de 200 mejoras: 24 hechas (ver MEJORAS.md), más los pedidos de Gonzalo de v0.7 y v0.8
 
 ## Qué hace hoy
 1. **Asistente en 5 pasos** (menos de 1 minuto): origen y destinos (varias ciudades, noches por ciudad), fecha de salida, viajeros (presets solo/pareja/familia/amigos, nombre y grupo de edad), intereses (11 chips) y ritmo, nivel de presupuesto (mochilero/moderado/confort/lujo) + monto opcional.
@@ -63,7 +63,7 @@ Este documento ES la memoria del proyecto: cada sesión (incluida la tarea diari
 8. Si algo falla y no se puede arreglar, no publicar una versión rota: registrarlo en Pendientes y avisar.
 
 ## Qué sigue
-**Próximas: 24 («Recomendado por» en el itinerario), 25, 26.** La hoja de ruta ahora es MEJORAS.md (200 mejoras, en orden).** Se hacen en orden numérico, salteando las tildadas; las sugerencias de Gonzalo (comentarios en la página del artifact o pedidos anotados acá) van primero. La lista vieja de abajo queda como referencia: cada punto está incluido en MEJORAS.md (p. ej. paquetes mixtos = 113, bitácora exportable = 163, PWA = 176–177, idiomas = 179–180).
+**Próximas: 25 (ítems patrocinados en la valija), 26, 27.** La hoja de ruta ahora es MEJORAS.md (200 mejoras, en orden).** Se hacen en orden numérico, salteando las tildadas; las sugerencias de Gonzalo (comentarios en la página del artifact o pedidos anotados acá) van primero. La lista vieja de abajo queda como referencia: cada punto está incluido en MEJORAS.md (p. ej. paquetes mixtos = 113, bitácora exportable = 163, PWA = 176–177, idiomas = 179–180).
 
 ### Pedidos de Gonzalo pendientes
 - (ninguno por ahora)
@@ -97,6 +97,7 @@ Este documento ES la memoria del proyecto: cada sesión (incluida la tarea diari
 - v0.15: con «Aumentar contraste» del sistema, el color del viaje pisa los dorados/corales reforzados de ese modo (los grises y bordes sí se refuerzan). El nombre «Wizard» de la barra toma el color del viaje mientras está abierto (a propósito).
 - v0.20: los ajustes viven en `tw.prefs` (tema auto/claro/oscuro, moneda, °C/°F, km/mi, 24/12 h); `tw.theme` se sigue escribiendo y se migra. La copia de todo (.json) no incluye los adjuntos PDF/foto de IndexedDB (lo dice la ventana). Las fechas y el .ics siguen en formato local; el 12 h se aplica a lo que muestra la app y al texto para WhatsApp.
 - v0.21: `SPONSORS` sigue vacío (no hay marcas reales): la segmentación se probó con un catálogo de prueba en tests.py. Para cargar un sponsor real basta agregar un objeto a `SPONSORS` con los campos del comentario. Necesita: acuerdos con marcas y `CONTACT_EMAIL`.
+- v0.22: «Recomendado por» en el itinerario: sponsors con `where:['itinerario']` y `cat` (restaurante/excursion/tienda), `brand`, opcionales `address`, `time`, `lat`, `lon`; `dest` se compara con la ciudad de cada día. Como mucho 1 por día, nunca en días seguidos, hasta un tercio de los días, cada marca 1 vez por viaje, y no en un día que ya tiene una sumada. Campo nuevo opcional `t.recHide` (ids ocultos; `house` = el espacio propio); las actividades sumadas llevan `spon`, `sponBrand` y `cost:null` y «Rearmar» no las agrega solo. Con `SPONSORS` vacío se ve un único «Espacio disponible» por viaje. Probado con un catálogo de prueba en tests.py.
 - El modo Claude de la importación (una o varias reservas) se probó con un `window.claude` simulado, no con el visor real: Gonzalo debería probarlo una vez dentro de Claude.
 
 ## Registro de cambios
@@ -107,6 +108,7 @@ Este documento ES la memoria del proyecto: cada sesión (incluida la tarea diari
 - **0.2 (6 nov 2026)**: revisión de la 0.1 sin problemas pendientes. Nuevo botón **📩 Pegar mail** en Reservas: lee el texto de la confirmación (reglas fuera de Claude, Claude dentro) y abre el formulario completo para revisar. Corrección: el «Ya reservado» del Presupuesto ignoraba precios con formato 2.845,30 o 1.500 (nueva función `priceNum`). Probado con Playwright 390×844: modo web simulado, sin red y con Claude simulado; vuelo importado del mail + hotel manual + hotel importado; 5 pestañas, tema oscuro; sin errores de consola ni desbordes (scrollWidth 390).
 - **0.1 (6 nov 2026)**: primera versión. Asistente, itinerario con fotos/clima/mapa, reservas con adjuntos, buscadores con fechas, alertas + .ics, valijas por persona, presupuesto, mis viajes, exportar/importar, claro/oscuro. Probado con Playwright (modo web simulado y modo sin red): sin errores de consola ni desbordes.
 
+- 27/11/2026 · v0.22 (mejora 24): formato «Recomendado por» dentro del itinerario: restaurante, excursión o tienda sponsor en el día y la ciudad que corresponden, marcado «Patrocinado», con «＋ Sumar al día» (queda como actividad con la etiqueta de la marca), «✕ No me interesa» (se oculta en ese viaje) y «¿Por qué veo esto?». Elección fija por viaje y día, ponderada por relevancia; sin sponsors, un solo «Espacio disponible» que se puede ocultar. Para marcas ya no dice «próximamente» en ese formato. Revisión previa: la 0.21 pasaba los tests live y offline sin errores. tests.py ampliado (espacio propio y ocultarlo, filtro por ciudad del día, frecuencia, enlace sponsored, por qué veo esto, contraste AA, sumar al día, no me interesa, persistencia al recargar, rearmar sin patrocinados). live y offline 390×844 sin errores de consola, scrollWidth 390; capturas en claro y oscuro revisadas. Mañana sigue la mejora 25 (ítems patrocinados en la valija).
 
 ## Instalación en el teléfono (14/11/2026)
 - `manifest.json`, `icon-192.png`, `icon-512.png` y `sw.js` permiten instalar la app con su ícono desde la dirección de GitHub Pages. No los borres ni quites las etiquetas `<link rel="manifest">`, ícono y el registro de `sw.js` del `<head>` de index.html.

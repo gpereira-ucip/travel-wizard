@@ -483,5 +483,52 @@ with sync_playwright() as p:
     assert len(pg.query_selector_all('.segs .seg1'))==6, 'segmentación explicada en Para marcas'
     pg.screenshot(path=f'shots/{mode}_26marcas.png', full_page=True)
     print('scrollWidthSponsors', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
+    # v0.22 (mejora 24): «Recomendado por» dentro del itinerario
+    assert 'Sumar al día' in pg.inner_text('.fmts'), 'Para marcas ya no dice próximamente'
+    pg.click('#backHome'); pg.wait_for_timeout(500); pg.click('.tripcard'); pg.wait_for_selector('.thero'); pg.click('.tab[data-t=plan]'); pg.wait_for_timeout(500)
+    pg.evaluate("cur.recHide=[]; saveCur(); renderPlan()"); pg.wait_for_timeout(200)
+    hs=pg.query_selector_all('#days .it.rec'); assert len(hs)==1 and hs[0].get_attribute('data-rec')=='house' and 'ESPACIO DISPONIBLE' in hs[0].inner_text().upper(), 'sin sponsors del itinerario: un solo espacio propio'
+    hs[0].scroll_into_view_if_needed(); hs[0].screenshot(path=f'shots/{mode}_27house.png')
+    pg.click('#days [data-rechide=house]'); pg.wait_for_timeout(300)
+    assert not pg.query_selector('#days .it.rec') and pg.evaluate("cur.recHide")==['house'], 'ocultar el espacio propio'
+    pg.evaluate("""cur.recHide=[]; SPONSORS.push(
+      {id:'r1',brand:'Trattoria Moldava',title:'Cena bohemia junto al río',text:'Cocina checa de autor con menú para chicos.',url:'https://example.com/r1',cta:'Reservar mesa',cat:'restaurante',time:'20:00',address:'Malá Strana',where:['itinerario'],dest:['Praga'],kind:['familia']},
+      {id:'r2',brand:'Danubio Tours',title:'Paseo en barco por el Danubio',text:'Salida de 2 horas con audioguía en español.',url:'https://example.com/r2',cat:'excursion',where:['itinerario'],dest:['Viena']},
+      {id:'r3',brand:'Cristal de Bohemia',title:'Taller de cristal',text:'Mirá cómo se sopla el vidrio.',url:'https://example.com/r3',cat:'tienda',where:['itinerario'],dest:['CZ']},
+      {id:'r4',brand:'Playa Sol',title:'Solo Brasil',text:'x',url:'https://example.com/r4',cat:'tienda',where:['itinerario'],dest:['BR']},
+      {id:'r5',brand:'Lujo',title:'Solo lujo',text:'x',url:'https://example.com/r5',cat:'restaurante',where:['itinerario'],level:['lujo']}); saveCur(); renderPlan()""")
+    pg.wait_for_timeout(300)
+    R=pg.evaluate("(()=>{const r=dayRecs(cur);return Object.entries(r).map(([di,x])=>[+di,x.house?'house':x.s.id,cur.stops[cur.days[di].stop].name,cur.days[di].kind])})()")
+    print('recs', R)
+    assert R and all(x[1] in ('r1','r2','r3') for x in R), ('solo las que corresponden', R)
+    for di,i,city,kind in R: assert (i in ('r1','r3') and city=='Praga') or (i=='r2' and city=='Viena'), ('en la ciudad del día', R)
+    assert len(set(x[1] for x in R))==len(R) and all(b[0]-a[0]>=2 for a,b in zip(R,R[1:])) and len(R)<=-(-pg.evaluate('cur.days.length')//3) and all(x[3]!='regreso' for x in R), ('frecuencia', R)
+    assert pg.evaluate("JSON.stringify(Object.values(dayRecs(cur)).map(x=>x.s.id))===JSON.stringify(Object.values(dayRecs(cur)).map(x=>x.s.id))"), 'elección fija'
+    els=pg.query_selector_all('#days .it.rec'); assert len(els)==len(R)
+    e=els[0]; tx=e.inner_text(); assert 'RECOMENDADO POR' in tx.upper() and 'PATROCINADO' in tx.upper(), tx
+    assert e.query_selector('a[rel="noopener sponsored"]'), 'enlace marcado como sponsored'
+    di0=int(e.evaluate("el=>el.closest('.day').dataset.di")); rid=e.get_attribute('data-rec')
+    e.query_selector('.sponwhy').click(); assert 'Lo ves por:' in e.inner_text() and 'destino:' in e.inner_text(), 'por qué veo esto en el itinerario'
+    e.scroll_into_view_if_needed(); pg.wait_for_timeout(200); e.screenshot(path=f'shots/{mode}_27rec.png')
+    aa(pg,'recomendado en el itinerario')
+    pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(300); pg.query_selector('#days .it.rec').scroll_into_view_if_needed(); pg.query_selector('#days .it.rec').screenshot(path=f'shots/{mode}_27recDark.png'); pg.evaluate("setTheme('light')")
+    # sumar al día
+    n0=pg.evaluate(f"cur.days[{di0}].items.length"); pg.click(f'#days .it.rec[data-rec={rid}] [data-recadd]'); pg.wait_for_timeout(300)
+    assert pg.evaluate(f"cur.days[{di0}].items.length")==n0+1 and not pg.query_selector(f'#days .it.rec[data-rec={rid}]'), 'se suma y deja de recomendarse'
+    spn=pg.query_selector(f'#days .day[data-di="{di0}"] .tag.spn'); assert spn and 'Patrocinado' in spn.inner_text(), 'la actividad sumada queda marcada'
+    assert pg.evaluate(f"(()=>{{const p=cur.pool[cur.days[{di0}].stop].find(p=>p.spon==='{rid}');return !!p&&p.cost===null&&cur.days[{di0}].items.some(x=>x.ref===p.id)}})()"), 'guardada en el día'
+    assert 'undefined' not in pg.inner_text(f'#days .day[data-di="{di0}"]')
+    assert not pg.query_selector(f'#days .day[data-di="{di0}"] .it.rec'), 'un día con una sumada no recibe otra'
+    pg.query_selector(f'#days .day[data-di="{di0}"]').scroll_into_view_if_needed(); pg.query_selector(f'#days .day[data-di="{di0}"]').screenshot(path=f'shots/{mode}_27sumado.png')
+    # no me interesa
+    if pg.query_selector('#days .it.rec'):
+        r2=pg.get_attribute('#days .it.rec','data-rec'); pg.click('#days .it.rec [data-rechide]'); pg.wait_for_timeout(300)
+        assert r2 in pg.evaluate('cur.recHide') and not pg.query_selector(f'#days .it.rec[data-rec={r2}]'), 'no me interesa'
+    assert pg.evaluate('document.documentElement.scrollWidth')==390
+    pg.reload(); pg.wait_for_selector('#days .day'); pg.wait_for_timeout(300)
+    assert pg.query_selector(f'#days .day[data-di="{di0}"] .tag.spn') and not pg.query_selector(f'#days .it.rec[data-rec={rid}]'), 'queda guardado al recargar'
+    assert pg.evaluate(f"cur.days.some(d=>d.items.some(x=>(cur.pool[d.stop]||[]).some(p=>p.id===x.ref&&p.spon==='{rid}')))")
+    t0=pg.evaluate("(()=>{const t=JSON.parse(JSON.stringify(cur));t.days=schedule(t);return t.days.some(d=>d.items.some(x=>(t.pool[d.stop]||[]).some(p=>p.id===x.ref&&p.spon)))})()"); assert not t0, 'rearmar no agrega patrocinados solos'
+    print('scrollWidthRec', pg.evaluate('document.documentElement.scrollWidth'))
     print('ERRORS',errs)
     b.close()
