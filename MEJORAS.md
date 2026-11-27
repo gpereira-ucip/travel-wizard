@@ -30,7 +30,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 22. Página «Para marcas»: qué es la app, a quién llega, formatos publicitarios disponibles y contacto comercial. (v0.5)
 - [x] 23. Sponsors segmentados por contexto: destino, tipo de viajero (familia, pareja), intereses y presupuesto (sin datos personales). — v0.21
 - [x] 24. Formato «Recomendado por» dentro del itinerario (restaurante, excursión o tienda sponsor en el día que corresponde), siempre marcado. — v0.22
-- [ ] 25. Ítems patrocinados en la valija (protector solar, adaptador, seguro) con enlace a la marca.
+- [x] 25. Ítems patrocinados en la valija (protector solar, adaptador, seguro) con enlace a la marca. — v0.23
 - [ ] 26. Medición propia y anónima de impresiones y clics por sponsor (sin cookies de terceros) con reporte exportable para el anunciante.
 - [ ] 27. Enlaces de afiliado configurables (Booking, GetYourGuide, Skyscanner, Rentalcars, seguros, eSIM) desde un solo lugar.
 - [ ] 28. Comparador de seguros de viaje y eSIM como bloque comercial en Reservas.

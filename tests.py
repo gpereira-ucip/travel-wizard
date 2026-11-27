@@ -530,5 +530,56 @@ with sync_playwright() as p:
     assert pg.evaluate(f"cur.days.some(d=>d.items.some(x=>(cur.pool[d.stop]||[]).some(p=>p.id===x.ref&&p.spon==='{rid}')))")
     t0=pg.evaluate("(()=>{const t=JSON.parse(JSON.stringify(cur));t.days=schedule(t);return t.days.some(d=>d.items.some(x=>(t.pool[d.stop]||[]).some(p=>p.id===x.ref&&p.spon)))})()"); assert not t0, 'rearmar no agrega patrocinados solos'
     print('scrollWidthRec', pg.evaluate('document.documentElement.scrollWidth'))
+    # v0.23 (mejora 25): ítems patrocinados en la valija, al lado del ítem que corresponde
+    pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400)
+    pg.evaluate("cur.packHide=[]; saveCur(); renderPacking()"); pg.wait_for_timeout(200)
+    assert pg.evaluate("[packKeyOf('Protector solar'),packKeyOf('Adaptador de enchufe universal'),packKeyOf('Seguro de viaje impreso / en el celular'),packKeyOf('Power bank'),packKeyOf('Pijama')]")==['protector','adaptador','seguro','powerbank',None]
+    hs=pg.query_selector_all('#tabBody .pkspon'); assert len(hs)==1 and hs[0].get_attribute('data-pkspon')=='house' and 'ESPACIO DISPONIBLE' in hs[0].inner_text().upper(), 'sin sponsors de la valija: un solo espacio propio'
+    assert pg.query_selector('#tabBody .sponbox'), 'el aviso de la pestaña sigue'
+    hs[0].scroll_into_view_if_needed(); hs[0].screenshot(path=f'shots/{mode}_28house.png')
+    pg.click('#tabBody [data-pkhide=house]'); pg.wait_for_timeout(300)
+    assert not pg.query_selector('#tabBody .pkspon') and pg.evaluate("cur.packHide")==['house'], 'ocultar el espacio propio de la valija'
+    pg.evaluate("""cur.packHide=[]; SPONSORS.push(
+      {id:'p1',brand:'Enchufá',title:'Adaptador universal con USB-C',text:'Sirve en más de 150 países.',url:'https://example.com/p1',cta:'Ver adaptador',where:['valijas'],pack:'adaptador',dest:['CZ']},
+      {id:'p2',brand:'Cubrí',title:'Seguro de viaje familiar',text:'Una sola póliza para toda la familia.',url:'https://example.com/p2',where:['valijas'],pack:['seguro'],kind:['familia']},
+      {id:'p3',brand:'Sol',title:'Solo Brasil',text:'x',url:'https://example.com/p3',where:['valijas'],pack:'protector',dest:['BR']},
+      {id:'p4',brand:'Carga',title:'Power bank 20.000 mAh',text:'Carga dos celulares.',url:'https://example.com/p4',where:['valijas'],pack:'powerbank'},
+      {id:'p5',brand:'Lujo',title:'Solo lujo',text:'x',url:'https://example.com/p5',where:['valijas'],pack:'tarjeta',level:['lujo']},
+      {id:'p6',brand:'Otro',title:'Otro adaptador',text:'x',url:'https://example.com/p6',where:['valijas'],pack:'adaptador'},
+      {id:'p7',brand:'Pies',title:'Zapatillas',text:'x',url:'https://example.com/p7',where:['valijas'],pack:'calzado'}); saveCur(); renderPacking()""")
+    pg.wait_for_timeout(300)
+    S=pg.evaluate("(()=>{const r=packSpons(cur);return Object.entries(r).map(([id,x])=>[id,x.key,x.item,x.house?'house':x.s.id])})()")
+    print('pack', S)
+    assert 0<len(S)<=3 and all(x[3] not in ('p3','p5','house') for x in S), ('solo los que corresponden', S)
+    assert len(set(x[1] for x in S))==len(S) and len(set(x[3] for x in S))==len(S), ('uno por ítem y por marca', S)
+    assert pg.evaluate("activeSponsors('valijas').every(x=>!x.s.pack)"), 'los de ítem no van a la tarjeta de la pestaña'
+    if any(x[1]=='adaptador' for x in S):
+        cnt=pg.evaluate("(()=>{const c={},t=JSON.parse(JSON.stringify(cur));for(let i=0;i<300;i++){t.id='x'+i;const r=Object.values(packSpons(t)).find(x=>x.key==='adaptador');c[r.s.id]=(c[r.s.id]||0)+1}return c})()")
+        print('adaptador', cnt); assert cnt.get('p1',0)>cnt.get('p6',0)*5, ('el más relevante sale más', cnt)
+    assert S==pg.evaluate("(()=>{const r=packSpons(cur);return Object.entries(r).map(([id,x])=>[id,x.key,x.item,x.house?'house':x.s.id])})()"), 'elección fija'
+    els=pg.query_selector_all('#tabBody .pkspon'); assert len(els)==len(S)
+    for e in els:
+        prev=e.evaluate("el=>el.previousElementSibling.querySelector('span').textContent"); sid=e.get_attribute('data-pkspon')
+        assert any(x[3]==sid and x[2]==prev for x in S), ('al lado de su ítem', sid, prev)
+    e=els[0]; tx=e.inner_text(); assert 'SUGERIDO POR' in tx.upper() and 'PATROCINADO' in tx.upper(), tx
+    assert e.query_selector('a[rel="noopener sponsored"]'), 'enlace a la marca marcado como sponsored'
+    e.query_selector('.sponwhy').click(); assert 'en tu lista:' in e.inner_text(), 'por qué veo esto en la valija'
+    e.scroll_into_view_if_needed(); pg.wait_for_timeout(200); e.screenshot(path=f'shots/{mode}_28item.png')
+    aa(pg,'sugerido en la valija')
+    pg.evaluate("setTheme('dark')"); pg.wait_for_timeout(300); pg.query_selector('#tabBody .pkspon').scroll_into_view_if_needed(); pg.query_selector('#tabBody .pkspon').screenshot(path=f'shots/{mode}_28itemDark.png'); aa(pg,'sugerido en la valija oscuro'); pg.evaluate("setTheme('light')"); pg.wait_for_timeout(200)
+    # tildar el ítem lo saca
+    first=S[0]; pg.click(f'#tabBody input[data-pk$="|{first[0]}"]'); pg.wait_for_timeout(300)
+    assert not pg.query_selector(f'#tabBody .pkspon[data-pkspon={first[3]}]'), 'tildado: ya no se sugiere'
+    pg.click(f'#tabBody input[data-pk$="|{first[0]}"]'); pg.wait_for_timeout(300)
+    assert pg.query_selector(f'#tabBody .pkspon[data-pkspon={first[3]}]'), 'destildado: vuelve'
+    # no me interesa
+    r2=pg.get_attribute('#tabBody .pkspon','data-pkspon'); pg.click('#tabBody .pkspon [data-pkhide]'); pg.wait_for_timeout(300)
+    assert r2 in pg.evaluate('cur.packHide') and not pg.query_selector(f'#tabBody .pkspon[data-pkspon={r2}]'), 'no me interesa en la valija'
+    assert pg.evaluate('document.documentElement.scrollWidth')==390
+    pg.reload(); pg.wait_for_selector('.thero'); pg.click('.tab[data-t=valijas]'); pg.wait_for_timeout(400)
+    assert r2 in pg.evaluate('cur.packHide') and not pg.query_selector(f'#tabBody .pkspon[data-pkspon={r2}]'), 'queda oculto al recargar'
+    pg.click('#goHome'); pg.wait_for_timeout(400); pg.click('#goBrands'); pg.wait_for_timeout(400)
+    assert 'Sugerido en la valija' in pg.inner_text('.fmts'), 'formato en Para marcas'
+    print('scrollWidthPack', pg.evaluate('document.documentElement.scrollWidth'))
     print('ERRORS',errs)
     b.close()
