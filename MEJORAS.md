@@ -32,7 +32,7 @@ Pedido de Gonzalo (9 nov 2026): «la mejor de todas» las apps de este tipo, par
 - [x] 24. Formato «Recomendado por» dentro del itinerario (restaurante, excursión o tienda sponsor en el día que corresponde), siempre marcado. — v0.22
 - [x] 25. Ítems patrocinados en la valija (protector solar, adaptador, seguro) con enlace a la marca. — v0.23
 - [x] 26. Medición propia y anónima de impresiones y clics por sponsor (sin cookies de terceros) con reporte exportable para el anunciante. — v0.24 (necesita: servidor propio para sumar los datos de todos los usuarios)
-- [ ] 27. Enlaces de afiliado configurables (Booking, GetYourGuide, Skyscanner, Rentalcars, seguros, eSIM) desde un solo lugar.
+- [x] 27. Enlaces de afiliado configurables (Booking, GetYourGuide, Skyscanner, Rentalcars, seguros, eSIM) desde un solo lugar. (v0.25)
 - [ ] 28. Comparador de seguros de viaje y eSIM como bloque comercial en Reservas.
 - [ ] 29. Plan Premium: más viajes, IA ilimitada, bitácora exportable sin marca, viaje compartido; pantalla de planes.
 - [ ] 30. Límite gratuito amable (ej.: 3 viajes activos) con invitación a Premium.

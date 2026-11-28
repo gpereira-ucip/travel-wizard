@@ -632,5 +632,36 @@ with sync_playwright() as p:
     pg.click('#adReset'); pg.wait_for_timeout(200); pg.click('#cfOk'); pg.wait_for_timeout(300)
     assert pg.query_selector('#adEmpty') and pg.evaluate("localStorage.getItem('tw.adstats')") is None, 'reiniciar contadores'
     print('scrollWidthMedicion', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
+    # v0.25 (mejora 27): enlaces de afiliado configurables desde un solo lugar (AFFILIATES)
+    assert len(pg.query_selector_all('#affSec tr[data-affrow]'))==7, 'tabla de programas en Para marcas'
+    assert 'Sin código' in pg.inner_text('#affSec tr[data-affrow=booking]') and 'Falta empresa' in pg.inner_text('#affSec tr[data-affrow=seguro]')
+    pg.evaluate("localStorage.removeItem('tw.affstats')")
+    pg.click('#backHome'); pg.wait_for_timeout(500); pg.click('.tripcard'); pg.wait_for_selector('.thero'); pg.click('.tab[data-t=reservas]'); pg.wait_for_timeout(400)
+    h=pg.get_attribute('#tabBody a[data-aff=booking]','href'); assert 'booking.com/searchresults' in h and 'aid=' not in h, h
+    assert pg.get_attribute('#tabBody a[data-aff=booking]','rel')=='noopener' and 'comisión' not in pg.inner_text('#tabBody'), 'sin código: enlace común y sin aviso'
+    assert not pg.query_selector('#tabBody a[data-aff=skyscanner]') and pg.query_selector('#bkMore a[data-aff=rentalcars]'), 'autos sí, Skyscanner solo con código'
+    assert not pg.query_selector('#bkMore a[data-aff=seguro]'), 'seguro sin empresa no aparece'
+    pg.evaluate("""AFFILIATES.booking.id='TEST123'; AFFILIATES.skyscanner.id='SKY9'; AFFILIATES.getyourguide.id='GYG7';
+      Object.assign(AFFILIATES.seguro,{name:'Seguros Prueba',tpl:'https://seguros.example.com/cotizar?destino={q}&desde={a}&hasta={b}',param:'ref',id:'TW'}); renderBookings()""")
+    pg.wait_for_timeout(300)
+    h=pg.get_attribute('#tabBody a[data-aff=booking]','href'); assert 'aid=TEST123' in h and 'checkin=' in h, h
+    assert 'sponsored' in pg.get_attribute('#tabBody a[data-aff=booking]','rel') and 'comisión, sin costo extra' in pg.inner_text('#tabBody .srcnote')
+    assert 'associateid=SKY9' in pg.get_attribute('#tabBody a[data-aff=skyscanner]','href')
+    if pg.evaluate('!!isIntl(cur)'):
+        hs=pg.get_attribute('#bkMore a[data-aff=seguro]','href'); assert 'ref=TW' in hs and 'destino=' in hs and 'desde=' in hs, hs
+    else: assert not pg.query_selector('#bkMore a[data-aff=seguro]'), 'seguro solo en viajes internacionales'
+    assert pg.get_attribute('#tabBody a[data-aff=airbnb]','rel')=='noopener', 'Airbnb sin programa: nunca sponsored'
+    assert 'partner_id=GYG7' in pg.evaluate("affAttrs('https://www.getyourguide.com/s/?q=Praga%20tour','itinerario')"), 'URLs guardadas suman el código al mostrarse'
+    assert 'data-aff' not in pg.evaluate("affAttrs('https://es.wikipedia.org/wiki/Praga','itinerario')")
+    pg.query_selector('#bkMore').scroll_into_view_if_needed(); pg.wait_for_timeout(200)
+    pg.screenshot(path=f'shots/{mode}_30affReservas.png'); aa(pg,'reservas con afiliados')
+    pg.evaluate("(()=>{const a=document.querySelector('#tabBody a[data-aff=booking]'); a.addEventListener('click',e=>e.preventDefault()); a.click(); a.click();})()")
+    st=json.loads(pg.evaluate("localStorage.getItem('tw.affstats')")); assert st['k']['booking']['reservas']==2, st
+    raw=json.dumps(st); assert 'Praga' not in raw and 'Gonzalo' not in raw, 'sin datos del viaje'
+    pg.click('#goHome'); pg.wait_for_timeout(500); pg.click('#goBrands'); pg.wait_for_timeout(400)
+    row=pg.inner_text('#affSec tr[data-affrow=booking]'); assert 'Activo' in row and 'Reservas 2' in row and row.strip().endswith('2'), row
+    pg.query_selector('#affSec').screenshot(path=f'shots/{mode}_31affMarcas.png'); aa(pg,'programas de afiliados')
+    pg.evaluate("document.documentElement.setAttribute('data-theme','dark')"); pg.wait_for_timeout(200); pg.query_selector('#affSec').screenshot(path=f'shots/{mode}_31affMarcasDark.png'); aa(pg,'programas de afiliados oscuro'); pg.evaluate("setTheme('light')")
+    print('scrollWidthAfiliados', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
     print('ERRORS',errs)
     b.close()

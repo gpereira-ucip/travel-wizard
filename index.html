@@ -286,6 +286,8 @@ h2.sec{font-family:var(--serif);font-size:28px;font-weight:600;margin:28px 0 12p
 .pkspon + .ck{border-top:0}
 .tag.spn{background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold-ink)}
 .srcnote{font-size:12px;color:var(--muted);margin:6px 0}
+.links a:last-child:nth-child(odd){grid-column:1/-1}
+.afftab td:nth-child(2){white-space:nowrap}.tag.affok{background:rgba(224,168,79,.18);color:var(--gold-ink);border-color:transparent;font-weight:800}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .list{padding:4px 14px}
 .bk{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:flex-start}
@@ -601,7 +603,7 @@ body.touring{overflow:hidden}
    Un solo archivo. Funciona con conexión (fotos, clima y lugares en vivo),
    dentro de Claude (itinerario armado por Claude) o en modo básico.
    ========================================================= */
-const VERSION = '0.24';
+const VERSION = '0.25';
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -674,8 +676,52 @@ const IDEAS = [
 const SPONSORS = [];
 const CONTACT_EMAIL = ''; // contacto comercial: lo define Gonzalo
 
+/* Enlaces de afiliado (mejora 27): TODOS los enlaces comerciales de la app salen de acá.
+   Cada programa: name, e (emoji), l (texto del botón), tpl (URL con {q} {a} {b} {adults} {kids} {from} {to} {date}; se reemplazan ya codificados),
+   param (nombre del código en la URL, según el programa) e id (el código de afiliado). Opcionales: extra:{param:valor} fijos; only:'id' = se muestra
+   solo con código cargado; intl:true = solo en viajes internacionales.
+   id vacío = enlace común (igual de útil, sin comisión). Con id: el enlace lleva el código, rel="sponsored" y aparece el aviso de comisión.
+   seguro y esim no tienen empresa elegida: completar name, tpl, param e id cuando haya acuerdo. Verificar el nombre de param con cada programa. */
+const AFFILIATES = {
+  booking:{name:'Booking.com', e:'🏨', l:'Hoteles', param:'aid', id:'', tpl:'https://www.booking.com/searchresults.html?ss={q}&checkin={a}&checkout={b}&group_adults={adults}&group_children={kids}&no_rooms=1'},
+  airbnb:{name:'Airbnb', e:'🏠', l:'Airbnb', param:'', id:'', tpl:'https://www.airbnb.com/s/{q}/homes?checkin={a}&checkout={b}&adults={adults}&children={kids}', closed:true, sub:'Casas y departamentos (sin programa de afiliados)'},
+  getyourguide:{name:'GetYourGuide', e:'🎟️', l:'Excursiones', param:'partner_id', id:'', tpl:'https://www.getyourguide.com/s/?q={q}&date_from={a}&date_to={b}'},
+  skyscanner:{name:'Skyscanner', e:'🛫', l:'Skyscanner', param:'associateid', id:'', tpl:'https://www.skyscanner.com/', only:'id', sub:'Vuelos (solo con código)'},
+  rentalcars:{name:'Rentalcars.com', e:'🚗', l:'Alquiler de autos', param:'affiliateCode', id:'', tpl:'https://www.rentalcars.com/'},
+  seguro:{name:'', e:'🛡️', l:'Seguro de viaje', param:'', id:'', tpl:'', intl:true},
+  esim:{name:'', e:'📶', l:'eSIM con datos', param:'', id:'', tpl:'', intl:true},
+};
+const AFF_ORDER=Object.keys(AFFILIATES);
+const AFF_PLACES={reservas:'Reservas',itinerario:'Itinerario'};
+const affOn=k=>{ const a=AFFILIATES[k]; return !!(a&&a.tpl&&a.id&&a.param); };
+const affAny=()=>AFF_ORDER.some(affOn);
+function affAdd(u,k){ const a=AFFILIATES[k]; if(!affOn(k)) return u;
+  try{ const x=new URL(u); x.searchParams.set(a.param,a.id); Object.entries(a.extra||{}).forEach(([p,v])=>x.searchParams.set(p,v)); return x.href; }catch(e){ return u; } }
+function affUrl(k,p={}){ const a=AFFILIATES[k]; if(!a||!a.tpl||(a.only==='id'&&!affOn(k))) return '';
+  return affAdd(a.tpl.replace(/\{(\w+)\}/g,(m,n)=>encodeURIComponent(p[n]??'')),k); }
+function affKeyOf(u){ let h=''; try{ h=new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; }
+  return AFF_ORDER.find(k=>{ const a=AFFILIATES[k]; if(!a.tpl) return false; try{ const ah=new URL(a.tpl).hostname.replace(/^www\./,''); return h===ah||h.endsWith('.'+ah); }catch(e){ return false; } })||''; }
+/* Enlace listo para la pantalla: lleva data-aff (para contar el clic) y, con código, rel="sponsored". */
+function affLink(k,place,p,label){ const u=affUrl(k,p); if(!u) return ''; const a=AFFILIATES[k];
+  return `<a target="_blank" rel="noopener${affOn(k)?' sponsored':''}" href="${esc(u)}" data-aff="${k}" data-affplace="${place}">${label||a.e+' '+esc(a.l)}</a>`; }
+/* Para URLs guardadas en el viaje (p. ej. «Buscar» de una actividad): se les suma el código al mostrarlas, así sirven también para viajes viejos. */
+function affAttrs(u,place){ const k=affKeyOf(u); if(!k) return `href="${esc(u)}" rel="noopener"`;
+  return `href="${esc(affAdd(u,k))}" rel="noopener${affOn(k)?' sponsored':''}" data-aff="${k}" data-affplace="${place}"`; }
+const AFF_NOTE='Algunos enlaces son de afiliado: si reservás por ahí, Travel Wizard puede recibir una comisión, sin costo extra para vos.';
+/* Clics en enlaces de afiliado: solo contadores por programa y lugar (tw.affstats), sin nombres ni datos del viaje. */
+function affLoad(){ try{ const o=JSON.parse(localStorage.getItem('tw.affstats')||'null'); if(o&&o.v===1&&o.k) return o; }catch(e){} return {v:1, since:D.today(), k:{}}; }
+document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('a[data-aff]'); if(!t||!AFFILIATES[t.dataset.aff]) return;
+  const o=affLoad(), r=o.k[t.dataset.aff]=o.k[t.dataset.aff]||{}, pl=t.dataset.affplace||'otro'; r[pl]=(r[pl]||0)+1;
+  try{ localStorage.setItem('tw.affstats', JSON.stringify(o)); }catch(e){} },true);
+function affTableHTML(){ const o=affLoad();
+  return `<table class="adrep afftab"><thead><tr><th>Programa</th><th>Estado</th><th>Clics</th></tr></thead><tbody>${AFF_ORDER.map(k=>{ const a=AFFILIATES[k], c=o.k[k]||{}, n=Object.values(c).reduce((x,y)=>x+y,0);
+    const st=affOn(k)?'<span class="tag affok">Activo</span>':a.closed?'<span class="tag">Sin programa</span>':!a.tpl?'<span class="tag">Falta empresa</span>':'<span class="tag">Sin código</span>';
+    const by=Object.entries(c).map(([p,v])=>`${AFF_PLACES[p]||p} ${v}`).join(' · ');
+    return `<tr data-affrow="${k}"><td><b>${a.e} ${esc(a.name||a.l)}</b><small>${esc(a.sub||(a.name?a.l:'empresa a definir'))}${by?' · '+esc(by):''}</small></td><td>${st}</td><td>${n}</td></tr>`; }).join('')}</tbody></table>`; }
+
 /* Novedades por versión (mejora 1) */
 const NEWS = [
+  ['0.25','28 nov 2026',['Enlaces de afiliado desde un solo lugar: hoteles (Booking), excursiones (GetYourGuide), vuelos (Skyscanner), autos (Rentalcars), seguros y eSIM se configuran juntos y llevan el código solos, también en los viajes que ya tenías.','En Reservas aparece «Para el viaje», con el alquiler de autos (y el seguro y la eSIM cuando haya empresa).','Transparencia: cuando un enlace es de afiliado, Reservas lo avisa («puede recibir una comisión, sin costo extra para vos»). En «Para marcas» se ve el estado de cada programa y cuántos clics recibió.']],
   ['0.24','27 nov 2026',['Medición propia de los avisos: la app cuenta cuántas veces se vio cada espacio patrocinado (con al menos la mitad a la vista durante un segundo) y cuántas veces se tocó, por lugar y por día.','Sin cookies, sin identificadores y sin nombres: solo números por aviso, lugar y día, guardados en tu teléfono.','En «Para marcas» → «Medición» está el reporte de cada anunciante (vistas, clics y porcentaje de clics), para descargar en CSV o JSON.']],
   ['0.23','27 nov 2026',['En la valija, una marca puede sugerir su producto justo al lado del ítem que corresponde: el protector solar, el adaptador de enchufe, el seguro de viaje, el power bank… Siempre dice «Patrocinado» y lleva el enlace a la marca.','Para que no moleste: como mucho tres por viaje, cada marca una sola vez, y desaparece cuando tildás ese ítem. Con «✕ No me interesa» deja de aparecer en ese viaje, y «¿Por qué veo esto?» te cuenta qué coincidió.']],
   ['0.22','27 nov 2026',['Nuevo formato «Recomendado por» dentro del itinerario: un restaurante, una excursión o una tienda que patrocina el viaje aparece en el día y la ciudad que corresponden, siempre marcado como «Patrocinado».','Con «＋ Sumar al día» la recomendación pasa a ser una actividad más del día (con su marca a la vista), y con «✕ No me interesa» deja de aparecer en ese viaje.','Para que no moleste: como mucho una por día, nunca en días seguidos y cada marca una sola vez por viaje. También tiene su «¿Por qué veo esto?».']],
@@ -718,7 +764,7 @@ function applyAccent(k){
   document.documentElement.classList.toggle('acc', !!a); document.documentElement.dataset.acc = a?k:'clasico';
 }
 function accVars(t){ const a=accOf(t&&t.accent); if(!a) return ''; const [n,n2,g,g2]=a.v; return `--night:${n};--night2:${n2};--gold:${g};--gold2:${g2};--tacc:${g};`; }
-const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]};
+const ROADMAP = {total:200, done:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]};
 const BK = {
   vuelo:{e:'✈️',l:'Vuelo'}, tren:{e:'🚆',l:'Tren'}, bus:{e:'🚌',l:'Micro / bus'}, barco:{e:'⛴️',l:'Barco / ferry'},
   hotel:{e:'🏨',l:'Hotel'}, airbnb:{e:'🏠',l:'Airbnb / depto'}, auto:{e:'🚗',l:'Alquiler de auto'},
@@ -1616,7 +1662,7 @@ function renderPlan(){
       <div class="grow"><h4>${esc(p.title)}</h4><p>${esc(p.text||p.desc||'')}</p>
       <div class="tags">${p.cats.slice(0,2).map(c=>`<span class="tag">${(CAT[c]||CAT.imperdible).e} ${(CAT[c]||CAT.imperdible).l}</span>`).join('')}${p.spon?`<span class="tag spn">Patrocinado · ${esc(p.sponBrand||'')}</span>`:''}${p.cost!=null?`<span class="tag cost">${COST[p.cost]}</span>`:''}${p.indoor?'<span class="tag">☂️ Bajo techo</span>':''}</div>
       <div class="acts"><button data-done="${di}:${xi}">${x.done?'↩︎':'✓ Hecho'}</button><button data-swap="${di}:${xi}">🔀 Cambiar</button><button data-rmi="${di}:${xi}">✕</button>
-      ${p.lat!=null&&!p.generic?`<a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">📍 Mapa</a>`:''}${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener${p.spon?' sponsored':''}">${p.generic?'🎟️ Buscar':'ℹ️ Más'}</a>`:''}</div></div></div>`; }).join('');
+      ${p.lat!=null&&!p.generic?`<a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">📍 Mapa</a>`:''}${p.url?`<a ${p.spon?`href="${esc(p.url)}" rel="noopener sponsored"`:affAttrs(p.url,'itinerario')} target="_blank">${p.generic?'🎟️ Buscar':'ℹ️ Más'}</a>`:''}</div></div></div>`; }).join('');
     return `<article class="card day" data-di="${di}"><div class="dayh"><div class="dn">${String(di+1).padStart(2,'0')}</div><div><h3>${esc(title)}</h3><div class="small" style="opacity:.85">${D.nice(d.date,{weekday:'long',day:'numeric',month:'long'})}</div></div>
       ${w?`<div class="w"><b>${wxEmoji(w.code)} ${deg(w.tmax)}</b><br>${deg(w.tmin)}${isRainy(w)?' · lluvia':''}</div>`:''}</div>
       <div class="items">${travel}${bks}${items||'<p class="small muted" style="padding:8px 4px">Día libre.</p>'}${recs[di]?recHTML(t,di,recs[di]):''}<div class="acts" style="padding:6px 4px 0"><button data-add="${di}">＋ Agregar actividad</button></div></div></article>`;
@@ -1893,14 +1939,15 @@ function renderBookings(){
     </div></div>`).join(''):''}</div>
     <div class="subh">🔎 Buscar y reservar</div>
     ${lodg.map(({s,a,b})=>`<div class="card" style="margin-bottom:10px"><div style="padding:12px 14px 0"><b>${esc(s.name)}</b> <span class="small muted">${D.nice(a)} → ${D.nice(b)}</span></div><div class="links">
-      <a target="_blank" rel="noopener" href="https://www.booking.com/searchresults.html?ss=${encodeURIComponent(s.name)}&checkin=${a}&checkout=${b}&group_adults=${adults}&group_children=${kids}&no_rooms=1">🏨 Hoteles</a>
-      <a target="_blank" rel="noopener" href="https://www.airbnb.com/s/${encodeURIComponent(s.name)}/homes?checkin=${a}&checkout=${b}&adults=${adults}&children=${kids}">🏠 Airbnb</a>
-      <a target="_blank" rel="noopener" href="https://www.getyourguide.com/s/?q=${encodeURIComponent(s.name)}&date_from=${a}&date_to=${b}">🎟️ Excursiones</a>
+      ${['booking','airbnb','getyourguide'].map(k=>affLink(k,'reservas',{q:s.name,a,b,adults,kids})).join('')}
       <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent('restaurantes en '+s.name)}">🍽️ Restaurantes</a></div></div>`).join('')}
     ${legs.length?`<div class="card" style="margin-bottom:10px"><div style="padding:12px 14px 0"><b>Traslados</b></div>${legs.map(([f,to,d])=>`<div style="padding:8px 14px 0" class="small"><b>${esc(f)} → ${esc(to)}</b> · ${D.nice(d)}</div><div class="links" style="padding-top:6px">
       <a target="_blank" rel="noopener" href="https://www.google.com/travel/flights?q=${encodeURIComponent(`vuelos de ${f} a ${to} el ${d}`)}">✈️ Vuelos</a>
+      ${affLink('skyscanner','reservas',{from:f,to,date:d})}
       <a target="_blank" rel="noopener" href="https://www.rome2rio.com/map/${encodeURIComponent(f)}/${encodeURIComponent(to)}">🚆 Tren · micro · auto</a></div>`).join('')}<div style="height:6px"></div></div>`:''}
-    <div class="srcnote">Los enlaces abren búsquedas con tus fechas y viajeros ya cargados.</div>`;
+    ${(()=>{ const intl=isIntl(t), p={q:t.stops[0].name, a:t.start, b:date, adults, kids}; const ls=['rentalcars','seguro','esim'].filter(k=>intl||!AFFILIATES[k].intl).map(k=>affLink(k,'reservas',p)).filter(Boolean);
+      return ls.length?`<div class="card" style="margin-bottom:10px" id="bkMore"><div style="padding:12px 14px 0"><b>Para el viaje</b></div><div class="links">${ls.join('')}</div></div>`:''; })()}
+    <div class="srcnote">Los enlaces abren búsquedas con tus fechas y viajeros ya cargados.${affAny()?' '+AFF_NOTE:''}</div>`;
   $('#addBk').onclick=()=>bookingModal();
   $('#mailBk').onclick=importMailModal;
   if($('#esMail')){ $('#esMail').onclick=()=>importMailModal(); $('#esAdd').onclick=()=>bookingModal(); }
@@ -2695,6 +2742,10 @@ function renderBrands(){
     <div class="card"><p>Contamos <b>vistas</b> (al menos la mitad del aviso en pantalla durante un segundo, una vez cada 30 minutos por lugar) y <b>clics</b> de cada aviso, por lugar de la app y por día. Sin cookies, sin identificadores y sin nombres: solo números.</p>
       <div id="adRep" data-only="">${adReportHTML('')}</div>
       <p class="small muted" style="margin:10px 0 0">Por ahora el reporte muestra lo medido en este dispositivo. Para sumar los datos de todos los usuarios hace falta un servidor propio (pendiente).</p></div>
+    <h2>Enlaces de afiliado</h2>
+    <div class="card" id="affSec"><p>Los enlaces para reservar (hoteles, excursiones, vuelos, autos, seguros y eSIM) salen de un solo lugar. Con el código de cada programa, los enlaces lo llevan solos, se marcan como comerciales y quien reserva ve el aviso: <i>«${AFF_NOTE}»</i></p>
+      ${affTableHTML()}
+      <p class="small muted" style="margin:10px 0 0">Clics contados en este dispositivo, sin nombres ni datos del viaje. ¿Tenés un programa de seguros o eSIM? Escribinos.</p></div>
     <h2>Logo e ícono</h2>
     <div class="fmts logos">
       <div class="fmt" style="text-align:center;background:#faf7f2;color:#1f2933">${logoSVG('light')}<b>Sobre claro</b></div>
