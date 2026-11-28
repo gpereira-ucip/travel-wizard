@@ -56,7 +56,7 @@ def aa(pg,name):
     pg.evaluate("setTheme('light')"); pg.evaluate('window.scrollTo(0,0)'); pg.wait_for_timeout(200)
     bad=sorted(set(bad)); assert not bad, ('contraste AA en '+name, bad); return 0
 with sync_playwright() as p:
-    b=p.chromium.launch(); pg=b.new_page(viewport={'width':390,'height':844})
+    b=p.chromium.launch(); ctx=b.new_context(viewport={'width':390,'height':844}, geolocation={'latitude':-34.60333,'longitude':-58.38167,'accuracy':12}, permissions=['geolocation']); pg=ctx.new_page()
     errs=[]; pg.on('console', lambda m: errs.append(m.text) if m.type=='error' and 'Failed to load resource' not in m.text else None); pg.on('pageerror', lambda e: errs.append(str(e)))
     if mode=='live': pg.route('**/*', lambda r,req: r.continue_() if req.url.startswith('file:') else handle(r,req))
     else: pg.route('**/*', lambda r,req: r.continue_() if req.url.startswith('file:') else r.abort())
@@ -663,5 +663,30 @@ with sync_playwright() as p:
     pg.query_selector('#affSec').screenshot(path=f'shots/{mode}_31affMarcas.png'); aa(pg,'programas de afiliados')
     pg.evaluate("document.documentElement.setAttribute('data-theme','dark')"); pg.wait_for_timeout(200); pg.query_selector('#affSec').screenshot(path=f'shots/{mode}_31affMarcasDark.png'); aa(pg,'programas de afiliados oscuro'); pg.evaluate("setTheme('light')")
     print('scrollWidthAfiliados', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
+    # v0.26 (pedido de Gonzalo): botón para instalar y brújula interactiva
+    pg.click('#goHome'); pg.wait_for_timeout(500)
+    assert pg.is_visible('#instHero') and pg.is_visible('#instBtn'), 'botón instalar visible (no instalada, fuera de Claude)'
+    pg.click('#instHero'); pg.wait_for_timeout(300)
+    assert len(pg.query_selector_all('#instSteps li'))==3, 'sin aviso del navegador: pasos para instalar'
+    pg.screenshot(path=f'shots/{mode}_32install.png'); aa(pg,'ayuda para instalar'); pg.click('[data-close]'); pg.wait_for_timeout(200)
+    pg.evaluate("""(()=>{const e=new Event('beforeinstallprompt',{cancelable:true}); window.__pr=0; e.prompt=()=>{window.__pr++}; e.userChoice=Promise.resolve({outcome:'accepted'}); dispatchEvent(e);})()""")
+    pg.click('#instBtn'); pg.wait_for_timeout(300)
+    assert pg.evaluate('window.__pr')==1 and not pg.query_selector('#instSteps'), 'con aviso del navegador: lo abre'
+    pg.click('#setBtn'); pg.wait_for_timeout(300); assert pg.query_selector('#setInst'), 'instalar en Ajustes'; pg.click('.modal [data-close]'); pg.wait_for_timeout(300)
+    pg.screenshot(path=f'shots/{mode}_33hero.png')
+    pg.click('.hero-logo'); pg.wait_for_timeout(2600)
+    assert pg.query_selector('#cmpRose'), 'brújula grande'
+    lat=pg.inner_text('#cmpLat'); lon=pg.inner_text('#cmpLon'); assert lat=='34°36′12″ S' and lon=='58°22′54″ O', (lat,lon)
+    assert 'precisión ±12 m' in pg.inner_text('#cmpCoord') and 'mlat=-34.60333' in pg.get_attribute('#cmpMap','href')
+    assert 'Sin sensor' in pg.inner_text('#cmpHead'), 'sin sensor: aviso'
+    pg.evaluate("dispatchEvent(Object.assign(new Event('deviceorientationabsolute'),{alpha:270,absolute:true}))"); pg.wait_for_timeout(400)
+    assert pg.inner_text('#cmpHead').startswith('Mirás hacia el E · 90°'), pg.inner_text('#cmpHead')
+    assert 'rotate(-90' in pg.get_attribute('#cmpRose','style')
+    pg.evaluate("dispatchEvent(Object.assign(new Event('deviceorientationabsolute'),{alpha:20,absolute:true}))"); pg.wait_for_timeout(400)
+    assert 'el N · 340°' in pg.inner_text('#cmpHead') and 'rotate(20' in pg.get_attribute('#cmpRose','style'), ('gira por el camino corto', pg.get_attribute('#cmpRose','style'))
+    pg.screenshot(path=f'shots/{mode}_34compass.png')
+    pg.evaluate("document.documentElement.setAttribute('data-theme','dark')"); pg.wait_for_timeout(200); pg.screenshot(path=f'shots/{mode}_34compassDark.png'); pg.evaluate("setTheme('light')")
+    print('scrollWidthBrujula', pg.evaluate('document.documentElement.scrollWidth')); assert pg.evaluate('document.documentElement.scrollWidth')==390
+    pg.click('.modal [data-close]'); pg.wait_for_timeout(300); assert not pg.query_selector('#cmpRose')
     print('ERRORS',errs)
     b.close()
